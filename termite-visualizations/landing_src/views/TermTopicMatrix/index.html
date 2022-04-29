@@ -1,0 +1,29 @@
+{{extend 'template.html'}}
+{{import json}}
+
+<script type="text/javascript">
+$(document).ready( function() {
+	dm = new DataManager({
+		http_host : "{{response.write(http_host,escape=False)}}",
+		visualization : {{response.write(json.dumps(visualization,encoding='utf-8'),escape=False)}},
+		visualizations : {{response.write(json.dumps(visualizations,encoding='utf-8'),escape=False)}},
+		static : "{{=URL('static','FILENAME')}}"
+	});
+	dm.once( "loaded", function() {
+		var url = dm.getVisualizationURL();
+		matrixState = new MatrixState({ "url" : url });
+		matrixModel = new MatrixModel({ "state" : matrixState });
+		matrixView = new MatrixView({ "model" : matrixModel });
+		matrixState.load();
+	});
+});
+</script>
+
+<div class="body">
+	<div class="content TermTopicMatrixView"></div>
+	<div class="credits">
+		<p>Termite Visualization by <a href="http://jason.chuang.ca" target="_blank">Jason Chuang</a> et al.<br/>
+		<a href="http://vis.stanford.edu" target="_blank">Stanford Visualization Group</a> &amp; <a href="http://idl.washington.edu" target="_blank">UW Interactive Data Lab</a></p>
+	</div>
+	<div id="DragImage">&nbsp;</div>
+</div>
