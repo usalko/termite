@@ -18,7 +18,7 @@ except ImportError:
 import struct
 import sys
 import os
-import ConfigParser
+from configparser import RawConfigParser
 
 try:
     import cStringIO as StringIO
@@ -530,7 +530,7 @@ class Connection(object):
             if not read_default_group:
                 read_default_group = "client"
 
-            cfg = ConfigParser.RawConfigParser()
+            cfg = RawConfigParser()
             cfg.read(os.path.expanduser(read_default_file))
 
             def _config(key, default):

@@ -2,7 +2,7 @@ import sys
 from io import StringIO
 import web2py.gluon.contrib.shell
 import code
-import thread
+import threading
 import cgi
 import html
 from gluon.shell import env

@@ -54,8 +54,8 @@ v_re = re.compile('[0-9]+\.[0-9]+\.[0-9]+')
 web2py_version = v_re.search(web2py_version_line).group(0)
   
 #pull in preferences from config file
-import ConfigParser
-Config = ConfigParser.ConfigParser()
+from configparser import ConfigParser
+Config = ConfigParser()
 Config.read('setup_exe.conf')
 remove_msft_dlls = Config.getboolean("Setup", "remove_microsoft_dlls")
 copy_apps = Config.getboolean("Setup", "copy_apps")
@@ -153,7 +153,7 @@ def copy_folders(source, destination):
   
 #should we remove Windows OS dlls user is unlikely to be able to distribute
 if remove_msft_dlls:
-    print("Deleted Microsoft files not licensed for open source distribution"
+    print("Deleted Microsoft files not licensed for open source distribution")
     print("You are still responsible for making sure you have the rights to distribute any other included files!")
     #delete the API-MS-Win-Core DLLs
     for f in glob('dist/API-MS-Win-*.dll'):
@@ -170,13 +170,13 @@ if remove_msft_dlls:
 #Should we include applications?
 if copy_apps:
     copy_folders('applications', 'applications')
-    print("Your application(s) have been added"
+    print("Your application(s) have been added")
 else:
     #only copy web2py's default applications
     copy_folders('applications/admin', 'applications/admin')
     copy_folders('applications/welcome', 'applications/welcome')
     copy_folders('applications/examples', 'applications/examples')
-    print("Only web2py's admin, examples & welcome applications have been added"
+    print("Only web2py's admin, examples & welcome applications have been added")
   
 copy_folders('extras', 'extras')
 copy_folders('examples', 'examples')
@@ -226,7 +226,7 @@ if remove_build_files:
   
 #final info
 if not make_zip and not remove_build_files:
-    print("Your Windows binary & associated files can also be found in /dist"
+    print("Your Windows binary & associated files can also be found in /dist")
   
 print("Finished!")
 print("Enjoy web2py " + web2py_version_line)

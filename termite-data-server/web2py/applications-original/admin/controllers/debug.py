@@ -6,8 +6,8 @@ import web2py.gluon.dal
 import web2py.gluon.html
 import web2py.gluon.validators
 import code
-from threading import thread
-from web2py.gluon.debug import communicate, web_debugger, qdb_debugger
+import threading
+from gluon.debug import communicate, web_debugger, qdb_debugger
 import pydoc
 
 

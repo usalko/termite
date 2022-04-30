@@ -9,7 +9,7 @@ License: LGPLv3 (http://www.gnu.org/licenses/lgpl.html)
 import base64
 import pickle
 import datetime
-import thread
+import threading
 import logging
 import sys
 import glob
@@ -21,9 +21,11 @@ import smtplib
 import urllib
 import http.cookies
 import io
-import ConfigParser
+from configparser import ConfigParser
 import email.utils
-from email import MIMEBase, MIMEMultipart, MIMEText, Encoders, Header, message_from_string, Charset
+from email import MIMEText, Encoders, Header, message_from_string, Charset
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
 
 from gluon.contenttype import contenttype
 from gluon.storage import Storage, StorageList, Settings, Messages
@@ -521,7 +523,7 @@ class Mail(object):
                     payload.attach(p)
                     # it's just a trick to handle the no encryption case
                     payload_in = payload
-                except errors.GPGMEError, ex:
+                except errors.GPGMEError as ex:
                     self.error = "GPG error: %s" % ex.getstring()
                     return False
             ############################################
@@ -562,7 +564,7 @@ class Mail(object):
                     p = MIMEBase.MIMEBase("application", 'octet-stream')
                     p.set_payload(cipher.read())
                     payload.attach(p)
-                except errors.GPGMEError, ex:
+                except errors.GPGMEError as ex:
                     self.error = "GPG error: %s" % ex.getstring()
                     return False
         #######################################################
@@ -5947,7 +5949,7 @@ class Config(object):
         section,
         default_values={}
     ):
-        self.config = ConfigParser.ConfigParser(default_values)
+        self.config = ConfigParser(default_values)
         self.config.read(filename)
         if not self.config.has_section(section):
             self.config.add_section(section)

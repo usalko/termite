@@ -626,6 +626,14 @@ def regex_url_in(request, environ):
     path = path.replace('\\', '/')
     if path.endswith('/') and len(path) > 1:
         path = path[:-1]
+    if path == '/favicon.ico':
+        application = 'init'
+        version = ''
+        favicon_ico = pjoin(request.env.applications_parent,
+                            'applications', application,'favicon.ico')
+        static_file = os.path.abspath(favicon_ico)
+        return (static_file, version, environ)
+
     match = regex_url.match(path)
     if not match:
         invalid_url(routes)

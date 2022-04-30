@@ -9,7 +9,7 @@ cache.memcache = MemcacheClient(request,[127.0.0.1:11211],debug=true)
 """
 
 import pickle
-import thread
+import threading
 from gluon import current
 
 DEFAULT_TIME_EXPIRE = 300 # seconds (must be the same as cache.ram)

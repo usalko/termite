@@ -13,7 +13,6 @@ import datetime
 import sys
 import io
 import time
-import thread
 import threading
 import os
 import socket

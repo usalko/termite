@@ -10,7 +10,7 @@ import pickle
 import time
 import re
 import logging
-import thread
+import threading
 import random
 
 

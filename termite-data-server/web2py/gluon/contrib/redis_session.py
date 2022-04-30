@@ -10,7 +10,7 @@ import pickle
 import time
 import re
 import logging
-import thread
+import threading
 
 logger = logging.getLogger("web2py.session.redis")
 

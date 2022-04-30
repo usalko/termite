@@ -61,7 +61,6 @@ import traceback
 import html
 
 try:
-    import thread
     import threading
     thread_available = True
 except ImportError:

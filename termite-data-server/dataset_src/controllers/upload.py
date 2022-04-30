@@ -2,6 +2,7 @@
 
 import csv
 import os
+import io
 from db.Corpus_DB import Corpus_DB
 import utils.uploads as uploads
 
@@ -51,7 +52,7 @@ def spreadsheet():
     def process_upload(form):
         upload = form.vars.corpus.file
         ptext = []
-        reader = csv.DictReader(upload, delimiter=",")
+        reader = csv.DictReader(io.TextIOWrapper(upload, encoding='utf-8'), delimiter=",")
         field_map = {form.vars.doc_id: DOC_ID_FIELD, form.vars.doc_content: DOC_CONTENT_FIELD}
         ssheet = [[field_map[field] if field in field_map else field
                 for field in reader.fieldnames]]
