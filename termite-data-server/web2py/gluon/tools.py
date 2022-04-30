@@ -23,9 +23,13 @@ import http.cookies
 import io
 from configparser import ConfigParser
 import email.utils
-from email import MIMEText, Encoders, Header, message_from_string, Charset
+from email import message_from_string
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import email.encoders
+import email.header
+import email.charset
 
 from gluon.contenttype import contenttype
 from gluon.storage import Storage, StorageList, Settings, Messages
@@ -179,12 +183,12 @@ class Mail(object):
                 content_type = contenttype(filename)
             self.my_filename = filename
             self.my_payload = payload
-            MIMEBase.MIMEBase.__init__(self, *content_type.split('/', 1))
+            MIMEBase.__init__(self, *content_type.split('/', 1))
             self.set_payload(payload)
             self['Content-Disposition'] = 'attachment; filename="%s"' % filename
             if not content_id is None:
                 self['Content-Id'] = '<%s>' % content_id.encode(encoding)
-            Encoders.encode_base64(self)
+            email.encoders.encode_base64(self)
 
     def __init__(self, server=None, sender=None, login=None, tls=True):
         """
@@ -359,7 +363,7 @@ class Mail(object):
 
         def encode_header(key):
             if [c for c in key if 32 > ord(c) or ord(c) > 127]:
-                return Header.Header(key.encode('utf-8'), 'utf-8')
+                return email.header.Header(key.encode('utf-8'), 'utf-8')
             else:
                 return key
 
