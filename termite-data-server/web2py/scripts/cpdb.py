@@ -3,9 +3,9 @@ import sys
 from collections import deque
 import string
 import argparse
-import cStringIO
+import io
 import operator
-import cPickle as pickle
+import pickle
 from collections import deque
 import math
 import re
@@ -18,6 +18,7 @@ try:
     from gluon import DAL
 except ImportError as err:
     print('gluon path not found')
+from functools import reduce
 
 
 class refTable(object):
@@ -74,7 +75,7 @@ class refTable(object):
                      .lower(
                      )]
 
-        output = cStringIO.StringIO()
+        output = io.StringIO()
 
         if separateRows:
             print >> output, rowSeparator
@@ -190,7 +191,7 @@ class console:
 
     def execCmd(self, db):
         self.db = db
-        print self.banner
+        print(self.banner)
         while True:
             try:
                 command = raw_input(self.prompt)
@@ -202,7 +203,7 @@ class console:
                 break
             except EOFError:
                 break
-            except Exception, a:
+            except Exception as a:
                 self.printError(a)
         print ("\r\n\r\nBye!...")
         sys.exit(0)
@@ -229,7 +230,7 @@ class console:
                     if '=' in i and not string.split(i, '=')[0] in allowedParams:
                         try:
                             invalidParams.append(i)
-                        except Exception, err:
+                        except Exception as err:
                             raise Exception('invalid parameter\n{0}'.format(i))
                     else:
                         if 'file=' in i:
@@ -246,10 +247,10 @@ class console:
                 else:
                     try:
                         self.cmd_table(table, file, fields)
-                    except Exception, err:
+                    except Exception as err:
                         print('could not generate table for table {0}\n{1}'
                               .format(table, err))
-        except Exception, err:
+        except Exception as err:
             print('sorry, can not do that!\n{0}'.format(err))
 
     def getTable(self, tbl):
@@ -349,7 +350,7 @@ style choices:
                     oFile.write('TABLE: {0}\n{1}'.format(table, dataTable))
                     oFile.close()
                     print('{0} has been created and populated with all available data from table {1}\n'.format(file, table))
-                except Exception, err:
+                except Exception as err:
                     print("EXCEPTION: could not create table {0}\n{1}".format(
                         table, err))
         else:
@@ -499,24 +500,24 @@ class setCopyDB():
                 os.remove("{0}/{1}".format(storageFolder, dFile))
                 print('deleted {0}'.format(
                     "{0}/{1}".format(storageFolder, dFile)))
-        except Exception, errObj:
+        except Exception as errObj:
             print(str(errObj))
 
     def truncatetables(self, tables=[]):
         if len(tables) != 0:
             try:
-                print 'table value: {0}'.format(tables)
+                print('table value: {0}'.format(tables))
                 for tbl in self.db.tables:
                     for mTbl in tables:
                         if mTbl.startswith(tbl):
                             self.db[mTbl].truncate()
-            except Exception, err:
+            except Exception as err:
                 print('EXCEPTION: {0}'.format(err))
         else:
             try:
                 for tbl in self.db.tables:
                     self.db[tbl].truncate()
-            except Exception, err:
+            except Exception as err:
                 print('EXCEPTION: {0}'.format(err))
 
     def copyDB(self):
@@ -550,7 +551,7 @@ class setCopyDB():
         try:
             if folder is not None:
                 os.makedirs(folder)
-        except Exception, err:
+        except Exception as err:
             pass
 
 if __name__ == '__main__':
@@ -624,7 +625,7 @@ informix://username:password@test\n\
         targetItems = string.split(args.targetConnectionString, '://')
         oCopy.targetdbType = targetItems[0]
         oCopy.targetdbName = targetItems[1]
-    except Exception, err:
+    except Exception as err:
         print('EXCEPTION: {0}'.format(err))
 
     if args.dal:
@@ -638,7 +639,7 @@ informix://username:password@test\n\
             mDal = oCopy._getDal()
             db = oCopy.instDB(args.sourceFolder, args.sourceConnectionString,
                               autoImport)
-        except Exception, err:
+        except Exception as err:
             print('EXCEPTION: could not set DAL\n{0}'.format(err))
     if args.truncate:
         try:
@@ -647,12 +648,12 @@ informix://username:password@test\n\
                     tables = string.split(string.strip(args.tables), ',')
                 else:
                     oCopy.truncatetables([])
-        except Exception, err:
+        except Exception as err:
             print('EXCEPTION: could not truncate tables\n{0}'.format(err))
     try:
         if args.clean:
             oCopy.delete_DB_tables(oCopy.targetFolder, oCopy.targetType)
-    except Exception, err:
+    except Exception as err:
         print('EXCEPTION: could not clean db\n{0}'.format(err))
 
     """
@@ -663,7 +664,7 @@ informix://username:password@test\n\
             oCopy.sourceModel=args.sourcemodel
             oCopy.targetModel=args.sourcemodel
             oCopy.createModel()
-        except Exception, err:
+        except Exception as err:
             print('EXCEPTION: could not create model\n\
 source model: {0}\n\
 target model: {1}\n\
@@ -674,7 +675,7 @@ target model: {1}\n\
         try:
             oCopy.sourceFolder = os.path.abspath(args.sourceFolder)
             oCopy.createfolderPath(oCopy.sourceFolder)
-        except Exception, err:
+        except Exception as err:
             print('EXCEPTION: could not create folder path\n{0}'.format(err))
     else:
         oCopy.dbStorageFolder = os.path.abspath(os.getcwd())
@@ -682,12 +683,12 @@ target model: {1}\n\
         try:
             oCopy.targetFolder = os.path.abspath(args.targetFolder)
             oCopy.createfolderPath(oCopy.targetFolder)
-        except Exception, err:
+        except Exception as err:
             print('EXCEPTION: could not create folder path\n{0}'.format(err))
     if not args.interactive:
         try:
             oCopy.copyDB()
-        except Exception, err:
+        except Exception as err:
             print('EXCEPTION: could not make a copy of the database\n{0}'.format(err))
     else:
         s = dalShell()

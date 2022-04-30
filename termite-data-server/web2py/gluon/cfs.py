@@ -14,11 +14,11 @@ Note:
 """
 
 from os import stat
-import thread
+import _thread
 from gluon.fileutils import read_file
 
 cfs = {}  # for speed-up
-cfs_lock = thread.allocate_lock()  # and thread safety
+cfs_lock = _thread.allocate_lock()  # and thread safety
 
 
 def getcfs(key, filename, filter=None):

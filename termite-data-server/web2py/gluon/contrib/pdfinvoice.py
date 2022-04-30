@@ -6,7 +6,7 @@ from reportlab.platypus import Table
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from decimal import Decimal
-import cStringIO
+import io
 import datetime
 
 def listify(item):
@@ -28,7 +28,7 @@ class PDF(object):
         return "%s.%s" % (a,b)
     def draw(self, invoice, items_page=10):
         """ Draws the invoice """
-        buffer = cStringIO.StringIO()
+        buffer = io.StringIO()
         invoice_items = invoice['items']
         pages = max((len(invoice_items)-2)/items_page+1,1)
         canvas = Canvas(buffer, pagesize=self.page_size)

@@ -32,7 +32,7 @@ class NamedTupleBase(tuple):
         if kws:
             values = list(args) + [None] * (len(cls._fields) - len(args))
             fields = dict((val, idx) for idx, val in enumerate(cls._fields))
-            for kw, val in kws.iteritems():
+            for kw, val in kws.items():
                 assert kw in kws, "%r not in field list" % kw
                 values[fields[kw]] = val
             args = tuple(values)

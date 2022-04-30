@@ -10,7 +10,7 @@ File operations
 ---------------
 """
 
-import storage
+import gluon.storage
 import os
 import re
 import tarfile
@@ -18,7 +18,7 @@ import glob
 import time
 import datetime
 import logging
-from http import HTTP
+from gluon.http import HTTP
 from gzip import open as gzopen
 
 
@@ -218,7 +218,7 @@ def _extractall(filename, path='.', members=None):
 
                         try:
                             os.makedirs(os.path.join(path,
-                                                     tarinfo.name), 0777)
+                                                     tarinfo.name), 0o777)
                         except EnvironmentError:
                             pass
                         directories.append(tarinfo)
@@ -486,7 +486,7 @@ def make_fake_file_like_object():
     return LogFile()
 
 
-from settings import global_settings  # we need to import settings here because
+from gluon.settings import global_settings  # we need to import settings here because
                                      # settings imports fileutils too
 
 

@@ -18,12 +18,12 @@ __version__ = "0.05"
 
 
 import urllib
-from xmlrpclib import Transport, SafeTransport
-from cStringIO import StringIO
+from xmlrpc.client import Transport, SafeTransport
+from io import StringIO
 import random
 import sys
 try:
-    import gluon.contrib.simplejson as json     # try web2py json serializer
+    import web2py.gluon.contrib.simplejson as json     # try web2py json serializer
 except ImportError:
     try:
         import json                             # try stdlib (py2.6)

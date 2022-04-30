@@ -18,7 +18,7 @@ import fnmatch
 import os
 import copy
 import random
-import __builtin__
+import builtins
 from gluon.storage import Storage, List
 from gluon.template import parse_template
 from gluon.restricted import restricted, compile2
@@ -56,7 +56,7 @@ pjoin = os.path.join
 TEST_CODE = \
     r"""
 def _TEST():
-    import doctest, sys, cStringIO, types, cgi, gluon.fileutils
+    import doctest, sys, io, types, cgi, gluon.fileutils
     if not gluon.fileutils.check_credentials(request):
         raise HTTP(401, web2py_error='invalid credentials')
     stdout = sys.stdout
@@ -67,7 +67,7 @@ def _TEST():
         if type(eval_key) == types.FunctionType:
             number_doctests = sum([len(ds.examples) for ds in doctest.DocTestFinder().find(eval_key)])
             if number_doctests>0:
-                sys.stdout = cStringIO.StringIO()
+                sys.stdout = io.StringIO()
                 name = '%s/controllers/%s.py in %s.__doc__' \
                     % (request.folder, request.controller, key)
                 doctest.run_docstring_examples(eval_key,

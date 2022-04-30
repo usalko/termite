@@ -18,7 +18,7 @@ import re
 import optparse
 import glob
 import traceback
-import gluon.fileutils as fileutils
+import web2py.gluon.fileutils as fileutils
 from gluon.settings import global_settings
 from gluon.utils import web2py_uuid
 from gluon.compileapp import build_environment, read_pyc, run_models_in
@@ -148,7 +148,7 @@ def env(
         path_info = '%s/%s' % (path_info, '/'.join(request.args))
     if request.vars:
         vars = ['%s=%s' % (k,v) if v else '%s' % k
-                for (k,v) in request.vars.iteritems()]
+                for (k,v) in request.vars.items()]
         path_info = '%s?%s' % (path_info, '&'.join(vars))
     request.env.path_info = path_info
 

@@ -18,7 +18,7 @@ import urllib
 import struct
 import decimal
 import unicodedata
-from cStringIO import StringIO
+from io import StringIO
 from gluon.utils import simple_hash, web2py_uuid, DIGEST_ALG_BY_SIZE
 from gluon.dal import FieldVirtual, FieldMethod
     
@@ -82,7 +82,7 @@ except ImportError:
 def translate(text):
     if text is None:
         return None
-    elif isinstance(text, (str, unicode)) and have_current:
+    elif isinstance(text, (str, bytes)) and have_current:
         if hasattr(current, 'T'):
             return str(current.T(text))
     return str(text)
@@ -258,7 +258,7 @@ class IS_EXPR(Validator):
             return (value, self.expression(value))
         # for backward compatibility
         self.environment.update(value=value)
-        exec '__ret__=' + self.expression in self.environment
+        exec('__ret__=' + self.expression in self.environment)
         if self.environment['__ret__']:
             return (value, None)
         return (value, translate(self.error_message))
@@ -681,7 +681,7 @@ def range_error_message(error_message, what_to_enter, minimum, maximum):
             error_message += ' greater than or equal to %(min)g'
         elif maximum is not None:
             error_message += ' less than or equal to %(max)g'
-    if type(maximum) in [int, long]:
+    if type(maximum) in [int]:
         maximum -= 1
     return translate(error_message) % dict(min=minimum, max=maximum)
 
@@ -1304,7 +1304,7 @@ url_split_regex = \
 label_split_regex = re.compile(u'[\u002e\u3002\uff0e\uff61]')
 
 
-def escape_unicode(string):
+def escape_str(string):
     '''
     Converts a unicode string into US-ASCII, using a simple conversion scheme.
     Each unicode character that does not have a US-ASCII equivalent is
@@ -1416,7 +1416,7 @@ def unicode_to_ascii_url(url, prepend_scheme):
         #Try appending a scheme to see if that fixes the problem
         scheme_to_prepend = prepend_scheme or 'http'
         groups = url_split_regex.match(
-            unicode(scheme_to_prepend) + u'://' + url).groups()
+            str(scheme_to_prepend) + u'://' + url).groups()
     #if we still can't find the authority
     if not groups[3]:
         raise Exception('No authority component found, ' +
@@ -1434,7 +1434,7 @@ def unicode_to_ascii_url(url, prepend_scheme):
     else:
         scheme = ''
     return scheme + unicode_to_ascii_authority(authority) +\
-        escape_unicode(path) + escape_unicode(query) + str(fragment)
+        escape_str(path) + escape_str(query) + str(fragment)
 
 
 class IS_GENERIC_URL(Validator):
@@ -2904,13 +2904,13 @@ class CRYPT(object):
 
 #  entropy calculator for IS_STRONG
 #
-lowerset = frozenset(unicode('abcdefghijklmnopqrstuvwxyz'))
-upperset = frozenset(unicode('ABCDEFGHIJKLMNOPQRSTUVWXYZ'))
-numberset = frozenset(unicode('0123456789'))
-sym1set = frozenset(unicode('!@#$%^&*()'))
-sym2set = frozenset(unicode('~`-_=+[]{}\\|;:\'",.<>?/'))
+lowerset = frozenset(str('abcdefghijklmnopqrstuvwxyz'))
+upperset = frozenset(str('ABCDEFGHIJKLMNOPQRSTUVWXYZ'))
+numberset = frozenset(str('0123456789'))
+sym1set = frozenset(str('!@#$%^&*()'))
+sym2set = frozenset(str('~`-_=+[]{}\\|;:\'",.<>?/'))
 otherset = frozenset(
-    unicode('0123456789abcdefghijklmnopqrstuvwxyz'))  # anything else
+    str('0123456789abcdefghijklmnopqrstuvwxyz'))  # anything else
 
 
 def calc_entropy(string):
@@ -2921,7 +2921,7 @@ def calc_entropy(string):
     seen = set()
     lastset = None
     if isinstance(string, str):
-        string = unicode(string, encoding='utf8')
+        string = str(string, encoding='utf8')
     for c in string:
         # classify this character
         inset = otherset
@@ -3364,8 +3364,8 @@ class IS_IPV4(Validator):
         '^(([1-9]?\d|1\d\d|2[0-4]\d|25[0-5])\.){3}([1-9]?\d|1\d\d|2[0-4]\d|25[0-5])$')
     numbers = (16777216, 65536, 256, 1)
     localhost = 2130706433
-    private = ((2886729728L, 2886795263L), (3232235520L, 3232301055L))
-    automatic = (2851995648L, 2852061183L)
+    private=((2886729728, 2886795263), (3232235520, 3232301055))
+    automatic=(2851995648, 2852061183, )
 
     def __init__(
         self,

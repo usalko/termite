@@ -194,7 +194,7 @@ def mongrel2_handler(application, conn, debug=False):
     try:
         import cStringIO as StringIO
     except:
-        import StringIO
+        from io import  StringIO
 
     # TODO - this wsgi handler executes the application and renders a page
     # in memory completely before returning it as a response to the client.
@@ -295,7 +295,7 @@ def run(servername, ip, port, softcron=True, logging=False, profiler=None,
         import eventlet
         eventlet.monkey_patch()
 
-    import gluon.main
+    import web2py.gluon.main
 
     if logging:
         application = gluon.main.appfactory(wsgiapp=gluon.main.wsgibase,

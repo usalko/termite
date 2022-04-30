@@ -19,13 +19,13 @@ import urllib
 import base64
 import gluon.sanitizer
 import itertools
-import decoder
-import copy_reg
-import cPickle
+import gluon.decoder
+import copyreg
+import pickle
 import marshal
 
-from HTMLParser import HTMLParser
-from htmlentitydefs import name2codepoint
+from html.parser import HTMLParser
+from html.entities import name2codepoint
 
 from gluon.storage import Storage
 from gluon.utils import web2py_uuid, simple_hash, compare
@@ -36,7 +36,7 @@ regex_crlf = re.compile('\r|\n')
 join = ''.join
 
 # name2codepoint is incomplete respect to xhtml (and xml): 'apos' is missing.
-entitydefs = dict(map(lambda kv: (kv[0], unichr(kv[1]).encode('utf-8')), name2codepoint.iteritems()))
+entitydefs = dict(map(lambda kv: (kv[0], chr(kv[1]).encode('utf-8')), name2codepoint.items()))
 entitydefs.setdefault('apos', u"'".encode('utf-8'))
 
 
@@ -591,8 +591,8 @@ class XML(XmlComponent):
         """
 
         if sanitize:
-            text = sanitizer.sanitize(text, permitted_tags, allowed_attributes)
-        if isinstance(text, unicode):
+            text = gluon.sanitizer.sanitize(text, permitted_tags, allowed_attributes)
+        if isinstance(text, str):
             text = text.encode('utf8', 'xmlcharrefreplace')
         elif not isinstance(text, str):
             text = str(text)
@@ -659,7 +659,7 @@ def XML_unpickle(data):
 
 def XML_pickle(data):
     return XML_unpickle, (marshal.dumps(str(data)),)
-copy_reg.pickle(XML, XML_pickle, XML_unpickle)
+copyreg.pickle(XML, XML_pickle, XML_unpickle)
 
 
 class DIV(XmlComponent):
@@ -716,7 +716,7 @@ class DIV(XmlComponent):
         dictionary like updating of the tag attributes
         """
 
-        for (key, value) in kargs.iteritems():
+        for (key, value) in kargs.items():
             self[key] = value
         return self
 
@@ -914,7 +914,7 @@ class DIV(XmlComponent):
         # get the attributes for this component
         # (they start with '_', others may have special meanings)
         attr = []
-        for key, value in self.attributes.iteritems():
+        for key, value in self.attributes.items():
             if key[:1] != '_':
                 continue
             name = key[1:]
@@ -924,7 +924,7 @@ class DIV(XmlComponent):
                 continue
             attr.append((name, value))
         data = self.attributes.get('data',{})
-        for key, value in data.iteritems():
+        for key, value in data.items():
             name = 'data-' + key
             value = data[key]
             attr.append((name,value))
@@ -1118,7 +1118,7 @@ class DIV(XmlComponent):
         # value as provided
         tag = getattr(self, 'tag').replace('/', '')
         check = not (args and tag not in args)
-        for (key, value) in kargs.iteritems():
+        for (key, value) in kargs.items():
             if key not in ['first_only', 'replace', 'find_text']:
                 if isinstance(value, (str, int)):
                     if self[key] != str(value):
@@ -1202,7 +1202,7 @@ class DIV(XmlComponent):
                 tag = getattr(c, 'tag').replace("/", "")
                 if args and tag not in args:
                         check = False
-                for (key, value) in kargs.iteritems():
+                for (key, value) in kargs.items():
                     if c[key] != value:
                             check = False
                 if check:
@@ -1246,7 +1246,7 @@ class __tag_div__(DIV):
         DIV.__init__(self,*a,**b)
         self.tag = name
 
-copy_reg.pickle(__tag_div__, TAG_pickler, TAG_unpickler)
+copyreg.pickle(__tag_div__, TAG_pickler, TAG_unpickler)
 
 class __TAG__(XmlComponent):
 
@@ -2145,7 +2145,7 @@ class FORM(DIV):
         attr = self.attributes.get('hidden', {})
         if 'hidden' in self.attributes:
             c = [INPUT(_type='hidden', _name=key, _value=value)
-                 for (key, value) in attr.iteritems()]
+                 for (key, value) in attr.items()]
         if hasattr(self, 'formkey') and self.formkey:
             c.append(INPUT(_type='hidden', _name='_formkey',
                      _value=self.formkey))
@@ -2225,7 +2225,7 @@ class FORM(DIV):
                 onsuccess(self)
             if next:
                 if self.vars:
-                    for key, value in self.vars.iteritems():
+                    for key, value in self.vars.items():
                         next = next.replace('[%s]' % key,
                                             urllib.quote(str(value)))
                     if not next.startswith('/'):
@@ -2300,11 +2300,11 @@ class FORM(DIV):
         inputs = [INPUT(_type='button',
                         _value=name,
                         _onclick=FORM.REDIRECT_JS % link)
-                  for name, link in buttons.iteritems()]
+                  for name, link in buttons.items()]
         inputs += [INPUT(_type='hidden',
                          _name=name,
                          _value=value)
-                   for name, value in hidden.iteritems()]
+                   for name, value in hidden.items()]
         form = FORM(INPUT(_type='submit', _value=text), *inputs)
         form.process()
         return form

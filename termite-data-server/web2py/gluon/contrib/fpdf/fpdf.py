@@ -1136,7 +1136,7 @@ class FPDF(object):
             self._newobj()
             self._out('<</Type /Encoding /BaseEncoding /WinAnsiEncoding /Differences ['+self.diffs[diff]+']>>')
             self._out('endobj')
-        for name,info in self.font_files.iteritems():
+        for name,info in self.font_files.items():
             if 'type' in info and info['type'] != 'TTF':
                 #Font file embedding
                 self._newobj()
@@ -1165,7 +1165,7 @@ class FPDF(object):
                 self._out('>>')
                 self._putstream(font)
                 self._out('endobj')
-        for k,font in self.fonts.iteritems():
+        for k,font in self.fonts.items():
             #Font objects
             self.fonts[k]['n']=self.n+1
             type=font['type']
@@ -1440,7 +1440,7 @@ class FPDF(object):
         filter=''
         if self.compress:
             filter='/Filter /FlateDecode '
-        for filename,info in self.images.iteritems():
+        for filename,info in self.images.items():
             self._putimage(info)
             del info['data']
             if 'smask' in info:

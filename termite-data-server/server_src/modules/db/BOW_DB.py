@@ -37,7 +37,7 @@ class BOW_DB():
 			Field( 'value', 'string', required = True ),
 			migrate = self.isInit
 		)
-		for key, value in BOW_DB.DEFAULT_OPTIONS.iteritems():
+		for key, value in BOW_DB.DEFAULT_OPTIONS.items():
 			self.SetOption( key, value, overwrite = self.isInit )
 
 

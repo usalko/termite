@@ -8,22 +8,22 @@
 Support for smart import syntax for web2py applications
 -------------------------------------------------------
 """
-import __builtin__
+import builtins
 import os
 import sys
 import threading
 from gluon import current
 
-NATIVE_IMPORTER = __builtin__.__import__
+NATIVE_IMPORTER = __builtins__.__import__
 INVALID_MODULES = set(('', 'gluon', 'applications', 'custom_import'))
 
 # backward compatibility API
 
 
 def custom_import_install():
-    if __builtin__.__import__ == NATIVE_IMPORTER:
+    if __builtins__.__import__ == NATIVE_IMPORTER:
         INVALID_MODULES.update(sys.modules.keys())
-        __builtin__.__import__ = custom_importer
+        __builtins__.__import__ = custom_importer
 
 
 def track_changes(track=True):
@@ -83,20 +83,20 @@ def custom_importer(name, globals=None, locals=None, fromlist=None, level=-1):
                         try:
                             result = result or new_mod.__dict__[itemname]
                         except KeyError as e:
-                            raise ImportError, 'Cannot import module %s' % str(e)
+                            raise ImportError('Cannot import module %s' % str(e))
                         modules_prefix += "." + itemname
                     return result
                 else:
                     # import like "from x import a, b, ..."
                     pname = modules_prefix + "." + name
                     return base_importer(pname, globals, locals, fromlist, level)
-        except ImportError, e1:
+        except ImportError as e1:
             import_tb = sys.exc_info()[2]
             try:
                 return NATIVE_IMPORTER(name, globals, locals, fromlist, level)
-            except ImportError, e3:
-                raise ImportError, e1, import_tb  # there an import error in the module
-        except Exception, e2:
+            except ImportError as e3:
+                raise ImportError(e1) #, import_tb  # there an import error in the module
+        except Exception as e2:
             raise e2  # there is an error in the module
         finally:
             if import_tb:

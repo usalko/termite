@@ -61,13 +61,13 @@ class BOW_ComputeStats():
 	
 	def UnfoldVocab(self):
 		data = []
-		for term, index in self.termLookup.iteritems():
+		for term, index in self.termLookup.items():
 			data.append({ 'term_index' : index, 'term_text' : term })
 		return data
 	
 	def UnfoldStats(self, stats):
 		data = []
-		for term, index in self.termLookup.iteritems():
+		for term, index in self.termLookup.items():
 			if term in stats:
 				data.append({ 'term_index' : index, 'value' : stats[term], 'rank' : 0 })
 		data.sort( key = lambda x : -x['value'] )
@@ -77,9 +77,9 @@ class BOW_ComputeStats():
 	
 	def UnfoldCoStats(self, coStats):
 		data = []
-		for first_term, stats in coStats.iteritems():
+		for first_term, stats in coStats.items():
 			first_term_index = self.termLookup[first_term]
-			for second_term, value in stats.iteritems():
+			for second_term, value in stats.items():
 				second_term_index = self.termLookup[second_term]
 				data.append({ 'first_term_index' : first_term_index, 'second_term_index' : second_term_index, 'value' : value, 'rank' : 0 })
 		data.sort( key = lambda x : -x['value'] )
@@ -152,13 +152,13 @@ class BOW_ComputeStats():
 	def ComputeTermFreqs(self, corpus):
 		def ComputeFreqs(corpus):
 			freqs = Counter()
-			for docID, docTokens in corpus.iteritems():
+			for docID, docTokens in corpus.items():
 				freqs.update( docTokens )
 			return freqs
 		
 		def ComputeDocFreqs(corpus):
 			docFreqs = Counter()
-			for docID, docTokens in corpus.iteritems():
+			for docID, docTokens in corpus.items():
 				uniqueTokens = frozenset( docTokens )
 				docFreqs.update( uniqueTokens )
 			return docFreqs
@@ -166,16 +166,16 @@ class BOW_ComputeStats():
 		def NormalizeFreqs(freqs):
 			normalization = sum( freqs.itervalues() )
 			normalization = 1.0 / normalization if normalization > 1.0 else 1.0
-			probs = { term : freq * normalization for term, freq in freqs.iteritems() }
+			probs = { term : freq * normalization for term, freq in freqs.items() }
 			return probs
 		
 		def ComputeIdfs(corpus, docFreqs):
 			N = len( corpus )
-			idfs = { term : math.log( 1.0 * N / docFreq ) for term, docFreq in docFreqs.iteritems() }
+			idfs = { term : math.log( 1.0 * N / docFreq ) for term, docFreq in docFreqs.items() }
 			return idfs
 		
 		def ComputeTfIdfs( freqs, idfs ):
-			tfIdfs = { term : freq * idfs[term] for term, freq in freqs.iteritems() }
+			tfIdfs = { term : freq * idfs[term] for term, freq in freqs.items() }
 			return tfIdfs
 		
 		self.logger.info( '    Computing term freqs (%d docs)...', len(corpus) )
@@ -214,11 +214,11 @@ class BOW_ComputeStats():
 			jointFreqs = {}
 			allFreq = 0
 			allCoFreq = 0
-			for docID, docTokens in corpus.iteritems():
+			for docID, docTokens in corpus.items():
 				freqs = Counter( docTokens )
 				allFreq += sum( freqs.itervalues() )
-				for firstToken, firstFreq in freqs.iteritems():
-					for secondToken, secondFreq in freqs.iteritems():
+				for firstToken, firstFreq in freqs.items():
+					for secondToken, secondFreq in freqs.items():
 						coFreq = firstFreq * secondFreq
 						allCoFreq += coFreq
 						if firstToken in vocab and secondToken in vocab and firstToken < secondToken:
@@ -234,7 +234,7 @@ class BOW_ComputeStats():
 			if normalization is None:
 				normalization = sum( sum( d.itervalues() ) for d in jointFreqs.itervalues() )
 				normalization = 1.0 / normalization if normalization > 1.0 else 1.0
-			jointProbs = { term : { t : f * normalization for t, f in freqs.iteritems() } for term, freqs in jointFreqs.iteritems() }
+			jointProbs = { term : { t : f * normalization for t, f in freqs.items() } for term, freqs in jointFreqs.items() }
 			return jointProbs
 		
 		def GetBinomial(B_given_A, any_given_A, B_given_notA, any_given_notA):
@@ -284,11 +284,11 @@ class BOW_ComputeStats():
 		def ComputeG2Stats(allFreq, marginalProbs, jointProbs):
 			g2_stats = {}
 			freq_all = allFreq
-			for firstToken, d in jointProbs.iteritems():
+			for firstToken, d in jointProbs.items():
 				if firstToken in marginalProbs:
 					freq_a = allFreq * marginalProbs[ firstToken ]
 					g2_stats[ firstToken ] = {}
-					for secondToken, jointProb in d.iteritems():
+					for secondToken, jointProb in d.items():
 						if secondToken in marginalProbs:
 							freq_b = allFreq * marginalProbs[ secondToken ]
 							freq_ab = allFreq * jointProb

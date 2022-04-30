@@ -909,7 +909,7 @@ def edit_language():
         return dict(filename=filename, form=form)
 
     keys = sorted(strings.keys(), lambda x, y: cmp(
-        unicode(x, 'utf-8').lower(), unicode(y, 'utf-8').lower()))
+        str(x, 'utf-8').lower(), str(y, 'utf-8').lower()))
     rows = []
     rows.append(H2(T('Original/Translation')))
 
@@ -972,7 +972,7 @@ def edit_plurals():
         return dict(filename=filename, form=form)
 
     keys = sorted(plurals.keys(), lambda x, y: cmp(
-        unicode(x, 'utf-8').lower(), unicode(y, 'utf-8').lower()))
+        str(x, 'utf-8').lower(), str(y, 'utf-8').lower()))
     tab_rows = []
     for key in keys:
         name = md5_hash(key)
@@ -1104,7 +1104,7 @@ def design():
     # Get all languages
     langpath = os.path.join(apath(app, r=request),'languages')
     languages = dict([(lang, info) for lang, info
-                      in read_possible_languages(langpath).iteritems()
+                      in read_possible_languages(langpath).items()
                       if info[2] != 0])  # info[2] is langfile_mtime:
                                          # get only existed files
 
@@ -1240,7 +1240,7 @@ def plugin():
 
     # Get all languages
     languages = sorted([lang + '.py' for lang, info in
-                        T.get_possible_languages_info().iteritems()
+                        T.get_possible_languages_info().items()
                         if info[2] != 0])  # info[2] is langfile_mtime:
                                     # get only existed files
 
@@ -1807,7 +1807,7 @@ def user():
 
 def reload_routes():
     """ Reload routes.py """
-    import gluon.rewrite
+    import web2py.gluon.rewrite
     gluon.rewrite.load()
     redirect(URL('site'))
 

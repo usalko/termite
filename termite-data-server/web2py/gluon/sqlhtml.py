@@ -31,13 +31,13 @@ import gluon.serializers as serializers
 import datetime
 import urllib
 import re
-import cStringIO
+from io import StringIO
 from gluon.globals import current
 from gluon.http import redirect
 import inspect
 
 try:
-    import gluon.settings as settings
+    import web2py.gluon.settings as settings
     is_gae = settings.global_settings.web2py_runtime_gae
 except ImportError:
     is_gae = False # this is an assumption (if settings missing)
@@ -1499,10 +1499,10 @@ class SQLFORM(FORM):
                         original_filename = os.path.split(f)[1]
                 elif hasattr(f, 'file'):
                     (source_file, original_filename) = (f.file, f.filename)
-                elif isinstance(f, (str, unicode)):
+                elif isinstance(f, (str, )):
                     ### do not know why this happens, it should not
                     (source_file, original_filename) = \
-                        (cStringIO.StringIO(f), 'file.txt')
+                        (StringIO.StringIO(f), 'file.txt')
                 else:
                     # this should never happen, why does it happen?
                     #print 'f=',repr(f)
@@ -1992,7 +1992,7 @@ class SQLFORM(FORM):
         if fields:
             #add missing tablename to virtual fields
             for table in tables:
-                for k,f in table.iteritems():
+                for k,f in table.items():
                     if isinstance(f,Field.Virtual):
                         f.tablename = table._tablename
             columns = [f for f in fields if f.tablename in tablenames]
@@ -2004,7 +2004,7 @@ class SQLFORM(FORM):
             for table in tables:
                 fields += filter(filter1, table)
                 columns += filter(filter2, table)
-                for k,f in table.iteritems():
+                for k,f in table.items():
                     if not k.startswith('_'):
                         if isinstance(f,Field.Virtual) and f.readable:
                             f.tablename = table._tablename
@@ -2193,7 +2193,7 @@ class SQLFORM(FORM):
                             if not(isinstance(field,Field.Virtual)):
                                 selectable_columns.append(str(field))
                     #look for virtual fields not displayed (and virtual method fields to be added here?)
-                    for (field_name,field) in table.iteritems():
+                    for (field_name,field) in table.items():
                         if isinstance(field,Field.Virtual) and not str(field) in expcolumns:
                              expcolumns.append(str(field))
 
@@ -3183,15 +3183,15 @@ class ExporterTSV(ExportClass):
         ExportClass.__init__(self,rows)
 
     def export(self):
-        out = cStringIO.StringIO()
-        final = cStringIO.StringIO()
+        out = StringIO.StringIO()
+        final = StringIO.StringIO()
         import csv
         writer = csv.writer(out, delimiter='\t')
         if self.rows:
             import codecs
             final.write(codecs.BOM_UTF16)
             writer.writerow(
-                [unicode(col).encode("utf8") for col in self.rows.colnames])
+                [str(col).encode("utf8") for col in self.rows.colnames])
             data = out.getvalue().decode("utf8")
             data = data.encode("utf-16")
             data = data[2:]
@@ -3221,7 +3221,7 @@ class ExporterCSV(ExportClass):
 
     def export(self):  #export CSV with rows.represent
         if self.rows:
-            s = cStringIO.StringIO()
+            s = io.StringIO()
             self.rows.export_to_csv_file(s,represent=True)
             return s.getvalue()
         else:

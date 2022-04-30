@@ -36,7 +36,7 @@ class MultipleLDA_DB():
 			migrate = self.isInit
 		)
 		if self.isInit:
-			for key, value in LDA_DB.DEFAULT_OPTIONS.iteritems():
+			for key, value in LDA_DB.DEFAULT_OPTIONS.items():
 				self.SetOption( key, value )
 
 	def SetOption(self, key, value):

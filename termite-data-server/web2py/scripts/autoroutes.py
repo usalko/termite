@@ -135,13 +135,13 @@ def __routes_doctest():
 
 if __name__ == '__main__':
     try:
-        import gluon.main
+        import web2py.gluon.main
     except ImportError:
         import sys
         import os
         os.chdir(os.path.dirname(os.path.dirname(__file__)))
         sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-        import gluon.main
+        import web2py.gluon.main
     from gluon.rewrite import regex_select, load, filter_url, regex_filter_out
     regex_select()          # use base routing parameters
     load(routes=__file__)   # load this file

@@ -1429,7 +1429,7 @@ class Worker(Thread):
             raise BadRequest
 
         req = match.groupdict()
-        for k, v in req.iteritems():
+        for k, v in req.items():
             if not v:
                 req[k] = ""
             if k == 'path':
@@ -1653,7 +1653,7 @@ class WSGIWorker(Worker):
         environ = self.base_environ.copy()
 
         # Grab the headers
-        for k, v in self.read_headers(sock_file).iteritems():
+        for k, v in self.read_headers(sock_file).items():
             environ[str('HTTP_' + k)] = v
 
         # Add CGI Variables

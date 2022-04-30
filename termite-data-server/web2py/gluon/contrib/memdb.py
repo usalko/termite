@@ -15,8 +15,8 @@ import sys
 import os
 import types
 import datetime
-import thread
-import cStringIO
+import _thread
+import io
 import csv
 import copy
 import gluon.validators as validators
@@ -749,7 +749,7 @@ class Rows(object):
         serializes the table into a csv file
         """
 
-        s = cStringIO.StringIO()
+        s = io.StringIO()
         writer = csv.writer(s)
         writer.writerow(self.colnames)
         c = len(self.colnames)

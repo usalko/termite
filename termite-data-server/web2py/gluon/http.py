@@ -111,7 +111,7 @@ class HTTP(Exception):
             if isinstance(body, str):
                 headers['Content-Length'] = len(body)
         rheaders = []
-        for k, v in headers.iteritems():
+        for k, v in headers.items():
             if isinstance(v, list):
                 rheaders += [(k, str(item)) for item in v]
             elif not v is None:

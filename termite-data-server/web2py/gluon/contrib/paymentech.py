@@ -295,7 +295,7 @@ class PaymenTech(object):
         result = dict()
 
         # Complete the charge request with the method kwargs
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             data[k] = v
 
         status_code = status_message = header = resp_code = \

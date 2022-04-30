@@ -12,13 +12,15 @@ Provides:
 - Storage; like dictionary allowing also for `obj.foo` for `obj['foo']`
 """
 
-import cPickle
+import pickle
 import gluon.portalocker as portalocker
 
 __all__ = ['List', 'Storage', 'Settings', 'Messages',
            'StorageList', 'load_storage', 'save_storage']
 
-DEFAULT = lambda:0
+
+def DEFAULT(): return 0
+
 
 class Storage(dict):
     """
@@ -45,10 +47,10 @@ class Storage(dict):
     __delattr__ = dict.__delitem__
     __getitem__ = dict.get
     __getattr__ = dict.get
-    __repr__ = lambda self: '<Storage %s>' % dict.__repr__(self)
+    def __repr__(self): return '<Storage %s>' % dict.__repr__(self)
     # http://stackoverflow.com/questions/5247250/why-does-pickle-getstate-accept-as-a-return-value-the-very-instance-it-requi
-    __getstate__ = lambda self: None
-    __copy__ = lambda self: Storage(self)
+    def __getstate__(self): return None
+    def __copy__(self): return Storage(self)
 
     def getlist(self, key):
         """
@@ -119,13 +121,15 @@ class Storage(dict):
         values = self.getlist(key)
         return values[-1] if values else default
 
-PICKABLE = (str, int, long, float, bool, list, dict, tuple, set)
+
+PICKABLE = (str, int, float, bool, list, dict, tuple, set)
 
 
 class StorageList(Storage):
     """
     like Storage but missing elements default to [] instead of None
     """
+
     def __getitem__(self, key):
         return self.__getattr__(key)
 
@@ -178,6 +182,7 @@ class Messages(Settings):
             return str(self.T(value))
         return value
 
+
 class FastStorage(dict):
     """
     Eventually this should replace class Storage but causes memory leak
@@ -213,6 +218,7 @@ class FastStorage(dict):
     >>> s['a']
     >>> s['b']
     """
+
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
         self.__dict__ = self

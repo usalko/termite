@@ -26,14 +26,14 @@ import gluon.settings as settings
 from gluon.utils import web2py_uuid, secure_dumps, secure_loads
 from gluon.settings import global_settings
 import hashlib
-import portalocker
-import cPickle
+import gluon.portalocker
+import pickle
 from pickle import Pickler, MARK, DICT, EMPTY_DICT
-from types import DictionaryType
-import cStringIO
+from typing import Dict
+import io
 import datetime
 import re
-import Cookie
+import http.cookies
 import os
 import sys
 import traceback
@@ -60,7 +60,7 @@ except:
     try:
         import json as sj #standard installed library
     except:
-        import gluon.contrib.simplejson as sj #pure python library
+        import web2py.gluon.contrib.simplejson as sj #pure python library
 
 regex_session_id = re.compile('^([\w\-]+/)?[\w\-\.]+$')
 
@@ -85,11 +85,11 @@ class SortingPickler(Pickler):
         self.memoize(obj)
         self._batch_setitems([(key,obj[key]) for key in sorted(obj)])
 
-SortingPickler.dispatch = copy.copy(Pickler.dispatch)
-SortingPickler.dispatch[DictionaryType] = SortingPickler.save_dict
+# SortingPickler.dispatch = copy.copy(pickle.Pickler.dispatch)
+# SortingPickler.dispatch[Dict] = SortingPickler.save_dict
 
 def sorting_dumps(obj, protocol=None):
-    file = cStringIO.StringIO()
+    file = io.StringIO()
     SortingPickler(file, protocol).dump(obj)
     return file.getvalue()
 # END #####################################################################
@@ -102,7 +102,7 @@ def copystream_progress(request, chunk_size=10 ** 5):
     """
     env = request.env
     if not env.get('CONTENT_LENGTH', None):
-        return cStringIO.StringIO()
+        return io.StringIO()
     source = env['wsgi.input']
     try:
         size = int(env['CONTENT_LENGTH'])
@@ -167,7 +167,7 @@ class Request(Storage):
         self.env = Storage(env)
         self.env.web2py_path = global_settings.applications_parent
         self.env.update(global_settings)
-        self.cookies = Cookie.SimpleCookie()
+        self.cookies = http.cookies.SimpleCookie()
         self._get_vars = None
         self._post_vars = None
         self._vars = None
@@ -191,7 +191,7 @@ class Request(Storage):
         query_string = self.env.get('QUERY_STRING','')
         dget = cgi.parse_qs(query_string, keep_blank_values=1)
         get_vars = self._get_vars = Storage(dget)
-        for (key, value) in get_vars.iteritems():
+        for (key, value) in get_vars.items():
             if isinstance(value,list) and len(value)==1:
                 get_vars[key] = value[0]
 
@@ -264,7 +264,7 @@ class Request(Storage):
         """Merges get_vars and post_vars to vars
         """
         self._vars = copy.copy(self.get_vars)
-        for key,value in self.post_vars.iteritems():
+        for key,value in self.post_vars.items():
             if not key in self._vars:
                 self._vars[key] = value
             else:
@@ -371,9 +371,9 @@ class Response(Storage):
         self.status = 200
         self.headers = dict()
         self.headers['X-Powered-By'] = 'web2py'
-        self.body = cStringIO.StringIO()
+        self.body = io.StringIO()
         self.session_id = None
-        self.cookies = Cookie.SimpleCookie()
+        self.cookies = http.cookies.SimpleCookie()
         self.postprocessing = []
         self.flash = ''            # used by the default view layout
         self.meta = Storage()      # used by web2py_ajax.html
@@ -411,9 +411,9 @@ class Response(Storage):
         self._vars.update(b)
         self._view_environment.update(self._vars)
         if view:
-            import cStringIO
+            import io
             (obody, oview) = (self.body, self.view)
-            (self.body, self.view) = (cStringIO.StringIO(), view)
+            (self.body, self.view) = (io.StringIO(), view)
             run_view_in(self._view_environment)
             page = self.body.getvalue()
             self.body.close()
@@ -426,7 +426,7 @@ class Response(Storage):
     def include_meta(self):
         s = '\n'.join(
             '<meta name="%s" content="%s" />\n' % (k, xmlescape(v))
-            for k, v in (self.meta or {}).iteritems())
+            for k, v in (self.meta or {}).items())
         self.write(s, escape=False)
 
     def include_files(self, extensions=None):
@@ -645,7 +645,7 @@ class Response(Storage):
         dbstats = []
         dbtables = {}
         infos = DAL.get_instances()
-        for k,v in infos.iteritems():
+        for k,v in infos.items():
             dbstats.append(TABLE(*[TR(PRE(row[0]),'%.2fms' %
                                           (row[1]*1000))
                                            for row in v['dbstats']]))

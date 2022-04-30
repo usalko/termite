@@ -151,11 +151,11 @@ import struct
 import time
 import types
 import urllib
-import urllib2
-import urlparse
+import urllib.request
+import html.parser
 import warnings
 
-from htmlentitydefs import name2codepoint, codepoint2name, entitydefs
+from html.entities import name2codepoint, codepoint2name, entitydefs
 
 try:
     from io import BytesIO as _StringIO

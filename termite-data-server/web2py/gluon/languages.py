@@ -16,7 +16,7 @@ import re
 import sys
 import pkgutil
 import logging
-from cgi import escape
+from html import escape
 from threading import RLock
 
 try:
@@ -25,13 +25,12 @@ except ImportError:
     import copy_reg # python 2
 
 from gluon.portalocker import read_locked, LockedFile
-from utf8 import Utf8
+# from utf8 import Utf8
 
 from gluon.fileutils import listdir
 from gluon.cfs import getcfs
 from gluon.html import XML, xmlescape
 from gluon.contrib.markmin.markmin2html import render, markmin_escape
-from string import maketrans
 
 __all__ = ['translator', 'findT', 'update_all_languages']
 
@@ -53,7 +52,7 @@ DEFAULT_GET_PLURAL_ID = lambda n: 0
 # word is unchangeable
 DEFAULT_CONSTRUCT_PLURAL_FORM = lambda word, plural_id: word
 
-NUMBERS = (int, long, float)
+NUMBERS = (int, float)
 
 # pattern to find T(blah blah blah) expressions
 PY_STRING_LITERAL_RE = r'(?<=[^\w]T\()(?P<name>'\
@@ -102,17 +101,17 @@ def markmin(s):
 
 
 def upper_fun(s):
-    return unicode(s, 'utf-8').upper().encode('utf-8')
+    return str(s, 'utf-8').upper().encode('utf-8')
 
 
 def title_fun(s):
-    return unicode(s, 'utf-8').title().encode('utf-8')
+    return str(s, 'utf-8').title().encode('utf-8')
 
 
 def cap_fun(s):
-    return unicode(s, 'utf-8').capitalize().encode('utf-8')
-ttab_in = maketrans("\\%{}", '\x1c\x1d\x1e\x1f')
-ttab_out = maketrans('\x1c\x1d\x1e\x1f', "\\%{}")
+    return str(s, 'utf-8').capitalize().encode('utf-8')
+ttab_in = str.maketrans("\\%{}", '\x1c\x1d\x1e\x1f')
+ttab_out = str.maketrans('\x1c\x1d\x1e\x1f', "\\%{}")
 
 # cache of translated messages:
 # global_language_cache:
@@ -181,7 +180,7 @@ def read_possible_plural_rules():
     """
     plurals = {}
     try:
-        import gluon.contrib.plural_rules as package
+        import web2py.gluon.contrib.plural_rules as package
         for importer, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if len(modname) == 2:
                 module = __import__(package.__name__ + '.' + modname,
@@ -315,7 +314,7 @@ def write_plural_dict(filename, contents):
             fp.close()
 
 def sort_function(x,y):
-    return cmp(unicode(x, 'utf-8').lower(), unicode(y, 'utf-8').lower())
+    return cmp(unicode(x, 'utf-8').lower(), str(y, 'utf-8').lower())
 
 def write_dict(filename, contents):
     if '__corrupted__' in contents:
@@ -742,7 +741,7 @@ class translator(object):
             if isinstance(symbols, dict):
                 symbols.update(
                     (key, xmlescape(value).translate(ttab_in))
-                    for key, value in symbols.iteritems()
+                    for key, value in symbols.items()
                     if not isinstance(value, NUMBERS))
             else:
                 if not isinstance(symbols, tuple):
@@ -923,7 +922,7 @@ class translator(object):
             if isinstance(symbols, dict):
                 symbols.update(
                     (key, str(value).translate(ttab_in))
-                    for key, value in symbols.iteritems()
+                    for key, value in symbols.items()
                     if not isinstance(value, NUMBERS))
             else:
                 if not isinstance(symbols, tuple):

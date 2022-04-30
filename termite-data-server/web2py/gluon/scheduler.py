@@ -172,7 +172,7 @@ def _decode_list(lst):
 
 def _decode_dict(dct):
     newdict = {}
-    for k, v in dct.iteritems():
+    for k, v in dct.items():
         if isinstance(k, unicode):
             k = k.encode('utf-8')
         if isinstance(v, unicode):

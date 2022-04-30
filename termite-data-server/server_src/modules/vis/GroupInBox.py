@@ -73,8 +73,8 @@ class GroupInBox(Home_Core):
 		try:
 			data = json.loads(keepTermsStr, encoding='utf8')
 			if type(data) is dict:
-				for key, value in data.iteritems():
-					keepTerms = { int(key[5:]) : [ d for d in value if type(d) is unicode ] for key, value in data.iteritems() if type(value) is list }
+				for key, value in data.items():
+					keepTerms = { int(key[5:]) : [ d for d in value if type(d) is unicode ] for key, value in data.items() if type(value) is list }
 		except (ValueError, KeyError, TypeError):
 			pass
 		try:

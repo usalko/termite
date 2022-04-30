@@ -5,7 +5,7 @@ import os
 import json
 import re
 import urllib
-import cStringIO
+from io import StringIO
 from utils.UnicodeIO import UnicodeReader, UnicodeWriter
 from db.Corpus_DB import Corpus_DB
 
@@ -330,7 +330,7 @@ class Home_Core(object):
 			return dataStr
 
 		if self.IsCSVFormat():
-			f = cStringIO.StringIO()
+			f = StringIO()
 			writer = UnicodeWriter(f)
 			writer.writerow( [ d['name'] for d in self.header ] )
 			for record in self.table:

@@ -36,8 +36,8 @@ def reset(session):
         'page_error': '# Error: the document does not exist',
     }
 
-if not session.app:
-    reset(session)
+    if not session.app:
+        reset(session)
 
 
 def listify(x):

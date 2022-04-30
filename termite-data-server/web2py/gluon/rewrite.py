@@ -512,7 +512,7 @@ def load_routers(all_apps):
     #
     domains = dict()
     if routers.BASE.domains:
-        for (d, a) in routers.BASE.domains.iteritems():
+        for (d, a) in routers.BASE.domains.items():
             (domain, app) = (d.strip(':'), a.strip('/'))
             if ':' in domain:
                 (domain, port) = domain.split(':')
@@ -616,7 +616,7 @@ def regex_url_in(request, environ):
     if routes.routes_in:
         environ = regex_filter_in(environ)
     request.env.update(
-        (k.lower().replace('.', '_'), v) for k, v in environ.iteritems())
+        (k.lower().replace('.', '_'), v) for k, v in environ.items())
 
     # ##################################################
     # serve if a static file
@@ -1069,7 +1069,7 @@ class MapUrlIn(object):
 
     def sluggify(self):
         self.request.env.update(
-            (k.lower().replace('.', '_'), v) for k, v in self.env.iteritems())
+            (k.lower().replace('.', '_'), v) for k, v in self.env.items())
 
     def update_request(self):
         """

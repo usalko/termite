@@ -31,11 +31,11 @@ class RESIZE(object):
         if isinstance(value, str) and len(value) == 0:
             return (value, None)
         from PIL import Image
-        import cStringIO
+        import io
         try:
             img = Image.open(value.file)
             img.thumbnail((self.nx, self.ny), Image.ANTIALIAS)
-            s = cStringIO.StringIO()
+            s = io.StringIO()
             img.save(s, 'JPEG', quality=100)
             s.seek(0)
             value.file = s

@@ -47,7 +47,7 @@ def cast_keys(o, cast=str, encoding="utf-8"):
         else:
             newobj = Storage()
         for k, v in o.items():
-            if (cast == str) and isinstance(k, unicode):
+            if (cast == str) and isinstance(k, str):
                 key = k.encode(encoding)
             else:
                 key = cast(k)
@@ -81,7 +81,7 @@ def custom_json(o):
                       datetime.datetime,
                       datetime.time)):
         return o.isoformat()[:19].replace('T', ' ')
-    elif isinstance(o, (int, long)):
+    elif isinstance(o, (int, )):
         return int(o)
     elif isinstance(o, decimal.Decimal):
         return str(o)

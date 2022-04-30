@@ -12,7 +12,7 @@ import stat
 import time
 import re
 import errno
-import rewrite
+import gluon.rewrite
 from gluon.http import HTTP
 from gluon.contenttype import contenttype
 

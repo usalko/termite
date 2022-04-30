@@ -410,9 +410,9 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
             items = dct.items()
             items.sort(key=lambda kv: kv[0])
         else:
-            items = dct.iteritems()
+            items = dct.items()
         for key, value in items:
-            if isinstance(key, basestring):
+            if isinstance(key, str):
                 pass
             # JavaScript is weakly typed for these, so it makes sense to
             # also allow them.  Many encoders seem to do something like this.

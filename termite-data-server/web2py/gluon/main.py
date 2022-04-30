@@ -12,7 +12,7 @@ The gluon wsgi application
 
 if False: import import_all # DO NOT REMOVE PART OF FREEZE PROCESS
 import gc
-import Cookie
+import http.cookies
 import os
 import re
 import copy
@@ -22,7 +22,7 @@ import datetime
 import signal
 import socket
 import random
-import urllib2
+import urllib
 import string
 
 
@@ -32,9 +32,9 @@ except:
     try:
         import json as sj #standard installed library
     except:
-        import gluon.contrib.simplejson as sj #pure python library
+        import web2py.gluon.contrib.simplejson as sj #pure python library
 
-from thread import allocate_lock
+from _thread import allocate_lock
 
 from gluon.fileutils import abspath, write_file
 from gluon.settings import global_settings
@@ -420,7 +420,7 @@ def wsgibase(environ, responder):
                 if env.http_cookie:
                     try:
                         request.cookies.load(env.http_cookie)
-                    except Cookie.CookieError as e:
+                    except http.cookies.CookieError as e:
                         pass  # invalid cookies
 
                 # ##################################################
@@ -435,13 +435,13 @@ def wsgibase(environ, responder):
                 # ##################################################
 
                 if global_settings.debugging and app != "admin":
-                    import gluon.debug
+                    import web2py.gluon.debug
                     # activate the debugger
                     gluon.debug.dbg.do_debug(mainpyfile=request.folder)
 
                 serve_controller(request, response, session)
 
-            except HTTP, http_response:
+            except HTTP as http_response:
 
                 if static_file:
                     return http_response.to(responder, env=env)

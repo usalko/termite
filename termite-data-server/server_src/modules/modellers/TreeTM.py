@@ -17,7 +17,7 @@ class InspectLDA(object):
 			treeTM.ReadFiles()
 			self.mustLinks = [ sorted(d) for d in treeTM.GetMustLinks() ]
 			self.cannotLinks = [ sorted(d) for d in treeTM.GetCannotLinks() ]
-			self.keepTerms = { key : sorted(d) for key, d in treeTM.GetKeepTerms().iteritems() }
+			self.keepTerms = { key : sorted(d) for key, d in treeTM.GetKeepTerms().items() }
 			self.removeTerms = sorted( treeTM.GetRemoveTerms() )
 			self.iters = treeTM.prevIter
 			self.entryID = treeTM.prevEntryID
@@ -318,7 +318,7 @@ class TreeTM(object):
 	def SetKeepTerms( self, keepTerms ):
 		"""Argument 'keepTerms' should be a dict where the keys are topic indexes and the values are a list of words"""
 		self.keepTerms = {}
-		for key, values in keepTerms.iteritems():
+		for key, values in keepTerms.items():
 			if key in self.keepTerms:
 				self.keepTerms[key].update(values)
 			else:
@@ -444,7 +444,7 @@ class TreeTM(object):
 				
 	def WriteKeepTermsFile( self ):
 		lines = []
-		for topic, terms in self.keepTerms.iteritems():
+		for topic, terms in self.keepTerms.items():
 			for term in terms:
 				lines.append( u'{} {}'.format(term, topic) )
 		with open( self.filenameKeepTerms, 'w' ) as f:

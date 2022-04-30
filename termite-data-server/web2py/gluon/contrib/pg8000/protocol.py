@@ -38,7 +38,7 @@ import select
 import threading
 import struct
 import hashlib
-from cStringIO import StringIO
+from io import StringIO
 
 from errors import *
 from util import MulticastDelegate

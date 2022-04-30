@@ -1,13 +1,13 @@
 import os
 import sys
-import cStringIO
-import gluon.contrib.shell
-import gluon.dal
-import gluon.html
-import gluon.validators
+from io import StringIO
+import web2py.gluon.contrib.shell
+import web2py.gluon.dal
+import web2py.gluon.html
+import web2py.gluon.validators
 import code
-import thread
-from gluon.debug import communicate, web_debugger, qdb_debugger
+from threading import thread
+from web2py.gluon.debug import communicate, web_debugger, qdb_debugger
 import pydoc
 
 

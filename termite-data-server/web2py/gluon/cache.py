@@ -20,9 +20,9 @@ caching will be provided by the GAE memcache
 (see gluon.contrib.gae_memcache)
 """
 import time
-import portalocker
+import gluon.portalocker
 import shelve
-import thread
+import _thread
 import os
 import logging
 import re
@@ -136,7 +136,7 @@ class CacheInRam(CacheAbstract):
     A mutex-lock mechanism avoid conflicts.
     """
 
-    locker = thread.allocate_lock()
+    locker = _thread.allocate_lock()
     meta_storage = {}
 
     def __init__(self, request=None):

@@ -11,16 +11,15 @@ The widget is called from web2py.
 
 import datetime
 import sys
-import cStringIO
+import io
 import time
-import thread
 import threading
 import os
 import socket
 import signal
 import math
 import logging
-import newcron
+import gluon.newcron
 import getpass
 import gluon.main as main
 
@@ -89,7 +88,7 @@ class IO(object):
     def __init__(self):
         """   """
 
-        self.buffer = cStringIO.StringIO()
+        self.buffer = io.StringIO()
 
     def write(self, data):
         """   """
@@ -309,7 +308,7 @@ class web2pyDialog(object):
         self.button_stop.configure(state='disabled')
 
         if options.taskbar:
-            import gluon.contrib.taskbar_widget
+            import web2py.gluon.contrib.taskbar_widget
             self.tb = gluon.contrib.taskbar_widget.TaskBarIcon()
             self.checkTaskBar()
 
@@ -933,7 +932,7 @@ def console():
         run_system_tests(options)
 
     if options.quiet:
-        capture = cStringIO.StringIO()
+        capture = io.StringIO()
         sys.stdout = capture
         logger.setLevel(logging.CRITICAL + 1)
     else:

@@ -19,9 +19,8 @@ import time
 import traceback
 import smtplib
 import urllib
-import urllib2
-import Cookie
-import cStringIO
+import http.cookies
+import io
 import ConfigParser
 import email.utils
 from email import MIMEBase, MIMEMultipart, MIMEText, Encoders, Header, message_from_string, Charset
@@ -36,7 +35,7 @@ from gluon.contrib.markmin.markmin2html import \
     replace_at_urls, replace_autolinks, replace_components
 from gluon.dal import Row, Set, Query
 
-import gluon.serializers as serializers
+import web2py.gluon.serializers as serializers
 
 try:
     # try stdlib (Python 2.6)
@@ -47,7 +46,7 @@ except ImportError:
         import simplejson as json_parser
     except:
         # fallback to pure-Python module
-        import gluon.contrib.simplejson as json_parser
+        import web2py.gluon.contrib.simplejson as json_parser
 
 __all__ = ['Mail', 'Auth', 'Recaptcha', 'Crud', 'Service', 'Wiki',
            'PluginManager', 'fetch', 'geocode', 'prettydate']
@@ -673,7 +672,7 @@ class Mail(object):
             to.extend(bcc)
         payload['Subject'] = encoded_or_raw(subject.decode(encoding))
         payload['Date'] = email.utils.formatdate()
-        for k, v in headers.iteritems():
+        for k, v in headers.items():
             payload[k] = encoded_or_raw(v.decode(encoding))
         result = {}
         try:
@@ -4244,7 +4243,7 @@ urllib2.install_opener(urllib2.build_opener(urllib2.HTTPCookieProcessor()))
 
 
 def fetch(url, data=None, headers=None,
-          cookie=Cookie.SimpleCookie(),
+          cookie=http.cookies.SimpleCookie(),
           user_agent='Mozilla/5.0'):
     headers = headers or {}
     if not data is None:
@@ -4594,7 +4593,7 @@ class Service(object):
             import types
             r = universal_caller(self.run_procedures[args[0]],
                                  *args[1:], **dict(request.vars))
-            s = cStringIO.StringIO()
+            s = io.StringIO()
             if hasattr(r, 'export_to_csv_file'):
                 r.export_to_csv_file(s)
             elif r and not isinstance(r, types.GeneratorType) and isinstance(r[0], (dict, Storage)):
@@ -4874,7 +4873,7 @@ class Service(object):
             prefix='pys',
             documentation=documentation,
             ns=True)
-        for method, (function, returns, args, doc) in procedures.iteritems():
+        for method, (function, returns, args, doc) in procedures.items():
             dispatcher.register_function(method, function, returns, args, doc)
         if request.env.request_method == 'POST':
             fault = {}

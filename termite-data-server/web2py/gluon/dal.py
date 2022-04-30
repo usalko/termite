@@ -236,7 +236,7 @@ except ImportError:
         import json as simplejson
     except ImportError:
         try:
-            import gluon.contrib.simplejson as simplejson
+            import web2py.gluon.contrib.simplejson as simplejson
         except ImportError:
             simplejson = None
 
@@ -301,7 +301,7 @@ if not 'google' in DRIVERS:
     try:
         # first try contrib driver, then from site-packages (if installed)
         try:
-            import gluon.contrib.pymysql as pymysql
+            import web2py.gluon.contrib.pymysql as pymysql
             # monkeypatch pymysql because they havent fixed the bug:
             # https://github.com/petehunt/PyMySQL/issues/86
             pymysql.ESCAPE_REGEX = re.compile("'")
@@ -335,7 +335,7 @@ if not 'google' in DRIVERS:
     try:
         # first try contrib driver, then from site-packages (if installed)
         try:
-            import gluon.contrib.pg8000.dbapi as pg8000
+            import web2py.gluon.contrib.pg8000.dbapi as pg8000
         except ImportError:
             import pg8000.dbapi as pg8000
         DRIVERS.append('PostgreSQL(pg8000)')
@@ -353,7 +353,7 @@ if not 'google' in DRIVERS:
             import pyodbc
         except ImportError:
             try:
-                import gluon.contrib.pypyodbc as pyodbc
+                import web2py.gluon.contrib.pypyodbc as pyodbc
             except Exception as e:
                 raise ImportError(str(e))
         DRIVERS.append('MSSQL(pyodbc)')
@@ -1155,9 +1155,9 @@ class BaseAdapter(ConnectionPool):
             return k.lower(),v
         # make sure all field names are lower case to avoid
         # migrations because of case cahnge
-        sql_fields = dict(map(fix,sql_fields.iteritems()))
-        sql_fields_old = dict(map(fix,sql_fields_old.iteritems()))
-        sql_fields_aux = dict(map(fix,sql_fields_aux.iteritems()))
+        sql_fields = dict(map(fix,sql_fields.items()))
+        sql_fields_old = dict(map(fix,sql_fields_old.items()))
+        sql_fields_aux = dict(map(fix,sql_fields_aux.items()))
         if db._debug:
             logging.debug('migrating %s to %s' % (sql_fields_old,sql_fields))
 
@@ -2292,9 +2292,9 @@ class BaseAdapter(ConnectionPool):
 
         for tablename in virtualtables:
             table = db[tablename]
-            fields_virtual = [(f,v) for (f,v) in table.iteritems()
+            fields_virtual = [(f,v) for (f,v) in table.items()
                               if isinstance(v,FieldVirtual)]
-            fields_lazy = [(f,v) for (f,v) in table.iteritems()
+            fields_lazy = [(f,v) for (f,v) in table.items()
                            if isinstance(v,FieldMethod)]
             if fields_virtual or fields_lazy:
                 for row in rowsobj.records:
@@ -3445,7 +3445,7 @@ class MSSQLAdapter(BaseAdapter):
             urlargs = m.group('urlargs') or ''
             for argmatch in self.REGEX_ARGPATTERN.finditer(urlargs):
                 argsdict[str(argmatch.group('argkey')).upper()] = argmatch.group('argvalue')
-            urlargs = ';'.join(['%s=%s' % (ak, av) for (ak, av) in argsdict.iteritems()])
+            urlargs = ';'.join(['%s=%s' % (ak, av) for (ak, av) in argsdict.items()])
             cnxn = 'SERVER=%s;PORT=%s;DATABASE=%s;UID=%s;PWD=%s;%s' \
                 % (host, port, db, user, password, urlargs)
         def connector(cnxn=cnxn,driver_args=driver_args):
@@ -4645,7 +4645,7 @@ class NoSQLAdapter(BaseAdapter):
         if isinstance(obj, str):
             return obj.decode('utf8')
         elif not isinstance(obj, unicode):
-            return unicode(obj)
+            return str(obj)
         return obj
 
     def id_query(self, table):
@@ -4951,7 +4951,7 @@ class GoogleDatastoreAdapter(NoSQLAdapter):
             if self.use_ndb:
                 # Set NDB caching variables
                 if self.ndb_settings and (table._tablename in self.ndb_settings):
-                    for k, v in self.ndb_settings.iteritems():
+                    for k, v in self.ndb_settings.items():
                         setattr(table._tableobj, k, v)
         elif polymodel==True:
             pm_cls = (self.use_ndb and NDBPolyModel) or PolyModel
@@ -6466,9 +6466,9 @@ class IMAPAdapter(NoSQLAdapter):
         else:
             if isinstance(text, str):
                 if charset is None:
-                    text = unicode(text, "utf-8", errors)
+                    text = str(text, "utf-8", errors)
                 else:
-                    text = unicode(text, charset, errors)
+                    text = str(text, charset, errors)
             else:
                 raise Exception("Unsupported mail text type %s" % type(text))
         return text.encode("utf-8")
@@ -7371,7 +7371,7 @@ class Row(object):
 
     __iter__ = lambda self: self.__dict__.__iter__()
 
-    iteritems = lambda self: self.__dict__.iteritems()
+    iteritems = lambda self: self.__dict__.items()
 
     __str__ = __repr__ = lambda self: '<Row %s>' % self.as_dict()
 
@@ -7907,7 +7907,7 @@ class DAL(object):
                                  length=value.get('length',None),
                                  notnull=value.get('notnull',False),
                                  unique=value.get('unique',False))) \
-                              for key, value in sql_fields.iteritems()]
+                              for key, value in sql_fields.items()]
                     mf.sort(lambda a,b: cmp(a[0],b[0]))
                     self.define_table(name,*[item[1] for item in mf],
                                       **dict(migrate=migrate,
@@ -8831,7 +8831,7 @@ class Table(object):
 
     def _validate(self, **vars):
         errors = Row()
-        for key, value in vars.iteritems():
+        for key, value in vars.items():
             value, error = self[key].validate(value)
             if error:
                 errors[key] = error
@@ -8880,13 +8880,13 @@ class Table(object):
                 self._referenced_by.append(referee)
 
     def _filter_fields(self, record, id=False):
-        return dict([(k, v) for (k, v) in record.iteritems() if k
+        return dict([(k, v) for (k, v) in record.items() if k
                      in self.fields and (self[k].type!='id' or id)])
 
     def _build_query(self,key):
         """ for keyed table only """
         query = None
-        for k,v in key.iteritems():
+        for k,v in key.items():
             if k in self._primarykey:
                 if query:
                     query = query & (self[k] == v)
@@ -8930,11 +8930,11 @@ class Table(object):
                 record = self._db(self._id == key).select(
                     limitby=(0,1),for_update=for_update, orderby=orderby, orderby_on_limitby=False).first()
             if record:
-                for k,v in kwargs.iteritems():
+                for k,v in kwargs.items():
                     if record[k]!=v: return None
             return record
         elif kwargs:
-            query = reduce(lambda a,b:a&b,[self[k]==v for k,v in kwargs.iteritems()])
+            query = reduce(lambda a,b:a&b,[self[k]==v for k,v in kwargs.items()])
             return self._db(query).select(limitby=(0,1),for_update=for_update, orderby=orderby, orderby_on_limitby=False).first()
         else:
             return None
@@ -8995,7 +8995,7 @@ class Table(object):
             yield self[fieldname]
 
     def iteritems(self):
-        return self.__dict__.iteritems()
+        return self.__dict__.items()
 
     def __repr__(self):
         return '<Table %s (%s)>' % (self._tablename, ','.join(self.fields()))
@@ -9121,7 +9121,7 @@ class Table(object):
         response = Row()
         response.errors = Row()
         new_fields = copy.copy(fields)
-        for key,value in fields.iteritems():
+        for key,value in fields.items():
             value,error = self[key].validate(value)
             if error:
                 response.errors[key] = "%s" % error
@@ -9138,7 +9138,7 @@ class Table(object):
         response.errors = Row()
         new_fields = copy.copy(fields)
 
-        for key, value in fields.iteritems():
+        for key, value in fields.items():
             value, error = self[key].validate(value)
             if error:
                 response.errors[key] = "%s" % error
@@ -9157,7 +9157,7 @@ class Table(object):
                 myset = self._db(self._id == record[self._id.name])
             else:
                 query = None
-                for key, value in _key.iteritems():
+                for key, value in _key.items():
                     if query is None:
                         query = getattr(self, key) == value
                     else:
@@ -9185,7 +9185,7 @@ class Table(object):
     def validate_and_update_or_insert(self, _key=DEFAULT, **fields):
         if _key is DEFAULT or _key == '':
             primary_keys = {}
-            for key, value in fields.iteritems():
+            for key, value in fields.items():
                 if key in self._primarykey:
                     primary_keys[key] = value
             if primary_keys != {}:
@@ -9193,7 +9193,7 @@ class Table(object):
                 _key = primary_keys
             else:
                 required_keys = {}
-                for key, value in fields.iteritems():
+                for key, value in fields.items():
                     if getattr(self, key).required:
                         required_keys[key] = value
                 record = self(**required_keys)
@@ -10286,7 +10286,7 @@ class Query(object):
                     elif isinstance(v, (datetime.date,
                                         datetime.time,
                                         datetime.datetime)):
-                        newd[k] = unicode(v)
+                        newd[k] = str(v)
                 elif k == "op":
                     if callable(v):
                         newd[k] = v.__name__
@@ -10567,7 +10567,7 @@ class Set(object):
         response = Row()
         response.errors = Row()
         new_fields = copy.copy(update_fields)
-        for key,value in update_fields.iteritems():
+        for key,value in update_fields.items():
             value,error = self.db[tablename][key].validate(value)
             if error:
                 response.errors[key] = error
@@ -10757,7 +10757,7 @@ class Rows(object):
         if not keyed_virtualfields:
             return self
         for row in self.records:
-            for (tablename,virtualfields) in keyed_virtualfields.iteritems():
+            for (tablename,virtualfields) in keyed_virtualfields.items():
                 attributes = dir(virtualfields)
                 if not tablename in row:
                     box = row[tablename] = Row()

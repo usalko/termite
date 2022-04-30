@@ -335,7 +335,7 @@ class Utf8(str):
                 s, 'utf-8') if isinstance(s, str) else s for s in args]
             kwargs = dict((unicode(k, 'utf-8') if isinstance(k, str) else k,
                            unicode(v, 'utf-8') if isinstance(v, str) else v)
-                          for k, v in kwargs.iteritems())
+                          for k, v in kwargs.items())
             return str.__new__(Utf8, unicode(self, 'utf-8').
                                format(*args, **kwargs).encode('utf-8'))
 
@@ -346,7 +346,7 @@ class Utf8(str):
         elif isinstance(right, dict):
             right = dict((unicode(k, 'utf-8') if isinstance(k, str) else k,
                           unicode(v, 'utf-8') if isinstance(v, str) else v)
-                         for k, v in right.iteritems())
+                         for k, v in right.items())
         elif isinstance(right, str):
             right = unicode(right, 'utf-8')
         return str.__new__(Utf8, unicode(self, 'utf-8').__mod__(right).encode('utf-8'))
@@ -736,8 +736,7 @@ if __name__ == '__main__':
         >>> L
         ['\\xe4', '\\xb8', '\\xad', '\\xe6', '\\x96', '\\x87',
             '\\xe5', '\\xad', '\\x97']
-        >>> from string import maketrans
-        >>> str_tab=maketrans('PRobe','12345')
+        >>> str_tab=str.maketrans('PRobe','12345')
         >>> unicode_tab={ord(u'П'):ord(u'Ж'),
         ...              ord(u'Р')      : u'Ш',
         ...              ord(Utf8('о')) : None,  # utf8.ord() is used

@@ -172,8 +172,8 @@ class Sheet:
         changes = Sheet.updated(data)
 
         # Do db I/O:
-        for table, rows in changes.iteritems():
-            for row, values in rows.iteritems():
+        for table, rows in changes.items():
+            for row, values in rows.items():
                 db[table][row].update_record(**values)
 
     # the action view should expose {{=form}}, {{=sheet}}, {{=myscript}}
@@ -290,7 +290,7 @@ class Sheet:
         # read column index per table
         # table, id column map
         tablenames = {}
-        for colname, i in data["id_colnames"].iteritems():
+        for colname, i in data["id_colnames"].items():
             tablenames[colname.split(".")[0]] = i
 
         # Separate multitable rows
@@ -299,7 +299,7 @@ class Sheet:
         # update information.
 
         # collect new data by row (modified):
-        for key, value in data["modified"].iteritems():
+        for key, value in data["modified"].items():
             r, c = Sheet.position(key)
 
             # don't apply repeated values
@@ -362,8 +362,8 @@ class Sheet:
                 changes = self.updated(data)
 
                 # Do db I/O:
-                for table, rows in changes.iteritems():
-                    for row, values in rows.iteritems():
+                for table, rows in changes.items():
+                    for row, values in rows.items():
                         db[table][row].update_record(**values)
                         result["modified"] += 1
 
@@ -453,7 +453,7 @@ class Sheet:
                 self.client["colnames"][x] = colname
 
             for x, row in enumerate(self.data):
-                for colname, y in self.client["columns"].iteritems():
+                for colname, y in self.client["columns"].items():
                     key = "r%sc%s" % (x, y)
                     tablename, fieldname = colname.split(".")
                     try:
@@ -562,7 +562,7 @@ class Sheet:
         if attributes is not None:
             self.tr_attributes[str(row)] = attributes
         if isinstance(cells, dict):
-            for col, data in cells.iteritems():
+            for col, data in cells.items():
                 key = "r%sc%s" % (row, col)
                 active, onchange, readonly, cell_value = \
                     self.get_cell_arguments(data, default=kwarg)
@@ -598,7 +598,7 @@ class Sheet:
         attributes = self.get_attributes(kwarg)
 
         if isinstance(cells, dict):
-            for row, data in cells.iteritems():
+            for row, data in cells.items():
                 key = "r%sc%s" % (row, col)
                 active, onchange, readonly, cell_value = \
                     self.get_cell_arguments(data, default=kwarg)
@@ -644,7 +644,7 @@ class Sheet:
             ends_r, ends_c = self.position(ends)
 
         if isinstance(cells, dict):
-            for key, data in cells.iteritems():
+            for key, data in cells.items():
                 r, c = self.position(key)
                 key = "r%sc%s" % (r + starts_r, c + starts_c)
                 active, onchange, readonly, cell_value = \
@@ -775,7 +775,7 @@ class Sheet:
                 node.value = d[key]
 
     def sheet(self):
-        import gluon.html
+        import web2py.gluon.html
         (DIV, TABLE, TR, TD, TH, BR, SCRIPT) = \
             (gluon.html.DIV, gluon.html.TABLE, gluon.html.TR, gluon.html.TD,
              gluon.html.TH, gluon.html.BR, gluon.html.SCRIPT)
@@ -848,11 +848,11 @@ class Sheet:
             # extra row for fieldnames
             unsorted_headers = []
             if self.client["headers"] is not None:
-                for fieldname, name in self.client["headers"].iteritems():
+                for fieldname, name in self.client["headers"].items():
                     unsorted_headers.append((self.client["columns"][fieldname],
                                              name))
             else:
-                for fieldname, c in self.client["columns"].iteritems():
+                for fieldname, c in self.client["columns"].items():
                     unsorted_headers.append((c, fieldname))
 
             sorted_headers = [TH(), ] + \

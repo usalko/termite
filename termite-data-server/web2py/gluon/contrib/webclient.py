@@ -85,10 +85,10 @@ class WebClient(object):
 
         # copy headers from dict to list of key,value
         headers_list = []
-        for key, value in self.default_headers.iteritems():
+        for key, value in self.default_headers.items():
             if not key in headers:
                 headers[key] = value
-        for key, value in headers.iteritems():
+        for key, value in headers.items():
             if isinstance(value, (list, tuple)):
                 for v in value:
                     headers_list.append((key, v))
@@ -96,7 +96,7 @@ class WebClient(object):
                 headers_list.append((key, value))
 
         # move cookies to headers
-        for key, value in cookies.iteritems():
+        for key, value in cookies.items():
             headers_list.append(('Cookie', '%s=%s' % (key, value)))
 
         # add headers to request
@@ -156,7 +156,7 @@ class WebClient(object):
 
         # check is a new session id has been issued, symptom of broken session
         if self.session_regex is not None:
-            for cookie, value in self.cookies.iteritems():
+            for cookie, value in self.cookies.items():
                 match = self.session_regex.match(cookie)
                 if match:
                     name = match.group('name')

@@ -11,15 +11,15 @@ Restricted environment to execute application's code
 """
 
 import sys
-import cPickle
+import pickle
 import traceback
 import types
 import os
 import logging
 
-from storage import Storage
-from http import HTTP
-from html import BEAUTIFY, XML
+from gluon.storage import Storage
+from gluon.http import HTTP
+from gluon.html import BEAUTIFY, XML
 
 logger = logging.getLogger("web2py")
 
@@ -217,13 +217,13 @@ def restricted(code, environment=None, layer='Unknown'):
             ccode = code
         else:
             ccode = compile2(code, layer)
-        exec ccode in environment
+        exec(ccode in environment)
     except HTTP:
         raise
     except RestrictedError:
         # do not encapsulate (obfuscate) the original RestrictedError
         raise
-    except Exception, error:
+    except Exception as error:
         # extract the exception type and value (used as output message)
         etype, evalue, tb = sys.exc_info()
         # XXX Show exception in Wing IDE if running in debugger

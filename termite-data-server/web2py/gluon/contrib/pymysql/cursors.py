@@ -3,9 +3,9 @@ import struct
 import re
 
 try:
-    import cStringIO as StringIO
+    import io as StringIO
 except ImportError:
-    import StringIO
+    import cStringIO
 
 from err import Warning, Error, InterfaceError, DataError, \
              DatabaseError, OperationalError, IntegrityError, InternalError, \

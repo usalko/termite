@@ -19,9 +19,9 @@ import sched
 import re
 import datetime
 import platform
-import portalocker
-import fileutils
-import cPickle
+import gluon.portalocker
+import gluon.fileutils
+import pickle
 from gluon.settings import global_settings
 
 logger = logging.getLogger("web2py.cron")

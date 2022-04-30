@@ -3,7 +3,7 @@
 import re
 import os
 import cPickle
-import gluon.serializers
+import web2py.gluon.serializers
 from gluon import current, HTTP
 from gluon.html import markmin_serializer, TAG, HTML, BODY, UL, XML, H1
 from gluon.contenttype import contenttype

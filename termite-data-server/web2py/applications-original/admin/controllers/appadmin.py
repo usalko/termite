@@ -8,8 +8,9 @@ import os
 import socket
 import datetime
 import copy
-import gluon.contenttype
-import gluon.fileutils
+import web2py.gluon.contenttype
+import web2py.gluon.fileutils
+from urllib import request, response
 
 try:
     import pygraphviz as pgv
@@ -168,7 +169,7 @@ def download():
 
 
 def csv():
-    import gluon.contenttype
+    import web2py.gluon.contenttype
     response.headers['Content-Type'] = \
         gluon.contenttype.contenttype('.csv')
     db = get_database(request)
@@ -448,7 +449,7 @@ def ccache():
         gae_stats['oldest'] = GetInHMS(time.time() - gae_stats['oldest_item_age'])
         total.update(gae_stats)
     else:
-        for key, value in cache.ram.storage.iteritems():
+        for key, value in cache.ram.storage.items():
             if isinstance(value, dict):
                 ram['hits'] = value['hit_total'] - value['misses']
                 ram['misses'] = value['misses']

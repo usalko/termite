@@ -401,7 +401,7 @@ def detect(agent):
                 if detector.detect(agent, result):
                     prefs = detector.prefs
                     break
-        except Exception, ex:
+        except Exception as ex:
             result['exception'] = ex
     # hack to address https://code.google.com/p/web2py/issues/detail?id=1755
     if not 'browser' in result:

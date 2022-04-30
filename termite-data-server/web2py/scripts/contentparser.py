@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import cStringIO
+import io
 import re
 import sys
 import tarfile
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     sys.stdout.flush()
     fregex = re.compile('^.*/freedesktop\.org\.xml$')
     try:
-        io = cStringIO.StringIO()
+        io = io.StringIO()
         io.write(urllib.urlopen(url).read())
         sys.stdout.write('\t[OK] done\n')
     except Exception as e:
@@ -114,7 +114,7 @@ if __name__ == '__main__':
         finally:
             tar.close()
         data = MIMEParser(xml)
-        io = cStringIO.StringIO()
+        io = io.StringIO()
         io.write('CONTENT_TYPE = {\n')
         for key in sorted(data):
             io.write('    \'%s\': \'%s\',\n' % (key, data[key]))
