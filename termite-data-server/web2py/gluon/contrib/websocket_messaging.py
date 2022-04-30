@@ -90,7 +90,7 @@ tokens = {}
 
 def websocket_send(url, message, hmac_key=None, group='default'):
     sig = hmac_key and hmac.new(hmac_key, message).hexdigest() or ''
-    params = urllib.urlencode(
+    params = urllib.parse.urlencode(
         {'message': message, 'signature': sig, 'group': group})
     f = urllib.urlopen(url, params)
     data = f.read()

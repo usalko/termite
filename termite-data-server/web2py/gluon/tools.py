@@ -7,7 +7,7 @@ License: LGPLv3 (http://www.gnu.org/licenses/lgpl.html)
 """
 
 import base64
-import cPickle
+import pickle
 import datetime
 import thread
 import logging
@@ -419,14 +419,14 @@ class Mail(object):
             if not text is None:
                 if not isinstance(text, (str, bytes)):
                     text = text.read()
-                if isinstance(text, unicode):
+                if isinstance(text, str):
                     text = text.encode('utf-8')
                 elif not encoding == 'utf-8':
                     text = text.decode(encoding).encode('utf-8')
             if not html is None:
                 if not isinstance(html, (str, bytes)):
                     html = html.read()
-                if isinstance(html, unicode):
+                if isinstance(html, str):
                     html = html.encode('utf-8')
                 elif not encoding == 'utf-8':
                     html = html.decode(encoding).encode('utf-8')
@@ -789,7 +789,7 @@ class Recaptcha(DIV):
                 and len(recaptcha_challenge_field)):
             self.errors['captcha'] = self.error_message
             return False
-        params = urllib.urlencode({
+        params = urllib.parse.urlencode({
             'privatekey': private_key,
             'remoteip': remoteip,
             'challenge': recaptcha_challenge_field,
@@ -1269,7 +1269,7 @@ class Auth(object):
             'Please ',
             A('login',
               _href=self.settings.login_url +
-              ('?_next=' + urllib.quote(current.request.env.http_web2py_component_location))
+              ('?_next=' + urllib.parse.quote(current.request.env.http_web2py_component_location))
               if current.request.env.http_web2py_component_location else ''),
             ' to view this content.',
             _class='not-authorized alert alert-block'))
@@ -1379,7 +1379,7 @@ class Auth(object):
         if URL() == action:
             next = ''
         else:
-            next = '?_next=' + urllib.quote(URL(args=request.args,
+            next = '?_next=' + urllib.parse.quote(URL(args=request.args,
                                                 vars=request.get_vars))
         href = lambda function: '%s/%s%s' % (action, function, next
                                              if referrer_actions is DEFAULT
@@ -1398,7 +1398,7 @@ class Auth(object):
             logout_next = self.settings.logout_next
             items.append({'name': T('Logout'),
                           'href': '%s/logout?_next=%s' % (action,
-                                                          urllib.quote(
+                                                          urllib.parse.quote(
                                                           logout_next)),
                           'icon': 'icon-off'})
             if not 'profile' in self.settings.actions_disabled:
@@ -3180,7 +3180,7 @@ class Auth(object):
             user = table_user(user_id)
             if not user:
                 raise HTTP(401, "Not Authorized")
-            auth.impersonator = cPickle.dumps(session)
+            auth.impersonator = pickle.dumps(session)
             auth.user.update(
                 table_user._filter_fields(user, True))
             self.user = auth.user
@@ -3191,7 +3191,7 @@ class Auth(object):
         elif user_id in (0, '0'):
             if self.is_impersonating():
                 session.clear()
-                session.update(cPickle.loads(auth.impersonator))
+                session.update(pickle.loads(auth.impersonator))
                 self.user = session.auth.user
                 self.update_groups()
                 self.run_login_onaccept()
@@ -3273,7 +3273,7 @@ class Auth(object):
                             return call_or_redirect(
                                 self.settings.on_failed_authentication,
                                 self.settings.login_url +
-                                    '?_next=' + urllib.quote(next))
+                                    '?_next=' + urllib.parse.quote(next))
 
                 if callable(condition):
                     flag = condition()
@@ -4247,7 +4247,7 @@ def fetch(url, data=None, headers=None,
           user_agent='Mozilla/5.0'):
     headers = headers or {}
     if not data is None:
-        data = urllib.urlencode(data)
+        data = urllib.parse.urlencode(data)
     if user_agent:
         headers['User-agent'] = user_agent
     headers['Cookie'] = ' '.join(
@@ -4279,7 +4279,7 @@ regex_geocode = \
 
 def geocode(address):
     try:
-        a = urllib.quote(address)
+        a = urllib.parse.quote(address)
         txt = fetch('http://maps.googleapis.com/maps/api/geocode/xml?sensor=false&address=%s'
                      % a)
         item = regex_geocode.search(txt)
@@ -4582,7 +4582,7 @@ class Service(object):
             args = request.args
 
         def none_exception(value):
-            if isinstance(value, unicode):
+            if isinstance(value, str):
                 return value.encode('utf8')
             if hasattr(value, 'isoformat'):
                 return value.isoformat()[:19].replace('T', ' ')

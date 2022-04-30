@@ -58,7 +58,7 @@ else:
     def b(val):
         """ Convert string/unicode/bytes literals into bytes.  This allows for
         the same code to run on Python 2.x and 3.x. """
-        if isinstance(val, unicode):
+        if isinstance(val, str):
             return val.encode()
         else:
             return val
@@ -1770,7 +1770,7 @@ class WSGIWorker(Worker):
                 if self.chunked:
                     self.conn.sendall(b('%x\r\n%s\r\n' % (len(data), data)))
                 else:
-                    self.conn.sendall(data.encode('utf-8'))
+                    self.conn.sendall(data)
             except socket.timeout:
                 self.closeConnection = True
             except socket.error:
@@ -1847,7 +1847,9 @@ class WSGIWorker(Worker):
 
             for data in output:
                 # Don't send headers until body appears
-                if data:
+                if data and isinstance(data, str):
+                    self.write(data.encode('utf-8'), sections)
+                elif data:
                     self.write(data, sections)
 
             if self.chunked:

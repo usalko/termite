@@ -62,7 +62,7 @@ class Highlighter(object):
         Callback for C specific highlighting.
         """
 
-        value = cgi.escape(match.group())
+        value = html.escape(match.group())
         self.change_style(token, style)
         self.output.append(value)
 
@@ -76,7 +76,7 @@ class Highlighter(object):
         Callback for python specific highlighting.
         """
 
-        value = cgi.escape(match.group())
+        value = html.escape(match.group())
         if token == 'MULTILINESTRING':
             self.change_style(token, style)
             self.output.append(value)
@@ -113,7 +113,7 @@ class Highlighter(object):
         Callback for HTML specific highlighting.
         """
 
-        value = cgi.escape(match.group())
+        value = html.escape(match.group())
         self.change_style(token, style)
         self.output.append(value)
         if token == 'GOTOPYTHON':
@@ -291,13 +291,13 @@ def highlight(
                                          'WEB2PY']:
         code = Highlighter(language, link, styles).highlight(code)
     else:
-        code = cgi.escape(code)
+        code = html.escape(code)
     lines = code.split('\n')
 
     if counter is None:
         linenumbers = [''] * len(lines)
     elif isinstance(counter, str):
-        linenumbers = [cgi.escape(counter)] * len(lines)
+        linenumbers = [html.escape(counter)] * len(lines)
     else:
         linenumbers = [str(i + counter) + '.' for i in
                        range(len(lines))]

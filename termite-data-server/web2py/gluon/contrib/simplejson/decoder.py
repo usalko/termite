@@ -118,7 +118,7 @@ def py_scanstring(s, end, encoding=None, strict=True,
         content, terminator = chunk.groups()
         # Content is contains zero or more unescaped string characters
         if content:
-            if not isinstance(content, unicode):
+            if not isinstance(content, str):
                 content = unicode(content, encoding)
             _append(content)
         # Terminator is the end of string, a literal control character,

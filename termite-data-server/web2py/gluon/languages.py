@@ -31,6 +31,7 @@ from gluon.fileutils import listdir
 from gluon.cfs import getcfs
 from gluon.html import XML, xmlescape
 from gluon.contrib.markmin.markmin2html import render, markmin_escape
+from gluon.utils import compare
 
 __all__ = ['translator', 'findT', 'update_all_languages']
 
@@ -314,7 +315,7 @@ def write_plural_dict(filename, contents):
             fp.close()
 
 def sort_function(x,y):
-    return cmp(unicode(x, 'utf-8').lower(), str(y, 'utf-8').lower())
+    return compare(str(x, 'utf-8').lower(), str(y, 'utf-8').lower())
 
 def write_dict(filename, contents):
     if '__corrupted__' in contents:
@@ -393,7 +394,7 @@ class lazyT(object):
         return str(self) * other
 
     def __cmp__(self, other):
-        return cmp(str(self), str(other))
+        return compare(str(self), str(other))
 
     def __hash__(self):
         return hash(str(self))
@@ -527,7 +528,7 @@ class translator(object):
     def get_possible_languages(self):
         """ Gets list of all possible languages for current application """
         return list(set(self.current_languages +
-                        [lang for lang in read_possible_languages(self.langpath).iterkeys()
+                        [lang for lang in read_possible_languages(self.langpath).keys()
                          if lang != 'default']))
 
     def set_current_languages(self, *languages):
@@ -643,7 +644,7 @@ class translator(object):
             languages = []
         self.requested_languages = languages = tuple(languages)
         if languages:
-            all_languages = set(lang for lang in pl_info.iterkeys()
+            all_languages = set(lang for lang in pl_info.keys()
                                 if lang != 'default') \
                 | set(self.current_languages)
             for lang in languages:
@@ -785,9 +786,9 @@ class translator(object):
         the ## notation is ignored in multiline strings and strings that
         start with ##. This is needed to allow markmin syntax to be translated
         """
-        if isinstance(message, unicode):
+        if isinstance(message, str):
             message = message.encode('utf8')
-        if isinstance(prefix, unicode):
+        if isinstance(prefix, str):
             prefix = prefix.encode('utf8')
         key = prefix + message
         mt = self.t.get(key, None)

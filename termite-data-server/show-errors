@@ -1,0 +1,7 @@
+#!/bin/bash
+
+find . -name errors
+
+echo ===========================
+
+find . -name errors | xargs ls -l

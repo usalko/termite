@@ -16,6 +16,7 @@ Contributors:
 
 import os
 import cgi
+import html
 import logging
 from re import compile, sub, escape, DOTALL
 try:
@@ -550,7 +551,7 @@ class TemplateParser(object):
         # Use a list to store everything in
         # This is because later the code will "look ahead"
         # for missing strings or brackets.
-        ij = self.r_tag.split(text)
+        ij = self.r_tag.split(str(text, encoding='utf-8'))
         # j = current index
         # i = current item
         stack = self.stack
@@ -809,11 +810,11 @@ class DummyResponse():
             self.body.write(data.xml())
         else:
             # make it a string
-            if not isinstance(data, (str, unicode)):
+            if not isinstance(data, (bytes, str)):
                 data = str(data)
-            elif isinstance(data, unicode):
+            elif isinstance(data, str):
                 data = data.encode('utf8', 'xmlcharrefreplace')
-            data = cgi.escape(data, True).replace("'", "&#x27;")
+            data = html.escape(data, True).replace("'", "&#x27;")
             self.body.write(data)
 
 

@@ -1103,7 +1103,7 @@ def get_type(v):
 
     if isinstance(v, bool):
         return ('b',)
-    elif isinstance(v, unicode):
+    elif isinstance(v, str):
         if len(v) >= 255:
             return  ('U',(len(v)//1000+1)*1000)
         else:

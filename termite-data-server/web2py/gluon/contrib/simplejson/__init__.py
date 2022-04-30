@@ -134,7 +134,7 @@ _default_encoder = JSONEncoder(
     allow_nan=True,
     indent=None,
     separators=None,
-    encoding='utf-8',
+    #encoding='utf-8',
     default=None,
     use_decimal=False,
 )
@@ -434,7 +434,7 @@ def _toggle_speedups(enabled):
        allow_nan=True,
        indent=None,
        separators=None,
-       encoding='utf-8',
+       #encoding='utf-8',
        default=None,
    )
 

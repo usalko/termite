@@ -314,7 +314,7 @@ class Home_Core(object):
 			'params' : self.params
 		}
 		data.update( self.content )
-		dataStr = json.dumps( data, encoding = 'utf-8', indent = 2, sort_keys = True )
+		dataStr = json.dumps( data, indent = 2, sort_keys = True )
 		
 		self.response.headers['Content-Type'] = 'application/json'
 		return dataStr
@@ -323,7 +323,7 @@ class Home_Core(object):
 		if self.IsJsonFormat():
 			data = { 'configs' : self.configs }
 			data.update(self.content)
-			dataStr = json.dumps( self.content, encoding = 'utf-8', indent = 2, sort_keys = True )
+			dataStr = json.dumps( self.content, indent = 2, sort_keys = True )
 			self.response.headers['Content-Type'] = 'application/json'
 			if self.HasAllowedOrigin():
 				self.response.headers['Access-Control-Allow-Origin'] = self.GetAllowedOrigin()
@@ -361,7 +361,7 @@ class Home_Core(object):
 			'params' : self.params
 		}
 		data.update( self.content )
-		data['content'] = json.dumps( self.content, encoding = 'utf-8', indent = 2, sort_keys = True )
+		data['content'] = json.dumps( self.content, indent = 2, sort_keys = True )
 		self.response.headers['Content-Type'] = 'text/html; charset=utf-8'
 		if self.HasAllowedOrigin():
 			self.response.headers['Access-Control-Allow-Origin'] = self.GetAllowedOrigin()

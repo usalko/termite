@@ -334,7 +334,7 @@ class Qdb(bdb.Bdb):
         self.displayhook_value = None
         try:
             sys.displayhook = self.displayhook
-            exec (code in globals, locals)
+            exec(code, globals, locals)
         finally:
             sys.displayhook = save_displayhook
         return self.displayhook_value

@@ -25,7 +25,7 @@ def escape_item(val, charset):
         return escape_sequence(val, charset)
     if type(val) is dict:
         return escape_dict(val, charset)
-    if PYTHON3 and hasattr(val, "decode") and not isinstance(val, unicode):
+    if PYTHON3 and hasattr(val, "decode") and not isinstance(val, str):
         # deal with py3k bytes
         val = val.decode(charset)
     encoder = encoders[type(val)]
@@ -116,7 +116,7 @@ def convert_datetime(connection, field, obj):
       True
 
     """
-    if not isinstance(obj, unicode):
+    if not isinstance(obj, str):
         obj = obj.decode(connection.charset)
     if ' ' in obj:
         sep = ' '
@@ -150,7 +150,7 @@ def convert_timedelta(connection, field, obj):
     """
     try:
         microseconds = 0
-        if not isinstance(obj, unicode):
+        if not isinstance(obj, str):
             obj = obj.decode(connection.charset)
         if "." in obj:
             (obj, tail) = obj.split('.')
@@ -214,7 +214,7 @@ def convert_date(connection, field, obj):
 
     """
     try:
-        if not isinstance(obj, unicode):
+        if not isinstance(obj, str):
             obj = obj.decode(connection.charset)
         return datetime.date(*[ int(x) for x in obj.split('-', 2) ])
     except ValueError:
@@ -241,7 +241,7 @@ def convert_mysql_timestamp(connection, field, timestamp):
       True
 
     """
-    if not isinstance(timestamp, unicode):
+    if not isinstance(timestamp, str):
         timestamp = timestamp.decode(connection.charset)
 
     if timestamp[4] == '-':

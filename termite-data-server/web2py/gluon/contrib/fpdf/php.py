@@ -21,7 +21,7 @@ def UTF8ToUTF16BE(instr, setbom=True):
     outstr = ""
     if (setbom):
         outstr += "\xFE\xFF"; 
-    if not isinstance(instr, unicode):
+    if not isinstance(instr, str):
         instr = instr.decode('UTF-8')
     outstr += instr.encode('UTF-16BE')
     return outstr

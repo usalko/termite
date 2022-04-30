@@ -92,7 +92,7 @@ class Cursor(object):
 
         # TODO: make sure that conn.escape is correct
 
-        if isinstance(query, unicode):
+        if isinstance(query, str):
             query = query.encode(charset)
 
         if args is not None:
@@ -126,7 +126,7 @@ class Cursor(object):
         if not args:
             return
         #charset = conn.charset
-        #if isinstance(query, unicode):
+        #if isinstance(query, str):
         #    query = query.encode(charset)
 
         self.rowcount = sum([ self.execute(query, arg) for arg in args ])
@@ -164,7 +164,7 @@ class Cursor(object):
         conn = self._get_db()
         for index, arg in enumerate(args):
             q = "SET @_%s_%d=%s" % (procname, index, conn.escape(arg))
-            if isinstance(q, unicode):
+            if isinstance(q, str):
                 q = q.encode(conn.charset)
             self._query(q)
             self.nextset()
@@ -172,7 +172,7 @@ class Cursor(object):
         q = "CALL %s(%s)" % (procname,
                              ','.join(['@_%s_%d' % (procname, i)
                                        for i in range(len(args))]))
-        if isinstance(q, unicode):
+        if isinstance(q, str):
             q = q.encode(conn.charset)
         self._query(q)
         self._executed = q

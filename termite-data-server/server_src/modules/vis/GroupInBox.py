@@ -59,26 +59,26 @@ class GroupInBox(Home_Core):
 		keepTerms = None
 		removeTerms = None
 		try:
-			data = json.loads(mustLinksStr, encoding='utf8')
+			data = json.loads(mustLinksStr.encode('utf8'))
 			if type(data) is list:
 				mustLinks = [ [ d for d in dd if type(d) is unicode ] for dd in data if type(dd) is list ]
 		except (ValueError, KeyError, TypeError):
 			pass
 		try:
-			data = json.loads(cannotLinksStr, encoding='utf8')
+			data = json.loads(cannotLinksStr.encode('utf8'))
 			if type(data) is list:
 				cannotLinks = [ [ d for d in dd if type(d) is unicode ] for dd in data if type(dd) is list ]
 		except (ValueError, KeyError, TypeError):
 			pass
 		try:
-			data = json.loads(keepTermsStr, encoding='utf8')
+			data = json.loads(keepTermsStr.encode('utf8'))
 			if type(data) is dict:
 				for key, value in data.items():
 					keepTerms = { int(key[5:]) : [ d for d in value if type(d) is unicode ] for key, value in data.items() if type(value) is list }
 		except (ValueError, KeyError, TypeError):
 			pass
 		try:
-			data = json.loads(removeTermsStr, encoding='utf8')
+			data = json.loads(removeTermsStr.encode('utf8'))
 			if type(data) is list:
 				removeTerms = [ d for d in data if type(d) is unicode ]
 		except (ValueError, KeyError, TypeError):

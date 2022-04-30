@@ -20,6 +20,7 @@ import datetime
 import logging
 from gluon.http import HTTP
 from gzip import open as gzopen
+from gluon.utils import compare
 
 
 __all__ = [
@@ -227,7 +228,7 @@ def _extractall(filename, path='.', members=None):
 
                 # Reverse sort directories.
 
-                directories.sort(lambda a, b: cmp(a.name, b.name))
+                directories.sort(lambda a, b: compare(a.name, b.name))
                 directories.reverse()
 
                 # Set correct owner, mtime and filemode on directories.

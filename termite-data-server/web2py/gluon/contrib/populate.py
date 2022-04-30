@@ -1,5 +1,5 @@
 import re
-import cPickle
+import pickle
 import random
 import datetime
 
@@ -31,10 +31,10 @@ class Learner:
                 self.db[item][nextitem] += 1
 
     def save(self, filename):
-        cPickle.dump(self.db, open(filename, 'wb'))
+        pickle.dump(self.db, open(filename, 'wb'))
 
     def load(self, filename):
-        self.loadd(cPickle.load(open(filename, 'rb')))
+        self.loadd(pickle.load(open(filename, 'rb')))
 
     def loadd(self, db):
         self.db = db
@@ -129,7 +129,7 @@ def populate_generator(table, default=True, compute=False, contents={}):
                 continue # if user supplied it, let it be.
 
             field = table[fieldname]
-            if not isinstance(field.type, (str, unicode)):
+            if not isinstance(field.type, (bytes, str)):
                 continue
             elif field.type == 'id':
                 continue

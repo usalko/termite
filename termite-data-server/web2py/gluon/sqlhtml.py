@@ -1024,7 +1024,7 @@ class SQLFORM(FORM):
 
         # try to retrieve the indicated record using its id
         # otherwise ignore it
-        if record and isinstance(record, (int, long, str, unicode)):
+        if record and isinstance(record, (int, bytes, str)):
             if not str(record).isdigit():
                 raise HTTP(404, "Object not found")
             record = table._db(table._id == record).select().first()
@@ -1182,10 +1182,10 @@ class SQLFORM(FORM):
             db = linkto.split('/')[-1]
             for rfld in table._referenced_by:
                 if keyed:
-                    query = urllib.quote('%s.%s==%s' % (
+                    query = urllib.parse.quote('%s.%s==%s' % (
                         db, rfld, record[rfld.type[10:].split('.')[1]]))
                 else:
-                    query = urllib.quote(
+                    query = urllib.parse.quote(
                         '%s.%s==%s' % (db, rfld, record[self.id_field_name]))
                 lname = olname = '%s.%s' % (rfld.tablename, rfld.name)
                 if ofields and not olname in ofields:
@@ -3031,14 +3031,14 @@ class SQLTABLE(TABLE):
                             if ref.find('.') >= 0:
                                 tref, fref = ref.split('.')
                                 if hasattr(sqlrows.db[tref], '_primarykey'):
-                                    href = '%s/%s?%s' % (linkto, tref, urllib.urlencode({fref: r}))
+                                    href = '%s/%s?%s' % (linkto, tref, urllib.parse.urlencode({fref: r}))
                         r = A(represent(field, r, record), _href=str(href))
                     elif field.represent:
                         r = represent(field, r, record)
                 elif linkto and hasattr(field._table, '_primarykey')\
                         and fieldname in field._table._primarykey:
                     # have to test this with multi-key tables
-                    key = urllib.urlencode(dict([
+                    key = urllib.parse.urlencode(dict([
                                 ((tablename in record
                                       and isinstance(record, Row)
                                       and isinstance(record[tablename], Row)) and
@@ -3139,7 +3139,7 @@ class ExportClass(object):
             """
             if value is None:
                 return '<NULL>'
-            elif isinstance(value, unicode):
+            elif isinstance(value, str):
                 return value.encode('utf8')
             elif isinstance(value, Reference):
                 return int(value)

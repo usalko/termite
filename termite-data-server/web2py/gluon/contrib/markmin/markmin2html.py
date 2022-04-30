@@ -466,7 +466,7 @@ You can use Google charts to render the formula:
 
 ``
 LATEX = '<img src="http://chart.apis.google.com/chart?cht=tx&chl=%s" />'
-markmin2html(text,{'latex':lambda code: LATEX % urllib.quote(code)})
+markmin2html(text,{'latex':lambda code: LATEX % urllib.parse.quote(code)})
 ``
 
 ### Code with syntax highlighting
@@ -1387,7 +1387,7 @@ def render(text,
                                    % (id_prefix+d,b,d) \
                                    for d in escape(code).split(','))+']'
         elif b=='latex':
-            return LATEX % urllib.quote(code)
+            return LATEX % urllib.parse.quote(code)
         elif b in html_colors:
             return '<span style="color: %s">%s</span>' \
                   % (b, render(code, {}, {}, 'br', URL, environment, latex,

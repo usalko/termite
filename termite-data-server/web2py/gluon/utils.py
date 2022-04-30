@@ -327,3 +327,6 @@ def getipaddrinfo(host):
                 and isinstance(addrinfo[4][0], (str, bytes))]
     except socket.error:
         return []
+
+def compare(a, b):
+    return (a > b) - (a < b)

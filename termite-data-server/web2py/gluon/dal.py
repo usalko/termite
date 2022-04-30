@@ -147,6 +147,7 @@ SPATIALLIBS = {
     'Darwin':'libspatialite.dylib'
     }
 DEFAULT_URI = 'sqlite://dummy.db'
+MAX_SIZE=0xffffffff
 
 import re
 import sys
@@ -172,6 +173,7 @@ import uuid
 import glob
 import traceback
 import platform
+from gluon.utils import compare
 
 PYTHON_VERSION = sys.version_info[:3]
 if PYTHON_VERSION[0] == 2:
@@ -222,7 +224,7 @@ except (ImportError, SystemError):
     def web2py_uuid(): return str(uuid.uuid4())
 
 try:
-    import portalocker
+    import gluon.portalocker as portalocker
     have_portalocker = True
 except ImportError:
     have_portalocker = False
@@ -2024,7 +2026,7 @@ class BaseAdapter(ConnectionPool):
             return str(long(obj))
         elif fieldtype == 'double':
             return repr(float(obj))
-        if isinstance(obj, unicode):
+        if isinstance(obj, str):
             obj = obj.encode(self.db_codec)
         if fieldtype == 'blob':
             obj = base64.b64encode(str(obj))
@@ -2080,7 +2082,7 @@ class BaseAdapter(ConnectionPool):
                 value = value.decode(self.db._db_codec)
             except Exception:
                 pass
-        if isinstance(value, unicode):
+        if isinstance(value, str):
             value = value.encode('utf-8')
         if isinstance(field_type, SQLCustomType):
             value = field_type.decoder(value)
@@ -2187,7 +2189,7 @@ class BaseAdapter(ConnectionPool):
         if not self.native_json:
             if not isinstance(value, (str, bytes)):
                 raise RuntimeError('json data not a string')
-            if isinstance(value, unicode):
+            if isinstance(value, str):
                 value = value.encode('utf-8')
             if have_serializers:
                 value = serializers.loads_json(value)
@@ -4644,7 +4646,7 @@ class NoSQLAdapter(BaseAdapter):
     def to_unicode(obj):
         if isinstance(obj, str):
             return obj.decode('utf8')
-        elif not isinstance(obj, unicode):
+        elif not isinstance(obj, str):
             return str(obj)
         return obj
 
@@ -7908,7 +7910,7 @@ class DAL(object):
                                  notnull=value.get('notnull',False),
                                  unique=value.get('unique',False))) \
                               for key, value in sql_fields.items()]
-                    mf.sort(lambda a,b: cmp(a[0],b[0]))
+                    mf.sort(lambda a,b: compare(a[0],b[0]))
                     self.define_table(name,*[item[1] for item in mf],
                                       **dict(migrate=migrate,
                                              fake_migrate=fake_migrate))
@@ -8196,7 +8198,7 @@ def index():
         if not fields and 'fields' in args:
             fields = args.get('fields',())
         if not isinstance(tablename, str):
-            if isinstance(tablename, unicode):
+            if isinstance(tablename, str):
                 try:
                     tablename = str(tablename)
                 except UnicodeEncodeError:
@@ -9528,7 +9530,7 @@ class Expression(object):
 
         if stop < 0:
             length = '(%s - %d - %s)' % (self.len(), abs(stop) - 1, pos0)
-        elif stop == sys.maxint:
+        elif stop == MAX_SIZE:
             length = self.len()
         else:
             length = '(%s - %s)' % (stop + 1, pos0)
@@ -9897,7 +9899,7 @@ class Field(Expression):
         self.op = None
         self.first = None
         self.second = None
-        if isinstance(fieldname, unicode):
+        if isinstance(fieldname, str):
             try:
                 fieldname = str(fieldname)
             except UnicodeEncodeError:
@@ -11088,7 +11090,7 @@ class Rows(object):
             """
             if value is None:
                 return null
-            elif isinstance(value, unicode):
+            elif isinstance(value, str):
                 return value.encode('utf8')
             elif isinstance(value,Reference):
                 return long(value)

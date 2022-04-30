@@ -88,7 +88,7 @@ def exec_environment(
     if pyfile:
         pycfile = pyfile + 'c'
         if os.path.isfile(pycfile):
-            exec (read_pyc(pycfile) in env)
+            exec(read_pyc(pycfile), env)
         else:
             execfile(pyfile, env)
     return Storage(env)
@@ -261,7 +261,7 @@ def run(
             ccode = None
             if startfile.endswith('.pyc'):
                 ccode = read_pyc(startfile)
-                exec (ccode in _env)
+                exec(ccode, _env)
             else:
                 execfile(startfile, _env)
 

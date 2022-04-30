@@ -1041,7 +1041,7 @@ class FPDF(object):
         # - for built-in fonts: string instances (latin 1 encoding)
         if self.unifontsubset and isinstance(txt, str):
             txt = txt.decode('utf8')
-        elif not self.unifontsubset and isinstance(txt, unicode) and not PY3K:
+        elif not self.unifontsubset and isinstance(txt, str) and not PY3K:
             txt = txt.encode('latin1')
         return txt
 

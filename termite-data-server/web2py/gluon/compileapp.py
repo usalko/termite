@@ -34,6 +34,7 @@ from gluon.cfs import getcfs
 from gluon import html
 from gluon import validators
 from gluon.http import HTTP, redirect
+from gluon.utils import compare
 import marshal
 import shutil
 import imp
@@ -41,6 +42,7 @@ import logging
 logger = logging.getLogger("web2py")
 from gluon import rewrite
 from custom_import import custom_import_install
+import functools
 
 try:
     import py_compile
@@ -427,7 +429,8 @@ def build_environment(request, response, session, store_current=True):
     elif is_pypy:  # apply the same hack to pypy too
         builtins = mybuiltin()
     else:
-        builtins['__import__'] = builtins.__import__  # WHY?
+        # builtins['__import__'] = builtins.__import__  # WHY?
+        pass
     environment['request'] = request
     environment['response'] = response
     environment['session'] = session
@@ -518,7 +521,7 @@ def compile_controllers(folder):
             os.unlink(filename)
 
 def model_cmp(a, b, sep='.'):
-    return cmp(a.count(sep), b.count(sep)) or cmp(a, b)
+    return compare(a.count(sep), b.count(sep)) or compare(a, b)
 
 def model_cmp_sep(a, b, sep=os.path.sep):
     return model_cmp(a,b,sep)
@@ -538,9 +541,9 @@ def run_models_in(environment):
     cpath = pjoin(folder, 'compiled')
     compiled = os.path.exists(cpath)
     if compiled:
-        models = sorted(listdir(cpath, '^models[_.][\w.]+\.pyc$', 0), model_cmp)
+        models = sorted(listdir(cpath, '^models[_.][\w.]+\.pyc$', 0), key=functools.cmp_to_key(model_cmp))
     else:
-        models = sorted(listdir(path, '^\w+\.py$', 0, sort=False), model_cmp_sep)
+        models = sorted(listdir(path, '^\w+\.py$', 0, sort=False), key=functools.cmp_to_key(model_cmp_sep))
     models_to_run = None
     for model in models:
         if response.models_to_run != models_to_run:
@@ -632,7 +635,7 @@ def run_controller_in(controller, function, environment):
     vars = response._vars
     if response.postprocessing:
         vars = reduce(lambda vars, p: p(vars), response.postprocessing, vars)
-    if isinstance(vars, unicode):
+    if isinstance(vars, str):
         vars = vars.encode('utf8')
     elif hasattr(vars, 'xml') and callable(vars.xml):
         vars = vars.xml()

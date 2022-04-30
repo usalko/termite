@@ -58,6 +58,7 @@ import select
 import socket
 import errno
 import traceback
+import html
 
 try:
     import thread
@@ -573,6 +574,7 @@ class Request(object):
         self.stdout = OutputStream(conn, self, FCGI_STDOUT)
         self.stderr = OutputStream(conn, self, FCGI_STDERR, buffered=True)
         self.data = inputStreamClass(conn)
+        self.vars = {}
 
     def run(self):
         """Runs the handler, flushes the streams, and ends the request."""
@@ -1314,7 +1316,7 @@ if __name__ == '__main__':
         names.sort()
         for name in names:
             yield '<tr><td>%s</td><td>%s</td></tr>\n' % (
-                name, cgi.escape(f'{environ[name]}'))
+                name, html.escape(f'{environ[name]}'))
 
         form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ,
                                 keep_blank_values=1)

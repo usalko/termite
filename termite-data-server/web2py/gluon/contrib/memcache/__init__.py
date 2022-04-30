@@ -8,7 +8,7 @@ examle of usage:
 cache.memcache = MemcacheClient(request,[127.0.0.1:11211],debug=true)
 """
 
-import cPickle as pickle
+import pickle
 import thread
 from gluon import current
 

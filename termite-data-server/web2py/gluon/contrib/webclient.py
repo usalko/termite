@@ -120,7 +120,7 @@ class WebClient(object):
                     data['_formkey'] = self.forms[data['_formname']]
 
                 # time the POST request
-                data = urllib.urlencode(data, doseq=True)
+                data = urllib.parse.urlencode(data, doseq=True)
             else:
                 self.method = 'GET' if method=='auto' else method
                 data = None

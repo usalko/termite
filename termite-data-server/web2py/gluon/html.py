@@ -24,12 +24,15 @@ import copyreg
 import pickle
 import marshal
 
+import html
 from html.parser import HTMLParser
 from html.entities import name2codepoint
 
 from gluon.storage import Storage
 from gluon.utils import web2py_uuid, simple_hash, compare
 from gluon.highlight import highlight
+from gluon.utils import compare
+
 
 regex_crlf = re.compile('\r|\n')
 
@@ -123,13 +126,13 @@ def xmlescape(data, quote=True):
         return data.xml()
 
     # otherwise, make it a string
-    if not isinstance(data, (str, unicode)):
+    if not isinstance(data, (str, str)):
         data = str(data)
-    elif isinstance(data, unicode):
+    elif isinstance(data, str):
         data = data.encode('utf8', 'xmlcharrefreplace')
 
     # ... and do the escaping
-    data = cgi.escape(data, quote).replace("'", "&#x27;")
+    data = html.escape(str(data, encoding='utf-8'), quote).replace("'", "&#x27;")
     return data
 
 def call_as_list(f,*a,**b):
@@ -255,7 +258,7 @@ def URL(
 
     """
 
-    from rewrite import url_out  # done here in case used not-in web2py
+    from gluon.rewrite import url_out  # done here in case used not-in web2py
 
     if args in (None, []):
         args = []
@@ -272,7 +275,7 @@ def URL(
             (f, a, c) = (a, c, f)
         elif a and c and not f:
             (c, f, a) = (a, c, f)
-        from globals import current
+        from gluon.globals import current
         if hasattr(current, 'request'):
             r = current.request
 
@@ -318,10 +321,10 @@ def URL(
     if args:
         if url_encode:
             if encode_embedded_slash:
-                other = '/' + '/'.join([urllib.quote(str(
+                other = '/' + '/'.join([urllib.parse.quote(str(
                     x), '') for x in args])
             else:
-                other = args and urllib.quote(
+                other = args and urllib.parse.quote(
                     '/' + '/'.join([str(x) for x in args]))
         else:
             other = args and ('/' + '/'.join([str(x) for x in args]))
@@ -341,7 +344,7 @@ def URL(
             list_vars.append((key, val))
 
     if user_signature:
-        from globals import current
+        from gluon.globals import current
         if current.session.auth:
             hmac_key = current.session.auth.hmac_key
 
@@ -362,7 +365,7 @@ def URL(
             h_vars = [(k, v) for (k, v) in list_vars if k in hash_vars]
 
         # re-assembling the same way during hash authentication
-        message = h_args + '?' + urllib.urlencode(sorted(h_vars))
+        message = h_args + '?' + urllib.parse.urlencode(sorted(h_vars))
         sig = simple_hash(
             message, hmac_key or '', salt or '', digest_alg='sha1')
         # add the signature into vars
@@ -370,12 +373,12 @@ def URL(
 
     if list_vars:
         if url_encode:
-            other += '?%s' % urllib.urlencode(list_vars)
+            other += '?%s' % urllib.parse.urlencode(list_vars)
         else:
             other += '?%s' % '&'.join(['%s=%s' % var[:2] for var in list_vars])
     if anchor:
         if url_encode:
-            other += '#' + urllib.quote(str(anchor))
+            other += '#' + urllib.parse.quote(str(anchor))
         else:
             other += '#' + (str(anchor))
     if extension:
@@ -430,7 +433,7 @@ def verifyURL(request, hmac_key=None, hash_vars=True, salt=None, user_signature=
 
     # check if user_signature requires
     if user_signature:
-        from globals import current
+        from gluon.globals import current
         if not current.session or not current.session.auth:
             return False
         hmac_key = current.session.auth.hmac_key
@@ -449,7 +452,7 @@ def verifyURL(request, hmac_key=None, hash_vars=True, salt=None, user_signature=
     # join all the args & vars into one long string
 
     # always include all of the args
-    other = args and urllib.quote('/' + '/'.join([str(x) for x in args])) or ''
+    other = args and urllib.parse.quote('/' + '/'.join([str(x) for x in args])) or ''
     h_args = '/%s/%s/%s.%s%s' % (request.application,
                                  request.controller,
                                  request.function,
@@ -481,7 +484,7 @@ def verifyURL(request, hmac_key=None, hash_vars=True, salt=None, user_signature=
             # user has removed one of our vars! Immediate fail
             return False
     # build the full message string with both args & vars
-    message = h_args + '?' + urllib.urlencode(sorted(h_vars))
+    message = h_args + '?' + urllib.parse.urlencode(sorted(h_vars))
 
     # hash with the hmac_key provided
     sig = simple_hash(message, str(hmac_key), salt or '', digest_alg='sha1')
@@ -611,7 +614,7 @@ class XML(XmlComponent):
         return '%s%s' % (other, self)
 
     def __cmp__(self, other):
-        return cmp(str(self), str(other))
+        return compare(str(self), str(other))
 
     def __hash__(self):
         return hash(str(self))
@@ -780,7 +783,7 @@ class DIV(XmlComponent):
             value: the new value
         """
         self._setnode(value)
-        if isinstance(i, (str, unicode)):
+        if isinstance(i, (str, str)):
             self.attributes[i] = value
         else:
             self.components[i] = value
@@ -1231,13 +1234,13 @@ class CAT(DIV):
 
 
 def TAG_unpickler(data):
-    return cPickle.loads(data)
+    return pickle.loads(data)
 
 
 def TAG_pickler(data):
     d = DIV()
     d.__dict__ = data.__dict__
-    marshal_dump = cPickle.dumps(d)
+    marshal_dump = pickle.dumps(d)
     return (TAG_unpickler, (marshal_dump,))
 
 
@@ -1266,7 +1269,7 @@ class __TAG__(XmlComponent):
     def __getattr__(self, name):
         if name[-1:] == '_':
             name = name[:-1] + '/'
-        if isinstance(name, unicode):
+        if isinstance(name, str):
             name = name.encode('utf-8')
         return lambda *a,**b: __tag_div__(name,*a,**b)
 
@@ -2227,7 +2230,7 @@ class FORM(DIV):
                 if self.vars:
                     for key, value in self.vars.items():
                         next = next.replace('[%s]' % key,
-                                            urllib.quote(str(value)))
+                                            urllib.parse.quote(str(value)))
                     if not next.startswith('/'):
                         next = URL(next)
                 redirect(next)
@@ -2423,7 +2426,7 @@ class BEAUTIFY(DIV):
                 try:
                     keys = (sorter and sorter(c)) or c
                     for key in keys:
-                        if isinstance(key, (str, unicode)) and keyfilter:
+                        if isinstance(key, (str, str)) and keyfilter:
                             filtered_key = keyfilter(key)
                         else:
                             filtered_key = str(key)
@@ -2443,7 +2446,7 @@ class BEAUTIFY(DIV):
                     pass
             if isinstance(c, str):
                 components.append(str(c))
-            elif isinstance(c, unicode):
+            elif isinstance(c, str):
                 components.append(c.encode('utf8'))
             elif isinstance(c, (list, tuple)):
                 items = [TR(TD(BEAUTIFY(item, **attributes)))
@@ -2672,7 +2675,7 @@ class web2pyHTMLParser(HTMLParser):
             self.last = tag.tag[:-1]
 
     def handle_data(self, data):
-        if not isinstance(data, unicode):
+        if not isinstance(data, str):
             try:
                 data = data.decode('utf8')
             except:

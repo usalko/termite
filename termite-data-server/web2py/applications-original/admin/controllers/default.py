@@ -14,9 +14,11 @@ from gluon.fileutils import abspath, read_file, write_file
 from gluon.utils import web2py_uuid
 from gluon.tools import Config
 from gluon.compileapp import find_exposed_functions
+from gluon.utils import compare
 from glob import glob
 import shutil
 import platform
+import functools
 
 try:
     import git
@@ -310,7 +312,7 @@ def site():
     if FILTER_APPS:
         apps = [f for f in apps if f in FILTER_APPS]
 
-    apps = sorted(apps, lambda a, b: cmp(a.upper(), b.upper()))
+    apps = sorted(apps, key=functools.cmp_to_key(lambda a, b: compare(a.upper(), b.upper())))
     myplatform = platform.python_version()
     return dict(app=None, apps=apps, myversion=myversion, myplatform=myplatform,
                 form_create=form_create, form_update=form_update)
@@ -908,8 +910,8 @@ def edit_language():
         form = SPAN(strings['__corrupted__'], _class='error')
         return dict(filename=filename, form=form)
 
-    keys = sorted(strings.keys(), lambda x, y: cmp(
-        str(x, 'utf-8').lower(), str(y, 'utf-8').lower()))
+    keys = sorted(strings.keys(), functools.cmp_to_key(lambda x, y: compare(
+        str(x, 'utf-8').lower(), str(y, 'utf-8').lower())))
     rows = []
     rows.append(H2(T('Original/Translation')))
 
@@ -971,8 +973,8 @@ def edit_plurals():
         form = SPAN(plurals['__corrupted__'], _class='error')
         return dict(filename=filename, form=form)
 
-    keys = sorted(plurals.keys(), lambda x, y: cmp(
-        str(x, 'utf-8').lower(), str(y, 'utf-8').lower()))
+    keys = sorted(plurals.keys(), functools.cmp_to_key(lambda x, y: compare(
+        str(x, 'utf-8').lower(), str(y, 'utf-8').lower())))
     tab_rows = []
     for key in keys:
         name = md5_hash(key)
@@ -1807,7 +1809,7 @@ def user():
 
 def reload_routes():
     """ Reload routes.py """
-    import web2py.gluon.rewrite
+    import gluon.rewrite
     gluon.rewrite.load()
     redirect(URL('site'))
 

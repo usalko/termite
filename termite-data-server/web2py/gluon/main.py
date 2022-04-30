@@ -24,6 +24,7 @@ import socket
 import random
 import urllib
 import string
+import traceback
 
 
 try:
@@ -441,7 +442,9 @@ def wsgibase(environ, responder):
 
                 serve_controller(request, response, session)
 
-            except HTTP as http_response:
+            except HTTP as http_error:
+
+                http_response = http_error
 
                 if static_file:
                     return http_response.to(responder, env=env)
@@ -523,7 +526,10 @@ def wsgibase(environ, responder):
                          dict(ticket=ticket),
                          web2py_error='ticket %s' % ticket)
 
-        except:
+        except BaseException as e:
+            
+            #FIXME: Wrap to the logger
+            traceback.print_tb(e.__traceback__)
 
             if request.body:
                 request.body.close()

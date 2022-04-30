@@ -326,7 +326,7 @@ class IS_LENGTH(Validator):
                 lvalue = len(value)
             if self.minsize <= lvalue <= self.maxsize:
                 return (value, None)
-        elif isinstance(value, unicode):
+        elif isinstance(value, str):
             if self.minsize <= len(value) <= self.maxsize:
                 return (value.encode('utf8'), None)
         elif isinstance(value, (tuple, list)):
@@ -912,7 +912,7 @@ class IS_DECIMAL_IN_RANGE(Validator):
 
 def is_empty(value, empty_regex=None):
     "test empty field"
-    if isinstance(value, (str, unicode)):
+    if isinstance(value, (bytes, str)):
         value = value.strip()
         if empty_regex is not None and empty_regex.match(value):
             value = ''
@@ -2921,7 +2921,7 @@ def calc_entropy(string):
     seen = set()
     lastset = None
     if isinstance(string, str):
-        string = str(string, encoding='utf8')
+        string = str(string.encode('utf8'))
     for c in string:
         # classify this character
         inset = otherset

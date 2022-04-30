@@ -15,6 +15,8 @@ Symbian.
 """
 import sys
 
+MAX_SIZE=0xffffffff
+
 
 class DetectorsHub(dict):
     _known_types = ['os', 'dist', 'flavor', 'browser']
@@ -41,7 +43,7 @@ class DetectorsHub(dict):
             prefs.insert(0, '')
 
             def key_name(d):
-                return d.name in prefs and prefs.index(d.name) or sys.maxint
+                return d.name in prefs and prefs.index(d.name) or MAX_SIZE
             return sorted(detectors, key=key_name)
 
     def __iter__(self):
@@ -546,10 +548,10 @@ if __name__ == '__main__':
                 detect(agent)
             time_taken = time.time() - then
             no_of_tests = len(self.data) * self.harass_repeat
-            print "\nTime taken for %s detecttions: %s" \
-                % (no_of_tests, time_taken)
-            print "Time taken for single detecttion: ", \
-                time_taken / (len(self.data) * self.harass_repeat)
+            print("\nTime taken for %s detecttions: %s" \
+                % (no_of_tests, time_taken))
+            print("Time taken for single detecttion: ", \
+                time_taken / (len(self.data) * self.harass_repeat))
 
     unittest.main()
 

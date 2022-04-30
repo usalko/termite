@@ -162,7 +162,7 @@ def demo_function(*argv, **kwargs):
 def _decode_list(lst):
     newlist = []
     for i in lst:
-        if isinstance(i, unicode):
+        if isinstance(i, str):
             i = i.encode('utf-8')
         elif isinstance(i, list):
             i = _decode_list(i)
@@ -173,9 +173,9 @@ def _decode_list(lst):
 def _decode_dict(dct):
     newdict = {}
     for k, v in dct.items():
-        if isinstance(k, unicode):
+        if isinstance(k, str):
             k = k.encode('utf-8')
-        if isinstance(v, unicode):
+        if isinstance(v, str):
             v = v.encode('utf-8')
         elif isinstance(v, list):
             v = _decode_list(v)

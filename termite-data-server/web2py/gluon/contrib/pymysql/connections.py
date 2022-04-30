@@ -781,7 +781,7 @@ class Connection(object):
         if self._result is not None and self._result.unbuffered_active:
             self._result._finish_unbuffered_query()
 
-        if isinstance(sql, unicode):
+        if isinstance(sql, str):
             sql = sql.encode(self.charset)
 
         prelude = struct.pack('<i', len(sql)+1) + int2byte(command)

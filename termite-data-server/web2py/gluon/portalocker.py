@@ -6,7 +6,7 @@ Cross-platform (posix/nt) API for flock-style file locking.
 
 Synopsis::
 
-   import portalocker
+   import gluon.portalocker as portalocker
    file = open(\"somefile\", \"r+\")
    portalocker.lock(file, portalocker.LOCK_EX)
    file.seek(12)
@@ -112,10 +112,10 @@ class LockedFile(object):
         self.mode = mode
         self.file = None
         if 'r' in mode:
-            self.file = open(filename, mode)
+            self.file = open(filename, mode, encoding='utf-8')
             lock(self.file, LOCK_SH)
         elif 'w' in mode or 'a' in mode:
-            self.file = open(filename, mode.replace('w', 'a'))
+            self.file = open(filename, mode.replace('w', 'a'), encoding='utf-8')
             lock(self.file, LOCK_EX)
             if not 'a' in mode:
                 self.file.seek(0)

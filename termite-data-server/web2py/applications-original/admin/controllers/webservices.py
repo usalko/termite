@@ -89,7 +89,7 @@ def attach_debugger(host='localhost', port=6000, authkey='secret password'):
     import web2py.gluon.debug
     from multiprocessing.connection import Listener
 
-    if isinstance(authkey, unicode):
+    if isinstance(authkey, str):
         authkey = authkey.encode('utf8')
 
     if not hasattr(gluon.debug, 'qdb_listener'):

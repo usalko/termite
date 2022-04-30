@@ -59,11 +59,11 @@ def startwebserver():
             path = os.path.abspath(os.path.join(path, '..'))
     web2py_exec = os.path.join(path, 'web2py.py')
     webserverprocess = subprocess.Popen([sys.executable, web2py_exec, '-a',  'testpass'])
-    print 'Sleeping before web2py starts...'
+    print('Sleeping before web2py starts...')
     for a in range(1,11):
         time.sleep(1)
-        print a, '...'
-    print ''
+        print(a, '...')
+    print('')
 
 def terminate_process(pid):
     #Taken from http://stackoverflow.com/questions/1064335/in-python-2-5-how-do-i-kill-a-subprocess
@@ -80,7 +80,7 @@ def terminate_process(pid):
 
 def stopwebserver():
     global webserverprocess
-    print 'Killing webserver'
+    print('Killing webserver')
     if sys.version_info < (2,6):
         terminate_process(webserverprocess.pid)
     else:
@@ -158,7 +158,7 @@ class TestWeb(LiveTest):
 
         try:
             ret = client.Division(a=3, b=0)
-        except SoapFault, sf:
+        except SoapFault as sf:
             # verify the exception value is ok
             # assert(sf.faultstring == "float division by zero") # true only in 2.7
             assert(sf.faultcode == "Server.ZeroDivisionError")

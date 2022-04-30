@@ -36,6 +36,7 @@ import math
 from errors import (NotSupportedError, ArrayDataParseError, InternalError,
         ArrayContentEmptyError, ArrayContentNotHomogenousError,
         ArrayContentNotSupportedError, ArrayDimensionsNotConsistentError)
+from gluon.utils import compare
 
 try:
     from pytz import utc
@@ -92,11 +93,11 @@ class Interval(object):
 
     def __cmp__(self, other):
         if other == None: return -1
-        c = cmp(self.months, other.months)
+        c = compare(self.months, other.months)
         if c != 0: return c
-        c = cmp(self.days, other.days)
+        c = compare(self.days, other.days)
         if c != 0: return c
-        return cmp(self.microseconds, other.microseconds)
+        return compare(self.microseconds, other.microseconds)
 
 def pg_type_info(typ):
     value = None
@@ -444,7 +445,7 @@ def varcharin(data, client_encoding, **kwargs):
     return unicode(data, encoding_convert(client_encoding))
 
 def textout(v, client_encoding, **kwargs):
-    if isinstance(v, unicode):
+    if isinstance(v, str):
         return v.encode(encoding_convert(client_encoding))
     else:
         return v

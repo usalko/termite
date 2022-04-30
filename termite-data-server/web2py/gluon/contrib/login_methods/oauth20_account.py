@@ -181,7 +181,7 @@ server for requests.  It can be used for the optional"scope" parameters for Face
                         except Exception as e:
                             raise Exception("Cannot parse oauth server response %s %s" % (data, e))
                     else: # try facebook style first with x-www-form-encoded
-                        tokendata = cgi.parse_qs(data)
+                        tokendata = cgi.parse(data)
                         current.session.token = \
                           dict([(k, v[-1]) for k, v in tokendata.items()])
                     if not tokendata: # parsing failed?

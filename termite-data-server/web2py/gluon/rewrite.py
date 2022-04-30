@@ -1096,7 +1096,7 @@ class MapUrlIn(object):
         uri = '/%s%s%s%s' % (
             app,
             uri,
-            urllib.quote('/' + '/'.join(
+            urllib.parse.quote('/' + '/'.join(
                 str(x) for x in self.args)) if self.args else '',
             ('?' + self.query) if self.query else '')
         self.env['REQUEST_URI'] = uri

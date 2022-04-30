@@ -82,7 +82,7 @@ class Loginza(object):
         request = self.request
         if request.vars.token:
             user = Storage()
-            data = urllib.urlencode(dict(token=request.vars.token))
+            data = urllib.parse.urlencode(dict(token=request.vars.token))
             auth_info_json = fetch(self.auth_url + '?' + data)
             #print auth_info_json
             auth_info = json.loads(auth_info_json)

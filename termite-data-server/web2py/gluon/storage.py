@@ -146,7 +146,7 @@ def load_storage(filename):
     fp = None
     try:
         fp = portalocker.LockedFile(filename, 'rb')
-        storage = cPickle.load(fp)
+        storage = pickle.load(fp)
     finally:
         if fp:
             fp.close()
@@ -157,7 +157,7 @@ def save_storage(storage, filename):
     fp = None
     try:
         fp = portalocker.LockedFile(filename, 'wb')
-        cPickle.dump(dict(storage), fp)
+        pickle.dump(dict(storage), fp)
     finally:
         if fp:
             fp.close()

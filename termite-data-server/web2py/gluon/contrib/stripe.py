@@ -72,7 +72,7 @@ def pay():
                  'description': description}
         if more:
             d.update(mode)
-        params = urllib.urlencode(d)
+        params = urllib.parse.urlencode(d)
         u = urllib.urlopen(self.URL_CHARGE % self.key, params)
         return simplejson.loads(u.read())
 
@@ -81,7 +81,7 @@ def pay():
         return simplejson.loads(u.read())
 
     def refund(self, charge_id):
-        params = urllib.urlencode({})
+        params = urllib.parse.urlencode({})
         u = urllib.urlopen(self.URL_REFUND % (self.key, charge_id),
                            params)
         return simplejson.loads(u.read())

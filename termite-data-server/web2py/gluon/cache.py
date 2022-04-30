@@ -20,7 +20,7 @@ caching will be provided by the GAE memcache
 (see gluon.contrib.gae_memcache)
 """
 import time
-import gluon.portalocker
+import gluon.portalocker as portalocker
 import shelve
 import _thread
 import os

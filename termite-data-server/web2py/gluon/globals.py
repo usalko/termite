@@ -26,7 +26,7 @@ import gluon.settings as settings
 from gluon.utils import web2py_uuid, secure_dumps, secure_loads
 from gluon.settings import global_settings
 import hashlib
-import gluon.portalocker
+import gluon.portalocker as portalocker
 import pickle
 from pickle import Pickler, MARK, DICT, EMPTY_DICT
 from typing import Dict
@@ -189,7 +189,7 @@ class Request(Storage):
         """Takes the QUERY_STRING and unpacks it to get_vars
         """
         query_string = self.env.get('QUERY_STRING','')
-        dget = cgi.parse_qs(query_string, keep_blank_values=1)
+        dget = cgi.parse(query_string, keep_blank_values=1)
         get_vars = self._get_vars = Storage(dget)
         for (key, value) in get_vars.items():
             if isinstance(value,list) and len(value)==1:
@@ -540,7 +540,7 @@ class Response(Storage):
 
         if not request:
             request = current.request
-        if isinstance(stream, (str, unicode)):
+        if isinstance(stream, (str, str)):
             stream_file_or_304_or_206(stream,
                                       chunk_size=chunk_size,
                                       request=request,
@@ -820,7 +820,7 @@ class Session(Storage):
                         portalocker.lock(response.session_file,
                                          portalocker.LOCK_EX)
                         response.session_locked = True
-                        self.update(cPickle.load(response.session_file))
+                        self.update(pickle.load(response.session_file))
                         response.session_file.seek(0)
                         oc = response.session_filename.split('/')[-1].split('-')[0]
                         if check_client and response.session_client != oc:
@@ -885,7 +885,7 @@ class Session(Storage):
                     if row:
                         # rows[0].update_record(locked=True)
                         # Unpickle the data
-                        session_data = cPickle.loads(row.session_data)
+                        session_data = pickle.loads(row.session_data)
                         self.update(session_data)
                         response.session_new = False
                     else:
@@ -915,7 +915,7 @@ class Session(Storage):
                 response.cookies[response.session_id_name]['expires'] = \
                     cookie_expires.strftime(FMT)
 
-        session_pickled = cPickle.dumps(self)
+        session_pickled = pickle.dumps(self)
         response.session_hash = hashlib.md5(session_pickled).hexdigest()
 
         if self.flash:
@@ -1075,7 +1075,7 @@ class Session(Storage):
         return True
 
     def _unchanged(self,response):
-        session_pickled = cPickle.dumps(self)
+        session_pickled = pickle.dumps(self)
         response.session_pickled = session_pickled
         session_hash = hashlib.md5(session_pickled).hexdigest()
         return response.session_hash == session_hash
@@ -1102,7 +1102,7 @@ class Session(Storage):
         else:
             unique_key = response.session_db_unique_key
 
-        session_pickled = response.session_pickled or cPickle.dumps(self)
+        session_pickled = response.session_pickled or pickle.dumps(self)
 
         dd = dict(locked=False,
                   client_ip=response.session_client,
@@ -1142,7 +1142,7 @@ class Session(Storage):
                 portalocker.lock(response.session_file, portalocker.LOCK_EX)
                 response.session_locked = True
             if response.session_file:
-                session_pickled = response.session_pickled or cPickle.dumps(self)
+                session_pickled = response.session_pickled or pickle.dumps(self)
                 response.session_file.write(session_pickled)
                 response.session_file.truncate()
         finally:
@@ -1154,7 +1154,7 @@ class Session(Storage):
     def _unlock(self, response):
         if response and response.session_file and response.session_locked:
             try:
-                portalocker.unlock(response.session_file)
+                gluon.portalocker.unlock(response.session_file)
                 response.session_locked = False
             except:  # this should never happen but happens in Windows
                 pass

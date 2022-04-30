@@ -124,13 +124,13 @@ write( data.TermTopicMatrixJSON, file = app.path.TermTopicMatrix )
 	def ReadFromDisk( self ):
 		self.logger.debug( '    Loading json: %s', self.ldaTermIndex )
 		with open( self.ldaTermIndex ) as f:
-			data = json.load( f, encoding = 'utf-8' )
+			data = json.load( f.encode('utf-8') )
 		self.termList = [ d['text'] for d in data ]
 		self.docList = [ d.doc_id for d in self.corpus().select(self.corpus.corpus.doc_id, orderby=self.corpus.corpus.doc_index) ] if self.corpus is not None else None
 
 		self.logger.debug( '    Loading matrix: %s', self.ldaTermTopicMatrix )
 		with open( self.ldaTermTopicMatrix ) as f:
-			matrix = json.load( f, encoding = 'utf-8' )
+			matrix = json.load( f.encode('utf-8') )
 		self.termTopicMatrix = []
 		for termIndex, topicFreqs in enumerate(matrix):
 			for topicIndex, value in enumerate(topicFreqs):
@@ -147,7 +147,7 @@ write( data.TermTopicMatrixJSON, file = app.path.TermTopicMatrix )
 
 		self.logger.debug( '    Loading matrix: %s', self.ldaDocTopicMatrix )
 		with open( self.ldaDocTopicMatrix ) as f:
-			matrix = json.load( f, encoding = 'utf-8' )
+			matrix = json.load( f.encode('utf-8') )
 		self.docTopicMatrix = []
 		for docIndex, topicFreqs in enumerate(matrix):
 			for topicIndex, value in enumerate(topicFreqs):

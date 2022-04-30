@@ -48,7 +48,7 @@ class DowCommerce:
         self.setParameter('password', password)
 
     def process(self):
-        encoded_args = urllib.urlencode(self.parameters)
+        encoded_args = urllib.parse.urlencode(self.parameters)
         if self.proxy is None:
             results = str(urllib.urlopen(
                 self.url, encoded_args).read()).split(self.delimiter)

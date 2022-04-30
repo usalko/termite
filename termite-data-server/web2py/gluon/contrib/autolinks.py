@@ -48,6 +48,7 @@ import sys
 from simplejson import loads
 import urllib
 import uuid
+import html
 try:
     from BeautifulSoup import BeautifulSoup, Comment
     have_soup = True
@@ -93,7 +94,7 @@ def video(url):
 
 
 def googledoc_viewer(url):
-    return '<iframe src="http://docs.google.com/viewer?url=%s&embedded=true" style="max-width:100%%"></iframe>' % urllib.quote(url)
+    return '<iframe src="http://docs.google.com/viewer?url=%s&embedded=true" style="max-width:100%%"></iframe>' % urllib.parse.quote(url)
 
 
 def web2py_component(url):
@@ -144,7 +145,7 @@ urllib._urlopener = VimeoURLOpener()
 def oembed(url):
     for k, v in EMBED_MAPS:
         if k.match(url):
-            oembed = v + '?format=json&url=' + cgi.escape(url)
+            oembed = v + '?format=json&url=' + html.escape(url)
             try:
                 data = urllib.urlopen(oembed).read()
                 return loads(data)  # json!

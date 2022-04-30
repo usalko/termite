@@ -68,12 +68,12 @@
 
 	def WriteURL( keysAndValues = {} ):
 		urlStr = configs['url']
-		queryStr = urllib.urlencode({key : (value.encode('utf-8') if isinstance(value,unicode) else value) for key, value in params.items() if value is not None})
+		queryStr = urllib.parse.urlencode({key : (value.encode('utf-8') if isinstance(value,unicode) else value) for key, value in params.items() if value is not None})
 		s = urlStr if len(queryStr) == 0 else '{}?{}'.format(urlStr, queryStr)
 		response.write(s, escape=False)
 	pass
 
 	def WriteJSON( data ):
-		response.write( json.dumps(data, encoding='utf-8', indent=2, sort_keys=True), escape=False )
+		response.write( json.dumps(data, indent=2, sort_keys=True), escape=False )
 	pass
 }}

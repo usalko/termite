@@ -172,9 +172,9 @@ class Client(local):
         @param pickler: optional override of default Pickler to allow subclassing.
         @param unpickler: optional override of default Unpickler to allow subclassing.
         @param pload: optional persistent_load function to call on pickle loading.
-        Useful for cPickle since subclassing isn't allowed.
+        Useful for pickle since subclassing isn't allowed.
         @param pid: optional persistent_id function to call on pickle storing.
-        Useful for cPickle since subclassing isn't allowed.
+        Useful for pickle since subclassing isn't allowed.
         @param dead_retry: number of seconds before retrying a blacklisted
         server. Default to 30 s.
         @param socket_timeout: timeout in seconds for all calls to a server. Defaults
@@ -379,7 +379,7 @@ class Client(local):
         dead_servers = []
 
         rc = 1
-        for server in server_keys.iterkeys():
+        for server in server_keys.keys():
             bigcmd = []
             write = bigcmd.append
             if time != None:
@@ -677,13 +677,13 @@ class Client(local):
 
         self._statlog('set_multi')
 
-        server_keys, prefixed_to_orig_key = self._map_and_prefix_keys(mapping.iterkeys(), key_prefix)
+        server_keys, prefixed_to_orig_key = self._map_and_prefix_keys(mapping.keys(), key_prefix)
 
         # send out all requests on each server before reading anything
         dead_servers = []
         notstored = [] # original keys.
 
-        for server in server_keys.iterkeys():
+        for server in server_keys.keys():
             bigcmd = []
             write = bigcmd.append
             try:
@@ -912,7 +912,7 @@ class Client(local):
 
         # send out all requests on each server before reading anything
         dead_servers = []
-        for server in server_keys.iterkeys():
+        for server in server_keys.keys():
             try:
                 server.send_cmd("get %s" % " ".join(server_keys[server]))
             except socket.error, msg:
@@ -925,7 +925,7 @@ class Client(local):
             del server_keys[server]
 
         retvals = {}
-        for server in server_keys.iterkeys():
+        for server in server_keys.keys():
             try:
                 line = server.readline()
                 while line and line != 'END':
@@ -1009,7 +1009,7 @@ class Client(local):
         if isinstance(key, tuple): key = key[1]
         if not key:
             raise Client.MemcachedKeyNoneError("Key is None")
-        if isinstance(key, unicode):
+        if isinstance(key, str):
             raise Client.MemcachedStringEncodingError(
                     "Keys must be str()'s, not unicode.  Convert your unicode "
                     "strings using mystring.encode(charset)!")

@@ -451,14 +451,14 @@ _urifixer = re.compile('^([A-Za-z][A-Za-z0-9+-.]*://)(/*)(.*?)')
 def _urljoin(base, uri):
     uri = _urifixer.sub(r'\1\3', uri)
     #try:
-    if not isinstance(uri, unicode):
+    if not isinstance(uri, str):
         uri = uri.decode('utf-8', 'ignore')
     uri = urlparse.urljoin(base, uri)
-    if not isinstance(uri, unicode):
+    if not isinstance(uri, str):
         return uri.decode('utf-8', 'ignore')
     return uri
     #except:
-    #    uri = urlparse.urlunparse([urllib.quote(part) for part in urlparse.urlparse(uri)])
+    #    uri = urlparse.urlunparse([urllib.parse.quote(part) for part in urlparse.urlparse(uri)])
     #    return urlparse.urljoin(base, uri)
 
 class _FeedParserMixin:
@@ -587,7 +587,7 @@ class _FeedParserMixin:
         # strict xml parsers do -- account for this difference
         if isinstance(self, _LooseFeedParser):
             v = v.replace('&amp;', '&')
-            if not isinstance(v, unicode):
+            if not isinstance(v, str):
                 v = v.decode('utf-8')
         return (k, v)
 
@@ -601,7 +601,7 @@ class _FeedParserMixin:
         # track xml:base and xml:lang
         attrsD = dict(attrs)
         baseuri = attrsD.get('xml:base', attrsD.get('base')) or self.baseuri
-        if not isinstance(baseuri, unicode):
+        if not isinstance(baseuri, str):
             baseuri = baseuri.decode(self.encoding, 'ignore')
         # ensure that self.baseuri is always an absolute URI that
         # uses a whitelisted URI scheme (e.g. not `javscript:`)
@@ -867,7 +867,7 @@ class _FeedParserMixin:
 
         # Ensure each piece is a str for Python 3
         for (i, v) in enumerate(pieces):
-            if not isinstance(v, unicode):
+            if not isinstance(v, str):
                 pieces[i] = v.decode('utf-8')
 
         output = u''.join(pieces)
@@ -940,19 +940,19 @@ class _FeedParserMixin:
             if element in self.can_contain_dangerous_markup:
                 output = _sanitizeHTML(output, self.encoding, self.contentparams.get('type', u'text/html'))
 
-        if self.encoding and not isinstance(output, unicode):
+        if self.encoding and not isinstance(output, str):
             output = output.decode(self.encoding, 'ignore')
 
         # address common error where people take data that is already
         # utf-8, presume that it is iso-8859-1, and re-encode it.
-        if self.encoding in (u'utf-8', u'utf-8_INVALID_PYTHON_3') and isinstance(output, unicode):
+        if self.encoding in (u'utf-8', u'utf-8_INVALID_PYTHON_3') and isinstance(output, str):
             try:
                 output = output.encode('iso-8859-1').decode('utf-8')
             except (UnicodeEncodeError, UnicodeDecodeError):
                 pass
 
         # map win-1252 extensions to the proper code points
-        if isinstance(output, unicode):
+        if isinstance(output, str):
             output = output.translate(_cp1252)
 
         # categories/tags/keywords/whatever are handled in _end_category
@@ -1919,7 +1919,7 @@ class _BaseHTMLProcessor(sgmllib.SGMLParser):
                 raise NameError
             self.encoding = self.encoding + u'_INVALID_PYTHON_3'
         except NameError:
-            if self.encoding and isinstance(data, unicode):
+            if self.encoding and isinstance(data, str):
                 data = data.encode(self.encoding)
         sgmllib.SGMLParser.feed(self, data)
         sgmllib.SGMLParser.close(self)
@@ -1944,7 +1944,7 @@ class _BaseHTMLProcessor(sgmllib.SGMLParser):
                 value=value.replace('>','&gt;').replace('<','&lt;').replace('"','&quot;')
                 value = self.bare_ampersand.sub("&amp;", value)
                 # thanks to Kevin Marks for this breathtaking hack to deal with (valid) high-bit attribute values in UTF-8 feeds
-                if not isinstance(value, unicode):
+                if not isinstance(value, str):
                     value = value.decode(self.encoding, 'ignore')
                 try:
                     # Currently, in Python 3 the key is already a str, and cannot be decoded again
@@ -2093,7 +2093,7 @@ class _MicroformatsParser:
         self.document = BeautifulSoup.BeautifulSoup(data)
         self.baseuri = baseuri
         self.encoding = encoding
-        if isinstance(data, unicode):
+        if isinstance(data, str):
             data = data.encode(encoding)
         self.tags = []
         self.enclosures = []
@@ -2440,7 +2440,7 @@ class _MicroformatsParser:
                 arLines = [u'BEGIN:vCard',u'VERSION:3.0'] + arLines + [u'END:vCard']
                 # XXX - this is super ugly; properly fix this with issue 148
                 for i, s in enumerate(arLines):
-                    if not isinstance(s, unicode):
+                    if not isinstance(s, str):
                         arLines[i] = s.decode('utf-8', 'ignore')
                 sVCards += u'\n'.join(arLines) + u'\n'
 
@@ -2874,7 +2874,7 @@ def _sanitizeHTML(htmlSource, encoding, _type):
             except:
                 pass
         if _tidy:
-            utf8 = isinstance(data, unicode)
+            utf8 = isinstance(data, str)
             if utf8:
                 data = data.encode('utf-8')
             data = _tidy(data, output_xhtml=1, numeric_entities=1, wrap=0, char_encoding="utf8")
@@ -2988,7 +2988,7 @@ def _open_resource(url_file_stream_or_string, etag, modified, agent, referrer, h
                     auth = base64.standard_b64encode(user_passwd).strip()
 
         # iri support
-        if isinstance(url_file_stream_or_string, unicode):
+        if isinstance(url_file_stream_or_string, str):
             url_file_stream_or_string = _convert_to_idn(url_file_stream_or_string)
 
         # try to open with urllib2 (to use optional headers)
@@ -3014,7 +3014,7 @@ def _open_resource(url_file_stream_or_string, etag, modified, agent, referrer, h
         pass
 
     # treat url_file_stream_or_string as string
-    if isinstance(url_file_stream_or_string, unicode):
+    if isinstance(url_file_stream_or_string, str):
         return _StringIO(url_file_stream_or_string.encode('utf-8'))
     return _StringIO(url_file_stream_or_string)
 
@@ -3691,7 +3691,7 @@ def convert_to_utf8(http_headers, data):
     http_content_type = http_headers.get('content-type') or ''
     http_content_type, params = cgi.parse_header(http_content_type)
     http_encoding = params.get('charset', '').replace("'", "")
-    if not isinstance(http_encoding, unicode):
+    if not isinstance(http_encoding, str):
         http_encoding = http_encoding.decode('utf-8', 'ignore')
 
     acceptable_content_type = 0
@@ -3908,7 +3908,7 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
     if http_headers:
         if 'etag' in http_headers:
             etag = http_headers.get('etag', u'')
-            if not isinstance(etag, unicode):
+            if not isinstance(etag, str):
                 etag = etag.decode('utf-8', 'ignore')
             if etag:
                 result['etag'] = etag
@@ -3918,7 +3918,7 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
                 result['modified'] = modified
                 result['modified_parsed'] = _parse_date(modified)
     if hasattr(f, 'url'):
-        if not isinstance(f.url, unicode):
+        if not isinstance(f.url, str):
             result['href'] = f.url.decode('utf-8', 'ignore')
         else:
             result['href'] = f.url
@@ -3952,7 +3952,7 @@ def parse(url_file_stream_or_string, etag=None, modified=None, agent=None, refer
     baseuri = _makeSafeAbsoluteURI(href, contentloc) or _makeSafeAbsoluteURI(contentloc) or href
 
     baselang = http_headers.get('content-language', None)
-    if not isinstance(baselang, unicode) and baselang is not None:
+    if not isinstance(baselang, str) and baselang is not None:
         baselang = baselang.decode('utf-8', 'ignore')
 
     if not _XML_AVAILABLE:

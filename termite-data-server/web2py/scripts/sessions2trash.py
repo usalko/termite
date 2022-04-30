@@ -32,7 +32,7 @@ from __future__ import with_statement
 from gluon import current
 from gluon.storage import Storage
 from optparse import OptionParser
-import cPickle
+import pickle
 import datetime
 import os
 import stat
@@ -132,7 +132,7 @@ class SessionDb(object):
 
     def get(self):
         session = Storage()
-        session.update(cPickle.loads(self.row.session_data))
+        session.update(pickle.loads(self.row.session_data))
         return session
 
     def last_visit_default(self):
@@ -163,7 +163,7 @@ class SessionFile(object):
     def get(self):
         session = Storage()
         with open(self.filename, 'rb+') as f:
-            session.update(cPickle.load(f))
+            session.update(pickle.load(f))
         return session
 
     def last_visit_default(self):

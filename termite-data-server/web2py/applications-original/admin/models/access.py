@@ -132,10 +132,10 @@ if session.authorized:
         session.last_time = t0
 
 
-if request.vars.is_mobile in ('true', 'false', 'auto'):
+if request.vars and request.vars.is_mobile in ('true', 'false', 'auto'):
     session.is_mobile = request.vars.is_mobile or 'auto'
 if request.controller == 'default' and request.function == 'index':
-    if not request.vars.is_mobile:
+    if not request.vars or not request.vars.is_mobile:
         session.is_mobile = 'auto'
 if not session.is_mobile:
     session.is_mobile = 'auto'

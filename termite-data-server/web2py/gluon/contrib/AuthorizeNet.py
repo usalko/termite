@@ -115,7 +115,7 @@ class AIM:
         self.setParameter('x_tran_key', transkey)
 
     def process(self):
-        encoded_args = urllib.urlencode(self.parameters)
+        encoded_args = urllib.parse.urlencode(self.parameters)
         if self.testmode == True:
             url = 'https://test.authorize.net/gateway/transact.dll'
         else:

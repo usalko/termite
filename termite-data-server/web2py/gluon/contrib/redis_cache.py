@@ -6,7 +6,7 @@ import redis
 from redis.exceptions import ConnectionError
 from gluon import current
 from gluon.cache import CacheAbstract
-import cPickle as pickle
+import pickle
 import time
 import re
 import logging

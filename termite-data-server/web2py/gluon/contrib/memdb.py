@@ -662,7 +662,7 @@ class Rows(object):
         row = DALStorage()
         for j in range(len(self.colnames)):
             value = self.response[i][j]
-            if isinstance(value, unicode):
+            if isinstance(value, str):
                 value = value.encode('utf-8')
             packed = self.colnames[j].split('.')
             try:
@@ -756,7 +756,7 @@ class Rows(object):
         for i in range(len(self)):
             row = [self.response[i][j] for j in range(c)]
             for k in range(c):
-                if isinstance(row[k], unicode):
+                if isinstance(row[k], str):
                     row[k] = row[k].encode('utf-8')
             writer.writerow(row)
         return s.getvalue()

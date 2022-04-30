@@ -30,6 +30,8 @@ except ImportError:
     except:
         import simplejson as json               # try external module
 
+MAX_SIZE=0xffffffff
+
 
 class JSONRPCError(RuntimeError):
     "Error object for remote procedure call fail"
@@ -111,7 +113,7 @@ class ServerProxy(object):
         "JSON RPC communication (method invocation)"
 
         # build data sent to the service
-        request_id = random.randint(0, sys.maxint)
+        request_id = random.randint(0, MAX_SIZE)
         data = {'id': request_id, 'method': method, 'params': args, }
         if self.version:
             data['jsonrpc'] = self.version #mandatory key/value for jsonrpc2 validation else err -32600

@@ -80,7 +80,7 @@ class RPXAccount(object):
         request = self.request
         if request.vars.token:
             user = Storage()
-            data = urllib.urlencode(
+            data = urllib.parse.urlencode(
                 dict(apiKey=self.api_key, token=request.vars.token))
             auth_info_json = fetch(self.auth_url + '?' + data)
             auth_info = json.loads(auth_info_json)

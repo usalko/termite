@@ -598,7 +598,7 @@ def bg_graph_model():
         graph.add_node(tablename, name=tablename, shape='plaintext',
                        label=table_template(tablename))
 
-    for n, key in enumerate(subgraphs.iterkeys()):
+    for n, key in enumerate(subgraphs.keys()):
         graph.subgraph(nbunch=subgraphs[key]['tables'],
                     name='cluster%d' % n,
                     style='filled',

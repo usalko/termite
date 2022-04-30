@@ -351,12 +351,12 @@ class TreeTM(object):
 			"numTopics" : numTopics
 		}
 		with open( self.filenameIndex, 'w' ) as f:
-			json.dump( data, f, encoding = 'utf-8', indent = 2, sort_keys = True )
+			json.dump( data, f.encode('utf-8'), indent = 2, sort_keys = True )
 		return 0, numTopics
 		
 	def ReadRunIndexFile( self ):
 		with open( self.filenameIndex, 'r' ) as f:
-			data = json.load( f, encoding = 'utf-8' )
+			data = json.load( f.encode('utf-8') )
 		completedEntryID = data['completedEntryID']
 		nextEntryID = data['nextEntryID']
 		numTopics = data['numTopics']
@@ -364,26 +364,26 @@ class TreeTM(object):
 
 	def UpdateRunIndexFile( self ):
 		with open( self.filenameIndex, 'r' ) as f:
-			data = json.load( f, encoding = 'utf-8' )
+			data = json.load( f.encode('utf-8') )
 		completedEntryID = data['completedEntryID']
 		nextEntryID = data['nextEntryID']
 		numTopics = data['numTopics']
 		data["nextEntryID"] += 1
 		with open( self.filenameIndex, 'w' ) as f:
-			json.dump( data, f, encoding = 'utf-8', indent = 2, sort_keys = True )
+			json.dump( data, f.encode('utf-8'), indent = 2, sort_keys = True )
 		return completedEntryID, nextEntryID, numTopics
 
 	def WriteRunIndexFile( self ):
 		with open( self.filenameIndex, 'r' ) as f:
-			data = json.load( f, encoding = 'utf-8' )
+			data = json.load( f.encode('utf-8') )
 		data["completedEntryID"] = self.nextEntryID
 		with open( self.filenameIndex, 'w' ) as f:
-			json.dump( data, f, encoding = 'utf-8', indent = 2, sort_keys = True )
+			json.dump( data, f.encode('utf-8'), indent = 2, sort_keys = True )
 
 	def ReadStatesFile( self ):
 		if self.filenamePrevStates is not None:
 			with open( self.filenamePrevStates, 'r' ) as f:
-				states = json.load( f, encoding = 'utf-8' )
+				states = json.load( f.encode('utf-8') )
 			self.prevIter = states['numIters']
 		
 	def WriteStatesFile( self ):
@@ -392,7 +392,7 @@ class TreeTM(object):
 			'numIters' : self.nextIter
 		}
 		with open( self.filenameNextStates, 'w' ) as f:
-			json.dump( states, f, encoding = 'utf-8', indent = 2, sort_keys = True )
+			json.dump( states, f.encode('utf-8'), indent = 2, sort_keys = True )
 	
 	def CreateHyperparamsFile( self ):
 		with open( self.filenameHyperparams, 'w' ) as f:
@@ -471,7 +471,7 @@ class TreeTM(object):
 	def WriteExecuteBashScript( self ):
 		with open( self.filenameExecute, 'w' ) as f:
 			f.write( self.EXECUTE_BASH_SCRIPT.encode('utf-8') )
-		os.chmod( self.filenameExecute, 0755 )
+		os.chmod( self.filenameExecute, 0o755 )
 		
 ################################################################################
 # Steps in Training a TreeTM

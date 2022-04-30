@@ -60,7 +60,7 @@ def ord(char):
 
         SUPPOSE that *char* is an utf-8 or unicode character only
     """
-    if isinstance(char, unicode):
+    if isinstance(char, str):
         return builtins.ord(char)
     return builtins.ord(unicode(char, 'utf-8'))
 
@@ -116,7 +116,7 @@ class Utf8(str):
     You can see the benefit of this class in doctests() below
     """
     def __new__(cls, content='', codepage='utf-8'):
-        if isinstance(content, unicode):
+        if isinstance(content, str):
             return str.__new__(cls, unicode.encode(content, 'utf-8'))
         elif codepage in ('utf-8', 'utf8') or isinstance(content, cls):
             return str.__new__(cls, content)
@@ -171,7 +171,7 @@ class Utf8(str):
 
     def __add__(self, other):
         return str.__new__(Utf8, str.__add__(self, unicode.encode(other, 'utf-8')
-                                             if isinstance(other, unicode) else other))
+                                             if isinstance(other, str) else other))
 
     def __len__(self):
         return len(unicode(self, 'utf-8'))
@@ -201,7 +201,7 @@ class Utf8(str):
         return str.__new__(Utf8, unicode(self, 'utf-8').title().encode('utf-8'))
 
     def index(self, string):
-        return unicode(self, 'utf-8').index(string if isinstance(string, unicode) else unicode(string, 'utf-8'))
+        return unicode(self, 'utf-8').index(string if isinstance(string, str) else unicode(string, 'utf-8'))
 
     def isalnum(self):
         return unicode(self, 'utf-8').isalnum()
@@ -282,7 +282,7 @@ class Utf8(str):
                                             if isinstance(sub, str) else sub, start, end)
 
     def rindex(self, string):
-        return unicode(self, 'utf-8').rindex(string if isinstance(string, unicode)
+        return unicode(self, 'utf-8').rindex(string if isinstance(string, str)
                                              else unicode(string, 'utf-8'))
 
     def rjust(self, width, fillchar=' '):

@@ -98,7 +98,7 @@ class StartupMessage(object):
 #                   parameters in the query string.
 class Parse(object):
     def __init__(self, ps, qs, type_oids):
-        if isinstance(qs, unicode):
+        if isinstance(qs, str):
             raise TypeError("qs must be encoded byte data")
         self.ps = ps
         self.qs = qs
@@ -1078,7 +1078,7 @@ class Connection(object):
 
         type_info = [types.pg_type_info(x) for x in param_types]
         param_types, param_fc = [x[0] for x in type_info], [x[1] for x in type_info] # zip(*type_info) -- fails on empty arr
-        if isinstance(qs, unicode):
+        if isinstance(qs, str):
             qs = qs.encode(self._client_encoding)
         self._send(Parse(statement, qs, param_types))
         self._send(DescribePreparedStatement(statement))
@@ -1203,7 +1203,7 @@ class Connection(object):
 
         self.verifyState("ready")
 
-        if isinstance(query_string, unicode):
+        if isinstance(query_string, str):
             query_string = query_string.encode(self._client_encoding)
 
         self._send(SimpleQuery(query_string))

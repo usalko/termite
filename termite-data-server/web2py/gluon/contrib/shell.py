@@ -32,7 +32,7 @@ An interactive, stateful AJAX shell that runs Python code on the server.
 import logging
 import new
 import os
-import cPickle
+import pickle
 import sys
 import traceback
 import types
@@ -100,7 +100,7 @@ class History:
             name: the name of the global to remove
             value: any picklable value
         """
-        blob = cPickle.dumps(value)
+        blob = pickle.dumps(value)
 
         if name in self.global_names:
             index = self.global_names.index(name)
@@ -125,7 +125,7 @@ class History:
     def globals_dict(self):
         """Returns a dictionary view of the globals.
         """
-        return dict((name, cPickle.loads(val))
+        return dict((name, pickle.loads(val))
                     for name, val in zip(self.global_names, self.globals))
 
     def add_unpicklable(self, statement, names):
@@ -159,7 +159,7 @@ def represent(obj):
     code below to determine whether the object changes over time.
     """
     try:
-        return cPickle.dumps(obj)
+        return pickle.dumps(obj)
     except:
         return repr(obj)
 
@@ -211,7 +211,7 @@ def run(history, statement, env={}):
 
         # re-evaluate the unpicklables
         for code in history.unpicklables:
-            exec (code in statement_module.__dict__)
+            exec(code, statement_module.__dict__)
 
         # re-initialize the globals
         for name, val in history.globals_dict().items():
@@ -231,7 +231,7 @@ def run(history, statement, env={}):
             try:
                 sys.stderr = sys.stdout = output
                 locker.acquire()
-                exec (compiled in statement_module.__dict__)
+                exec(compiled, statement_module.__dict__)
             finally:
                 locker.release()
                 sys.stdout, sys.stderr = old_stdout, old_stderr
@@ -258,7 +258,7 @@ def run(history, statement, env={}):
                 if not name.startswith('__'):
                     try:
                         history.set_global(name, val)
-                    except (TypeError, cPickle.PicklingError) as ex:
+                    except (TypeError, pickle.PicklingError) as ex:
                         UNPICKLABLE_TYPES.append(type(val))
                         history.add_unpicklable(statement, new_globals.keys())
 

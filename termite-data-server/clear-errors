@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for folder in `find . -name errors | awk '{ print $0"/" }'`; do
+	echo Clear errors in $folder
+    	find $folder -type f | xargs rm 
+done

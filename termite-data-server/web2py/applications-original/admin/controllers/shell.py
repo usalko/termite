@@ -4,6 +4,7 @@ import web2py.gluon.contrib.shell
 import code
 import thread
 import cgi
+import html
 from gluon.shell import env
 
 if DEMO_MODE or MULTI_USER_MODE:
@@ -41,7 +42,7 @@ def callback():
     k = len(session['commands:' + app]) - 1
     #output = PRE(output)
     #return TABLE(TR('In[%i]:'%k,PRE(command)),TR('Out[%i]:'%k,output))
-    return cgi.escape('In [%i] : %s%s\n' % (k + 1, command, output))
+    return html.escape('In [%i] : %s%s\n' % (k + 1, command, output))
 
 
 def reset():
