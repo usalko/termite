@@ -1012,7 +1012,7 @@ def render(text,
             if pend and mtag == '.': # paragraph in a list:
                 out.append(etags.pop())
                 ltags.pop()
-            for i in xrange(lent-lev):
+            for i in range(lent-lev):
                 out.append('<'+tag+'>'+pp)
                 etags.append('</'+tag+'>'+pp)
                 lev+=1
@@ -1021,7 +1021,7 @@ def render(text,
         elif lent == lev:
             if tlev[-1] != tag:
                 # type of list is changed (ul<=>ol):
-                for i in xrange(ltags.count(lent)):
+                for i in range(ltags.count(lent)):
                     ltags.pop()
                     out.append(etags.pop())
                 tlev[-1]=tag

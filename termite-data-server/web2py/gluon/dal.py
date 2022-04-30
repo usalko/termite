@@ -519,7 +519,7 @@ if 'google' in DRIVERS:
             value = super(GAEDecimalProperty, self).validate(value)
             if value is None or isinstance(value, decimal.Decimal):
                 return value
-            elif isinstance(value, basestring):
+            elif isinstance(value, (str, bytes)):
                 return decimal.Decimal(value)
             raise gae.BadValueError("Property %s must be a Decimal or string."\
                                         % self.name)
@@ -552,7 +552,7 @@ if 'google' in DRIVERS:
         def _validate(self, value):
             if value is None or isinstance(value, decimal.Decimal):
                 return value
-            elif isinstance(value, basestring):
+            elif isinstance(value, (str, bytes)):
                 return decimal.Decimal(value)
             raise TypeError("Property %s must be a Decimal or string."\
                                         % self._name)
@@ -1695,7 +1695,7 @@ class BaseAdapter(ConnectionPool):
         tablenames = tables(query)
         tablenames_for_common_filters = tablenames
         for field in fields:
-            if isinstance(field, basestring):
+            if isinstance(field, (str, bytes)):
                 m = self.REGEX_TABLE_DOT_FIELD.match(field)
                 if m:
                     tn,fn = m.groups()
@@ -2185,7 +2185,7 @@ class BaseAdapter(ConnectionPool):
 
     def parse_json(self, value, field_type):
         if not self.native_json:
-            if not isinstance(value, basestring):
+            if not isinstance(value, (str, bytes)):
                 raise RuntimeError('json data not a string')
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
@@ -4714,7 +4714,7 @@ class NoSQLAdapter(BaseAdapter):
             elif fieldtype == 'blob':
                 pass
             elif fieldtype == 'json':
-                if isinstance(obj, basestring):
+                if isinstance(obj, (str, bytes)):
                     obj = self.to_unicode(obj)
                     if have_serializers:
                         obj = serializers.loads_json(obj)
@@ -5631,7 +5631,7 @@ class MongoDBAdapter(NoSQLAdapter):
         self.object_id("<random>") -> ObjectId (not unique) instance """
         if not arg:
             arg = 0
-        if isinstance(arg, basestring):
+        if isinstance(arg, (str, bytes)):
             # we assume an integer as default input
             rawhex = len(arg.replace("0x", "").replace("L", "")) == 24
             if arg.isdigit() and (not rawhex):
@@ -5701,11 +5701,11 @@ class MongoDBAdapter(NoSQLAdapter):
                 return value
             from bson import Binary
             if not isinstance(value, Binary):
-                if not isinstance(value, basestring):
+                if not isinstance(value, (str, bytes)):
                     return Binary(str(value))
                 return Binary(value)
             return value
-        elif (isinstance(fieldtype, basestring) and
+        elif (isinstance(fieldtype, (str, bytes)) and
               fieldtype.startswith('list:')):
             if fieldtype.startswith('list:reference'):
                 newval = []
@@ -5713,7 +5713,7 @@ class MongoDBAdapter(NoSQLAdapter):
                     newval.append(self.object_id(v))
                 return newval
             return value
-        elif ((isinstance(fieldtype, basestring) and
+        elif ((isinstance(fieldtype, (str, bytes)) and
                fieldtype.startswith("reference")) or
                (isinstance(fieldtype, Table)) or fieldtype=="id"):
             value = self.object_id(value)
@@ -6426,7 +6426,7 @@ class IMAPAdapter(NoSQLAdapter):
         """
         months = [None, "JAN","FEB","MAR","APR","MAY","JUN",
                   "JUL", "AUG","SEP","OCT","NOV","DEC"]
-        if isinstance(date, basestring):
+        if isinstance(date, (str, bytes)):
             # Prevent unexpected date response format
             try:
                 if "," in date:
@@ -6662,7 +6662,7 @@ class IMAPAdapter(NoSQLAdapter):
                                 raise Exception("IMAP error retrieving the body: %s" % data)
                 else:
                     raise Exception("IMAP search error: %s" % search_result[1])
-        elif isinstance(query, (Expression, basestring)):
+        elif isinstance(query, (Expression, (str, bytes))):
             raise NotImplementedError()
         else:
             raise TypeError("Unexpected query type")
@@ -6852,7 +6852,7 @@ class IMAPAdapter(NoSQLAdapter):
                     message.set_charset(charset)
                 for item in ("to", "cc", "bcc"):
                     value = d.get(item, "")
-                    if isinstance(value, basestring):
+                    if isinstance(value, (str, bytes)):
                         message[item] = value
                     else:
                         message[item] = ";".join([i for i in
@@ -6860,7 +6860,7 @@ class IMAPAdapter(NoSQLAdapter):
                 if (not message.is_multipart() and
                    (not message.get_content_type().startswith(
                         "multipart"))):
-                    if isinstance(content, basestring):
+                    if isinstance(content, (str, bytes)):
                         message.set_payload(content)
                     elif len(content) > 0:
                         message.set_payload(content[0]["text"])
@@ -7789,7 +7789,7 @@ class DAL(object):
         if not decode_credentials:
             credential_decoder = lambda cred: cred
         else:
-            credential_decoder = lambda cred: urllib.unquote(cred)
+            credential_decoder = lambda cred: urllib.parse.unquote(cred)
         self._folder = folder
         if folder:
             self.set_folder(folder)
@@ -9627,7 +9627,7 @@ class Expression(object):
             value = value[0]
         if isinstance(value,Query):
             value = db(value)._select(value.first._table._id)
-        elif not isinstance(value, basestring):
+        elif not isinstance(value, (str, bytes)):
             value = set(value)
             if kwattr.get('null') and None in value:
                 value.remove(None)
@@ -10122,7 +10122,7 @@ class Field(Expression):
             'map_none', 'default', 'type', 'required', 'readable',
             'requires', 'comment', 'label', 'length', 'notnull',
             'custom_retrieve_file_properties', 'filter_in')
-        serializable = (int, long, basestring, float, tuple,
+        serializable = (int, long, (str, bytes), float, tuple,
                         bool, type(None))
 
         def flatten(obj):
@@ -10268,7 +10268,7 @@ class Query(object):
         """
 
         SERIALIZABLE_TYPES = (tuple, dict, set, list, int, long, float,
-                              basestring, type(None), bool)
+                              (str, bytes), type(None), bool)
         
         def loop(d):
             newd = dict()
@@ -10290,7 +10290,7 @@ class Query(object):
                 elif k == "op":
                     if callable(v):
                         newd[k] = v.__name__
-                    elif isinstance(v, basestring):
+                    elif isinstance(v, (str, bytes)):
                         newd[k] = v
                     else: pass  # not callable or string
                 elif isinstance(v, SERIALIZABLE_TYPES):
@@ -10815,7 +10815,7 @@ class Rows(object):
         iterator over records
         """
 
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             yield self[i]
 
     def __str__(self):
@@ -11008,7 +11008,7 @@ class Rows(object):
         # test for multiple rows
         multi = False
         f = self.first()
-        if f and isinstance(key, basestring):
+        if f and isinstance(key, (str, bytes)):
             multi = any([isinstance(v, f.__class__) for v in f.values()])
             if (not "." in key) and multi:
                 # No key provided, default to int indices

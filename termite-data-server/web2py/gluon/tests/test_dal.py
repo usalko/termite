@@ -748,7 +748,7 @@ class TestDALDictImportExport(unittest.TestCase):
         dbdict = db.as_dict(flat=True, sanitize=False)
         assert isinstance(dbdict, dict)
         uri = dbdict["uri"]
-        assert isinstance(uri, basestring) and uri
+        assert isinstance(uri, (str, bytes)) and uri
         assert len(dbdict["tables"]) == 2
         assert len(dbdict["tables"][0]["fields"]) == 3
         assert dbdict["tables"][0]["fields"][1]["type"] == db.person.name.type
@@ -767,7 +767,7 @@ class TestDALDictImportExport(unittest.TestCase):
         try:
             import serializers
             dbjson = db.as_json(sanitize=False)
-            assert isinstance(dbjson, basestring) and len(dbjson) > 0
+            assert isinstance(dbjson, (str, bytes)) and len(dbjson) > 0
 
             unicode_keys = True
             if sys.version < "2.6.5":

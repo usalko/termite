@@ -222,7 +222,7 @@ def sanitize(text, permitted_tags=[
         'td': ['colspan'],
     },
         escape=True):
-    if not isinstance(text, basestring):
+    if not isinstance(text, (str, bytes)):
         return str(text)
     return XssCleaner(permitted_tags=permitted_tags,
                       allowed_attributes=allowed_attributes).strip(text, escape)

@@ -69,7 +69,7 @@ class Template:
 
     def has_key(self, name):
         return name.lower() in self.keys
-        
+
     def __getitem__(self, name):
         if self.has_key(name):
             key = name.lower()
@@ -157,7 +157,7 @@ class Template:
                 # multiline==False: trim to fit exactly the space defined
                 text = pdf.multi_cell(w=x2-x1, h=y2-y1,
                              txt=text, align=align, split_only=True)[0]
-                print "trimming: *%s*" % text
+                print("trimming: *%s*" % text)
                 pdf.cell(w=x2-x1,h=y2-y1,txt=text,border=0,ln=0,align=align)
 
             #pdf.Text(x=x1,y=y1,txt=text)

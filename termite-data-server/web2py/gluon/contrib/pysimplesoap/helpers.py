@@ -58,7 +58,7 @@ def fetch(url, http, cache=False, force_download=False, wsdl_basedir=''):
 
     # make md5 hash of the url for caching...
     filename = '%s.xml' % hashlib.md5(url.encode('utf8')).hexdigest()
-    if isinstance(cache, basestring):
+    if isinstance(cache, (str, bytes)):
         filename = os.path.join(cache, filename)
     if cache and os.path.exists(filename) and not force_download:
         log.info('Reading file %s' % filename)

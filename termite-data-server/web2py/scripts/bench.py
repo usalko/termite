@@ -9,7 +9,7 @@ headers = {"Accept-Language": "en"}
 req = urllib2.Request(url, None, headers)
 
 t0 = time.time()
-for k in xrange(n):
+for k in range(n):
     data = urllib2.urlopen(req).read()
 print (time.time() - t0) / n
 if n == 1:

@@ -153,7 +153,7 @@ class Qdb(bdb.Bdb):
         __main__.__dict__.clear()
         __main__.__dict__.update({"__name__": "__main__",
                                   "__file__": filename,
-                                  "__builtins__": __builtins__,
+                                  "builtins": builtins,
                                   "imp": imp,          # need for run
                                   })
 
@@ -334,7 +334,7 @@ class Qdb(bdb.Bdb):
         self.displayhook_value = None
         try:
             sys.displayhook = self.displayhook
-            exec code in globals, locals
+            exec (code in globals, locals)
         finally:
             sys.displayhook = save_displayhook
         return self.displayhook_value

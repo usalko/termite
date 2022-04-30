@@ -468,7 +468,7 @@ class SoapClient(object):
         if cache:
             # make md5 hash of the url for caching...
             filename_pkl = '%s.pkl' % hashlib.md5(url).hexdigest()
-            if isinstance(cache, basestring):
+            if isinstance(cache, (str, bytes)):
                 filename_pkl = os.path.join(cache, filename_pkl)
             if os.path.exists(filename_pkl):
                 log.debug('Unpickle file %s' % (filename_pkl, ))

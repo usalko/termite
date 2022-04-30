@@ -1514,7 +1514,7 @@ class IS_GENERIC_URL(Validator):
                     scheme = url_split_regex.match(value).group(2)
                     # Clean up the scheme before we check it
                     if not scheme is None:
-                        scheme = urllib.unquote(scheme).lower()
+                        scheme = urllib.parse.unquote(scheme).lower()
                     # If the scheme really exists
                     if scheme in self.allowed_schemes:
                         # Then the URL is valid

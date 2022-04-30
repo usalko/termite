@@ -256,7 +256,7 @@ class PreparedStatement(object):
         retval = {}
         for i in range(len(self._row_desc.fields)):
             col_name = self._row_desc.fields[i]['name']
-            if retval.has_key(col_name):
+            if col_name in retval:
                 raise InterfaceError("cannot return dict of row when two columns have the same name (%r)" % (col_name,))
             retval[col_name] = row[i]
         return retval

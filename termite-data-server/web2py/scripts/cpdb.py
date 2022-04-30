@@ -113,7 +113,7 @@ class refTable(object):
     def wrap_always(self, text, width):
         return '\n'.join(
             [text[width * i:width * (i + 1
-                                     )] for i in xrange(
+                                     )] for i in range(
              int(math.ceil(1. * len(
              text) / width)))])
 
@@ -216,7 +216,7 @@ class console:
     def execute(self, cmd):
         try:
             if not '-table ' in cmd:
-                exec '{0}'.format(cmd)
+                exec ('{0}'.format(cmd))
             else:
                 file = None
                 table = None
@@ -291,7 +291,7 @@ class console:
             '''---
                      Fallback for other operating systems.
                                                              ---'''
-            print '\n' * numlines
+            print('\n' * numlines)
 
     def cmd_table(self, tbl, file=None, fields=[]):
         """-4|-table [TABLENAME] optional[file=None] [fields=None]|\
@@ -433,7 +433,7 @@ style choices:
             '''---
                      Fallback for other operating systems.
                                                              ---'''
-            print '\n' * numlines
+            print('\n' * numlines)
 
 
 class dalShell(console):
@@ -487,8 +487,8 @@ class setCopyDB():
         return self.db
 
     def delete_DB_tables(self, storageFolder, storageType):
-        print 'delete_DB_tablesn\n\t{0}\n\t{1}'.format(
-            storageFolder, storageType)
+        print('delete_DB_tablesn\n\t{0}\n\t{1}'.format(
+            storageFolder, storageType))
         dataFiles = [storageType, "sql.log"]
         try:
             for f in os.listdir(storageFolder):
@@ -524,7 +524,7 @@ class setCopyDB():
         other_db = DAL("{0}://{1}".format(
             self.targetdbType, self.targetdbName), folder=self.targetFolder)
 
-        print 'creating tables...'
+        print('creating tables...')
 
         for table in self.db:
             other_db.define_table(
@@ -538,14 +538,14 @@ class setCopyDB():
                 other_db[table._tablename].truncate()
             '''
 
-        print 'exporting data...'
+        print('exporting data...')
         self.db.export_to_csv_file(open('tmp.sql', 'wb'))
 
-        print 'importing data...'
+        print('importing data...')
         other_db.import_from_csv_file(open('tmp.sql', 'rb'))
         other_db.commit()
-        print 'done!'
-        print 'Attention: do not run this program again or you end up with duplicate records'
+        print('done!')
+        print('Attention: do not run this program again or you end up with duplicate records')
 
     def createfolderPath(self, folder):
         try:

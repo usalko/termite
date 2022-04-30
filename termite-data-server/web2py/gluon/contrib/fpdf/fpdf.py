@@ -100,7 +100,7 @@ class FPDF(object):
         else:
             self.error('Incorrect unit: '+unit)
         # Page format
-        if(isinstance(format,basestring)):
+        if(isinstance(format,(str, bytes))):
             format=format.lower()
             if(format=='a3'):
                 format=(841.89,1190.55)
@@ -182,7 +182,7 @@ class FPDF(object):
 
     def set_display_mode(self, zoom,layout='continuous'):
         "Set display mode in viewer"
-        if(zoom=='fullpage' or zoom=='fullwidth' or zoom=='real' or zoom=='default' or not isinstance(zoom,basestring)):
+        if(zoom=='fullpage' or zoom=='fullwidth' or zoom=='real' or zoom=='default' or not isinstance(zoom,(str, bytes))):
             self.zoom_mode=zoom
         else:
             self.error('Incorrect zoom display mode: '+zoom)
@@ -359,7 +359,7 @@ class FPDF(object):
                 else:
                     w += 500
         else:
-            for i in xrange(0, l):
+            for i in range(0, l):
                 w += cw.get(s[i],0)
         return w*self.font_size/1000.0
 
@@ -496,7 +496,7 @@ class FPDF(object):
                 #Search existing encodings
                 d = 0
                 nb = len(self.diffs)
-                for i in xrange(1, nb+1):
+                for i in range(1, nb+1):
                     if(self.diffs[i] == diff):
                         d = i
                         break
@@ -655,7 +655,7 @@ class FPDF(object):
             else:
                 op='S'
             s=sprintf('%.2f %.2f %.2f %.2f re %s ',self.x*k,(self.h-self.y)*k,w*k,-h*k,op)
-        if(isinstance(border,basestring)):
+        if(isinstance(border,(str, bytes))):
             x=self.x
             y=self.y
             if('L' in border):
@@ -968,7 +968,7 @@ class FPDF(object):
     def ln(self, h=''):
         "Line Feed; default value is last cell height"
         self.x=self.l_margin
-        if(isinstance(h, basestring)):
+        if(isinstance(h, (str, bytes))):
             self.y+=self.lasth
         else:
             self.y+=h
@@ -1064,10 +1064,10 @@ class FPDF(object):
             # Replace number of pages in fonts using subsets (unicode)
             alias = UTF8ToUTF16BE(self.str_alias_nb_pages, False);
             r = UTF8ToUTF16BE(str(nb), False)
-            for n in xrange(1, nb+1):
+            for n in range(1, nb+1):
                 self.pages[n] = self.pages[n].replace(alias, r)
             # Now repeat for no pages in non-subset fonts
-            for n in xrange(1,nb+1):
+            for n in range(1,nb+1):
                 self.pages[n]=self.pages[n].replace(self.str_alias_nb_pages,str(nb))
         if(self.def_orientation=='P'):
             w_pt=self.fw_pt
@@ -1079,7 +1079,7 @@ class FPDF(object):
             filter='/Filter /FlateDecode '
         else:
             filter=''
-        for n in xrange(1,nb+1):
+        for n in range(1,nb+1):
             #Page
             self._newobj()
             self._out('<</Type /Page')
@@ -1093,7 +1093,7 @@ class FPDF(object):
                 for pl in self.page_links[n]:
                     rect=sprintf('%.2f %.2f %.2f %.2f',pl[0],pl[1],pl[0]+pl[2],pl[1]-pl[3])
                     annots+='<</Type /Annot /Subtype /Link /Rect ['+rect+'] /Border [0 0 0] '
-                    if(isinstance(pl[4],basestring)):
+                    if(isinstance(pl[4],(str, bytes))):
                         annots+='/A <</S /URI /URI '+self._textstring(pl[4])+'>>>>'
                     else:
                         l=self.links[pl[4]]
@@ -1121,7 +1121,7 @@ class FPDF(object):
         self._out('1 0 obj')
         self._out('<</Type /Pages')
         kids='/Kids ['
-        for i in xrange(0,nb):
+        for i in range(0,nb):
             kids+=str(3+2*i)+' 0 R '
         self._out(kids+']')
         self._out('/Count '+str(nb))
@@ -1200,7 +1200,7 @@ class FPDF(object):
                 self._newobj()
                 cw=font['cw']
                 s='['
-                for i in xrange(32,256):
+                for i in range(32,256):
                     # Get doesn't rise exception; returns 0 instead of None if not set
                     s+=str(cw.get(chr(i)) or 0)+' '
                 self._out(s+']')
@@ -1467,7 +1467,7 @@ class FPDF(object):
                 self._out('/DecodeParms <<' + info['dp'] + '>>')
             if('trns' in info and isinstance(info['trns'], list)):
                 trns=''
-                for i in xrange(0,len(info['trns'])):
+                for i in range(0,len(info['trns'])):
                     trns+=str(info['trns'][i])+' '+str(info['trns'][i])+' '
                 self._out('/Mask ['+trns+']')
             if('smask' in info):
@@ -1540,7 +1540,7 @@ class FPDF(object):
             self._out('/OpenAction [3 0 R /FitH null]')
         elif(self.zoom_mode=='real'):
             self._out('/OpenAction [3 0 R /XYZ null null 1]')
-        elif(not isinstance(self.zoom_mode,basestring)):
+        elif(not isinstance(self.zoom_mode,(str, bytes))):
             self._out('/OpenAction [3 0 R /XYZ null null '+(self.zoom_mode/100)+']')
         if(self.layout_mode=='single'):
             self._out('/PageLayout /SinglePage')
@@ -1578,7 +1578,7 @@ class FPDF(object):
         self._out('xref')
         self._out('0 '+(str(self.n+1)))
         self._out('0000000000 65535 f ')
-        for i in xrange(1,self.n+1):
+        for i in range(1,self.n+1):
             self._out(sprintf('%010d 00000 n ',self.offsets[i]))
         #Trailer
         self._out('trailer')
@@ -1841,7 +1841,7 @@ class FPDF(object):
         # add start and stop codes
         code = 'AA' + code.lower() + 'ZA'
 
-        for i in xrange(0, len(code), 2):
+        for i in range(0, len(code), 2):
             # choose next pair of digits
             char_bar = code[i]
             char_space = code[i+1]
@@ -1853,10 +1853,10 @@ class FPDF(object):
 
             # create a wide/narrow-seq (first digit=bars, second digit=spaces)
             seq = ''
-            for s in xrange(0, len(bar_char[char_bar])):
+            for s in range(0, len(bar_char[char_bar])):
                 seq += bar_char[char_bar][s] + bar_char[char_space][s]
 
-            for bar in xrange(0, len(seq)):
+            for bar in range(0, len(seq)):
                 # set line_width depending on value
                 if seq[bar] == 'n':
                     line_width = narrow
@@ -1903,10 +1903,10 @@ class FPDF(object):
                 raise RuntimeError ('Char "%s" invalid for Code39' % char_bar)
 
             seq= ''
-            for s in xrange(0, len(bar_char[char_bar])):
+            for s in range(0, len(bar_char[char_bar])):
                 seq += bar_char[char_bar][s]
 
-            for bar in xrange(0, len(seq)):
+            for bar in range(0, len(seq)):
                 if seq[bar] == 'n':
                     line_width = narrow
                 else:

@@ -622,7 +622,7 @@ def regex_url_in(request, environ):
     # serve if a static file
     # ##################################################
 
-    path = urllib.unquote(request.env.path_info) or '/'
+    path = urllib.parse.unquote(request.env.path_info) or '/'
     path = path.replace('\\', '/')
     if path.endswith('/') and len(path) > 1:
         path = path[:-1]
@@ -712,7 +712,7 @@ def filter_url(url, method='get', remote='0.0.0.0',
     if isinstance(domain, str):
         domain = (domain, None)
     (path_info, query_string) = (uri[:k], uri[k + 1:])
-    path_info = urllib.unquote(path_info)   # simulate server
+    path_info = urllib.parse.unquote(path_info)   # simulate server
     e = {
         'REMOTE_ADDR': remote,
         'REQUEST_METHOD': method,
@@ -867,7 +867,7 @@ class MapUrlIn(object):
             prefixlen = len(prefix)
             if prefixlen > len(self.args):
                 return
-            for i in xrange(prefixlen):
+            for i in range(prefixlen):
                 if prefix[i] != self.args[i]:
                     return  # prefix didn't match
             self.args = List(self.args[prefixlen:])  # strip the prefix

@@ -300,7 +300,7 @@ def highlight(
         linenumbers = [cgi.escape(counter)] * len(lines)
     else:
         linenumbers = [str(i + counter) + '.' for i in
-                       xrange(len(lines))]
+                       range(len(lines))]
 
     if highlight_line:
         if counter and not isinstance(counter, str):

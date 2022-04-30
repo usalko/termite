@@ -81,7 +81,7 @@ class WriteXmlMixin:
 
 
 def _element(handler, name, obj, d={}):
-    if isinstance(obj, basestring) or obj is None:
+    if isinstance(obj, (str, bytes)) or obj is None:
         # special-case handling to make the API easier
         # to use for the common case.
         handler.startElement(name, d)
@@ -416,7 +416,7 @@ class RSS2(WriteXmlMixin):
         _opt_element(handler, "lastBuildDate", lastBuildDate)
 
         for category in self.categories:
-            if isinstance(category, basestring):
+            if isinstance(category, (str, bytes)):
                 category = Category(category)
             category.publish(handler)
 
@@ -497,7 +497,7 @@ class RSSItem(WriteXmlMixin):
         _opt_element(handler, "author", self.author)
 
         for category in self.categories:
-            if isinstance(category, basestring):
+            if isinstance(category, (str, bytes)):
                 category = Category(category)
             category.publish(handler)
 

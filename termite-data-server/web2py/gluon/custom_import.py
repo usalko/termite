@@ -12,18 +12,18 @@ import builtins
 import os
 import sys
 import threading
-from gluon import current
+from gluon.globals import current
 
-NATIVE_IMPORTER = __builtins__.__import__
+NATIVE_IMPORTER = builtins.__import__
 INVALID_MODULES = set(('', 'gluon', 'applications', 'custom_import'))
 
 # backward compatibility API
 
 
 def custom_import_install():
-    if __builtins__.__import__ == NATIVE_IMPORTER:
+    if builtins.__import__ == NATIVE_IMPORTER:
         INVALID_MODULES.update(sys.modules.keys())
-        __builtins__.__import__ = custom_importer
+        builtins.__import__ = custom_importer
 
 
 def track_changes(track=True):

@@ -338,7 +338,7 @@ def ldap_auth(server='ldap', port=None,
                             con.simple_bind_s(user_dn, password)
                             found = True
                             break
-                    except ldap.LDAPError, detail:
+                    except ldap.LDAPError as detail:
                         (exc_type, exc_value) = sys.exc_info()[:2]
                         logger.warning(
                         "ldap_auth: searching %s for %s resulted in %s: %s\n" %
@@ -375,7 +375,7 @@ def ldap_auth(server='ldap', port=None,
                             con.simple_bind_s(user_dn, password)
                             found = True
                             break
-                    except ldap.LDAPError, detail:
+                    except ldap.LDAPError as detail:
                         (exc_type, exc_value) = sys.exc_info()[:2]
                         logger.warning(
                         "ldap_auth: searching %s for %s resulted in %s: %s\n" %
@@ -446,7 +446,7 @@ def ldap_auth(server='ldap', port=None,
             logger.warning('[%s] Error in ldap processing' % str(username))
             logger.debug(traceback.format_exc())
             return False
-        except IndexError, ex:  # for AD membership test
+        except IndexError as ex:  # for AD membership test
             import traceback
             logger.warning('[%s] Ldap result indexing error' % str(username))
             logger.debug(traceback.format_exc())
@@ -663,7 +663,7 @@ def ldap_auth(server='ldap', port=None,
         ldap_groups_of_the_user = list()
         for group_row in group_search_result:
             group = group_row[1]
-            if type(group) == dict and group.has_key(group_name_attrib):
+            if type(group) == dict and (group_name_attrib in group):
                 ldap_groups_of_the_user.extend(group[group_name_attrib])
 
         con.unbind()

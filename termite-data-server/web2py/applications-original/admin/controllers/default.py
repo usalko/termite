@@ -256,7 +256,7 @@ def site():
                 new_repo = git.Repo.clone_from(form_update.vars.url, target)
                 session.flash = T('new application "%s" imported',
                                   form_update.vars.name)
-            except git.GitCommandError, err:
+            except git.GitCommandError as err:
                 session.flash = T('Invalid git repository specified.')
             redirect(URL(r=request))
 
@@ -711,8 +711,8 @@ def edit():
         # Lets try to reload the modules
         try:
             mopath = '.'.join(request.args[2:])[:-3]
-            exec 'import applications.%s.modules.%s' % (
-                request.args[0], mopath)
+            exec ('import applications.%s.modules.%s' % (
+                request.args[0], mopath))
             reload(sys.modules['applications.%s.modules.%s'
                                % (request.args[0], mopath)])
         except Exception as e:
@@ -964,7 +964,7 @@ def edit_plurals():
     plurals = read_plural_dict(
         apath(filename, r=request))  # plural forms dictionary
     nplurals = int(request.vars.nplurals) - 1  # plural forms quantity
-    xnplurals = xrange(nplurals)
+    xnplurals = range(nplurals)
 
     if '__corrupted__' in plurals:
         # show error message and exit
@@ -979,7 +979,7 @@ def edit_plurals():
         forms = plurals[key]
 
         if len(forms) < nplurals:
-            forms.extend(None for i in xrange(nplurals - len(forms)))
+            forms.extend(None for i in range(nplurals - len(forms)))
         tab_col1 = DIV(CAT(LABEL(T("Singular Form")), B(key,
                                                         _class='fake-input')))
         tab_inputs = [SPAN(LABEL(T("Plural Form #%s", n + 1)), INPUT(_type='text', _name=name + '_' + str(n), value=forms[n], _size=20), _class='span6') for n in xnplurals]

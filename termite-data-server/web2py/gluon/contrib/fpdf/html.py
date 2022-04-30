@@ -206,7 +206,7 @@ class HTML2FPDF(HTMLParser):
             self.pdf.ln(self.h+2)
             self.pdf.set_text_color(190,0,0)
             bullet = self.bullet[self.indent-1]
-            if not isinstance(bullet, basestring):
+            if not isinstance(bullet, (str, bytes)):
                 bullet += 1
                 self.bullet[self.indent-1] = bullet
                 bullet = "%s. " % bullet

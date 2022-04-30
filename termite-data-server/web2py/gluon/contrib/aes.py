@@ -119,22 +119,22 @@ class AES(object):
         # 4-byte temporary variable for key expansion
         word = exkey[-4:]
         # Each expansion cycle uses 'i' once for Rcon table lookup
-        for i in xrange(1, 11):
+        for i in range(1, 11):
 
             #### key schedule core:
             # left-rotate by 1 byte
             word = word[1:4] + word[0:1]
 
             # apply S-box to all bytes
-            for j in xrange(4):
+            for j in range(4):
                 word[j] = aes_sbox[word[j]]
 
             # apply the Rcon table to the leftmost byte
             word[0] = word[0] ^ aes_Rcon[i]
             #### end key schedule core
 
-            for z in xrange(4):
-                for j in xrange(4):
+            for z in range(4):
+                for j in range(4):
                     # mix in bytes from the last subkey
                     word[j] ^= exkey[-self.key_size + j]
                 exkey.extend(word)
@@ -145,15 +145,15 @@ class AES(object):
 
             # Special substitution step for 256-bit key
             if self.key_size == 32:
-                for j in xrange(4):
+                for j in range(4):
                     # mix in bytes from the last subkey XORed with S-box of
                     # current word bytes
                     word[j] = aes_sbox[word[j]] ^ exkey[-self.key_size + j]
                 exkey.extend(word)
 
             # Twice for 192-bit key, thrice for 256-bit key
-            for z in xrange(extra_cnt):
-                for j in xrange(4):
+            for z in range(extra_cnt):
+                for j in range(4):
                     # mix in bytes from the last subkey
                     word[j] ^= exkey[-self.key_size + j]
                 exkey.extend(word)
@@ -166,7 +166,7 @@ class AES(object):
         offset = round * 16
         exkey = self.exkey
 
-        for i in xrange(16):
+        for i in range(16):
             block[i] ^= exkey[offset + i]
 
         #print 'AddRoundKey:', block
@@ -178,7 +178,7 @@ class AES(object):
         is passed in.
         """
 
-        for i in xrange(16):
+        for i in range(16):
             block[i] = sbox[block[i]]
 
         #print 'SubBytes   :', block
@@ -219,7 +219,7 @@ class AES(object):
 
         # Since we're dealing with a transposed matrix, columns are already
         # sequential
-        for i in xrange(4):
+        for i in range(4):
             col = i * 4
 
             #v0, v1, v2, v3 = block[col : col+4]
@@ -244,7 +244,7 @@ class AES(object):
 
         # Since we're dealing with a transposed matrix, columns are already
         # sequential
-        for i in xrange(4):
+        for i in range(4):
             col = i * 4
 
             v0, v1, v2, v3 = (block[col], block[col + 1], block[col + 2],
@@ -265,7 +265,7 @@ class AES(object):
         # mutable array, not returned.
         self.add_round_key(block, 0)
 
-        for round in xrange(1, self.rounds):
+        for round in range(1, self.rounds):
             self.sub_bytes(block, aes_sbox)
             self.shift_rows(block)
             self.mix_columns(block)
@@ -284,7 +284,7 @@ class AES(object):
         self.add_round_key(block, self.rounds)
 
         # count rounds down from 15 ... 1
-        for round in xrange(self.rounds-1, 0, -1):
+        for round in range(self.rounds-1, 0, -1):
             self.shift_rows_inv(block)
             self.sub_bytes(block, aes_inv_sbox)
             self.add_round_key(block, round)
@@ -318,7 +318,7 @@ class ECBMode(object):
         block_size = self.block_size
         data = array('B', data)
 
-        for offset in xrange(0, len(data), block_size):
+        for offset in range(0, len(data), block_size):
             block = data[offset : offset+block_size]
             block_func(block)
             data[offset : offset+block_size] = block
@@ -362,11 +362,11 @@ class CBCMode(object):
         data = array('B', data)
         IV = self.IV
 
-        for offset in xrange(0, len(data), block_size):
+        for offset in range(0, len(data), block_size):
             block = data[offset : offset+block_size]
 
             # Perform CBC chaining
-            for i in xrange(block_size):
+            for i in range(block_size):
                 block[i] ^= IV[i]
 
             self.cipher.encrypt_block(block)
@@ -386,15 +386,15 @@ class CBCMode(object):
         data = array('B', data)
         IV = self.IV
 
-        for offset in xrange(0, len(data), block_size):
+        for offset in range(0, len(data), block_size):
             ctext = data[offset : offset+block_size]
             block = ctext[:]
             self.cipher.decrypt_block(block)
 
             # Perform CBC chaining
-            #for i in xrange(block_size):
+            #for i in range(block_size):
             #    data[offset + i] ^= IV[i]
-            for i in xrange(block_size):
+            for i in range(block_size):
                 block[i] ^= IV[i]
             data[offset : offset+block_size] = block
 

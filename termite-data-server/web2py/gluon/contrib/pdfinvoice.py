@@ -10,7 +10,7 @@ import io
 import datetime
 
 def listify(item):
-    if isinstance(item,basestring):
+    if isinstance(item, (str, bytes)):
         item = item.split('\n')
     return item
 

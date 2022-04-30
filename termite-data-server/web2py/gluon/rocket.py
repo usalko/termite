@@ -553,7 +553,7 @@ class Listener(Thread):
             self.err_log.warning('Listener started when not ready.')
             return
 
-        if self.thread is not None and self.thread.isAlive():
+        if self.thread is not None and self.thread.is_alive():
             self.err_log.warning('Listener already running.')
             return
 
@@ -565,7 +565,7 @@ class Listener(Thread):
         if self.thread is None:
             return False
 
-        return self.thread.isAlive()
+        return self.thread.is_alive()
 
     def join(self):
         if self.thread is None:
@@ -744,14 +744,14 @@ class Rocket(object):
         if background:
             return
 
-        while self._monitor.isAlive():
+        while self._monitor.is_alive():
             try:
                 time.sleep(THREAD_STOP_CHECK_INTERVAL)
             except KeyboardInterrupt:
                 # Capture a keyboard interrupt when running from a console
                 break
             except:
-                if self._monitor.isAlive():
+                if self._monitor.is_alive():
                     log.error(traceback.format_exc())
                     continue
 
@@ -771,12 +771,12 @@ class Rocket(object):
             time.sleep(0.01)
 
             for l in self.listeners:
-                if l.isAlive():
+                if l.is_alive():
                     l.join()
 
             # Stop Monitor
             self._monitor.stop()
-            if self._monitor.isAlive():
+            if self._monitor.is_alive():
                 self._monitor.join()
 
             # Stop Worker threads
@@ -1087,14 +1087,14 @@ class ThreadPool:
             self.app_info['executor'].shutdown(wait=False)
 
         # Give them the gun
-        #active_threads = [t for t in self.threads if t.isAlive()]
+        #active_threads = [t for t in self.threads if t.is_alive()]
         #while active_threads:
         #    t = active_threads.pop()
         #    t.kill()
 
         # Wait until they pull the trigger
         for t in self.threads:
-            if t.isAlive():
+            if t.is_alive():
                 t.join()
 
         # Clean up the mess
@@ -1103,7 +1103,7 @@ class ThreadPool:
     def bring_out_your_dead(self):
         # Remove dead threads from the pool
 
-        dead_threads = [t for t in self.threads if not t.isAlive()]
+        dead_threads = [t for t in self.threads if not t.is_alive()]
         for t in dead_threads:
             if __debug__:
                 log.debug("Removing dead thread: %s." % t.getName())
@@ -1681,7 +1681,7 @@ class WSGIWorker(Worker):
                 environ['SSL_CLIENT_RAW_CERT'] = \
                     peercert and ssl.DER_cert_to_PEM_cert(peercert)
             except Exception:
-                print sys.exc_info()[1]
+                print(sys.exc_info()[1])
         else:
             environ['wsgi.url_scheme'] = 'http'
 
@@ -1770,7 +1770,7 @@ class WSGIWorker(Worker):
                 if self.chunked:
                     self.conn.sendall(b('%x\r\n%s\r\n' % (len(data), data)))
                 else:
-                    self.conn.sendall(data)
+                    self.conn.sendall(data.encode('utf-8'))
             except socket.timeout:
                 self.closeConnection = True
             except socket.error:

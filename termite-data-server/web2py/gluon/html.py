@@ -2315,7 +2315,7 @@ class FORM(DIV):
         Sanitize is naive. It should catch any unsafe value
         for client retrieval.
         """
-        SERIALIZABLE = (int, float, bool, basestring, long,
+        SERIALIZABLE = (int, float, bool, str, bytes,
                         set, list, dict, tuple, Storage, type(None))
         UNSAFE = ("PASSWORD", "CRYPT")
         d = self.__dict__
@@ -2623,9 +2623,9 @@ def test():
     >>> form=FORM(INPUT(value="Hello World", _name="var", requires=IS_MATCH('^\w+$')))
     >>> isinstance(form.as_dict(), dict)
     True
-    >>> form.as_dict(flat=True).has_key("vars")
+    >>> "vars" in form.as_dict(flat=True)
     True
-    >>> isinstance(form.as_json(), basestring) and len(form.as_json(sanitize=False)) > 0
+    >>> isinstance(form.as_json(), (str, bytes)) and len(form.as_json(sanitize=False)) > 0
     True
     >>> if form.accepts({}, session,formname=None): print 'passed'
     >>> if form.accepts({'var':'test ', '_formkey': session['_formkey[None]']}, session, formname=None): print 'passed'

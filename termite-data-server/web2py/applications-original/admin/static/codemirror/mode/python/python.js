@@ -30,7 +30,7 @@ CodeMirror.defineMode("python", function(conf, parserConf) {
                           'sorted', 'staticmethod', 'str', 'sum', 'super', 'tuple',
                           'type', 'vars', 'zip', '__import__', 'NotImplemented',
                           'Ellipsis', '__debug__'];
-    var py2 = {'builtins': ['apply', 'basestring', 'buffer', 'cmp', 'coerce', 'execfile',
+    var py2 = {'builtins': ['apply', 'str', 'bytes', 'buffer', 'cmp', 'coerce', 'execfile',
                             'file', 'intern', 'long', 'raw_input', 'reduce', 'reload',
                             'unichr', 'unicode', 'xrange', 'False', 'True', 'None'],
                'keywords': ['exec', 'print']};

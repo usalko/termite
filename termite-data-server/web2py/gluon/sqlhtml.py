@@ -218,7 +218,7 @@ class JSONWidget(FormWidget):
 
         see also: :meth:`FormWidget.widget`
         """
-        if not isinstance(value, basestring):
+        if not isinstance(value, (str, bytes)):
             if value is not None:
                 value = serializers.json(value)
         default = dict(value=value)
@@ -1256,7 +1256,7 @@ class SQLFORM(FORM):
 
     def createform(self, xfields):
         formstyle = self.formstyle
-        if isinstance(formstyle, basestring):
+        if isinstance(formstyle, (str, bytes)):
             if formstyle in SQLFORM.formstyles:
                 formstyle = SQLFORM.formstyles[formstyle]
             else:

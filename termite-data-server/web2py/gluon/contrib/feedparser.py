@@ -2101,7 +2101,7 @@ class _MicroformatsParser:
         self.vcard = None
 
     def vcardEscape(self, s):
-        if isinstance(s, basestring):
+        if isinstance(s, (str, bytes)):
             s = s.replace(',', '\\,').replace(';', '\\;').replace('\n', '\\n')
         return s
 
@@ -2967,7 +2967,7 @@ def _open_resource(url_file_stream_or_string, etag, modified, agent, referrer, h
     if hasattr(url_file_stream_or_string, 'read'):
         return url_file_stream_or_string
 
-    if isinstance(url_file_stream_or_string, basestring) \
+    if isinstance(url_file_stream_or_string, (str, bytes)) \
        and urlparse.urlparse(url_file_stream_or_string)[0] in ('http', 'https', 'ftp', 'file', 'feed'):
         # Deal with the feed URI scheme
         if url_file_stream_or_string.startswith('feed:http'):
@@ -3047,7 +3047,7 @@ def _build_urllib2_request(url, agent, etag, modified, referrer, auth, request_h
     request.add_header('User-Agent', agent)
     if etag:
         request.add_header('If-None-Match', etag)
-    if isinstance(modified, basestring):
+    if isinstance(modified, (str, bytes)):
         modified = _parse_date(modified)
     elif isinstance(modified, datetime.datetime):
         modified = modified.utctimetuple()

@@ -11,7 +11,7 @@ Created by Vladyslav Kozlovskyy (Ukraine) <dbdevelop©gmail.com>
 Utilities and class for UTF8 strings managing
 ===========================================
 """
-import __builtin__
+import builtins
 __all__ = ['Utf8']
 
 repr_escape_tab = {}
@@ -61,8 +61,8 @@ def ord(char):
         SUPPOSE that *char* is an utf-8 or unicode character only
     """
     if isinstance(char, unicode):
-        return __builtin__.ord(char)
-    return __builtin__.ord(unicode(char, 'utf-8'))
+        return builtins.ord(char)
+    return builtins.ord(unicode(char, 'utf-8'))
 
 
 def chr(code):
@@ -397,7 +397,7 @@ if __name__ == '__main__':
         >>> size(s) # size of utf-8 string in bytes
         19
         >>> try: # utf-8 is a multibyte string. Convert it to unicode for use with builtin ord()
-        ...     __builtin__.ord('б')  #  ascii string
+        ...     builtins.ord('б')  #  ascii string
         ... except Exception as e:
         ...     print('Exception:', e)
         Exception: ord() expected a character, but string of length 2 found

@@ -89,7 +89,7 @@ def simple_hash(text, key='', salt='', digest_alg='md5'):
         h = digest_alg(text + key + salt)
     elif digest_alg.startswith('pbkdf2'):  # latest and coolest!
         iterations, keylen, alg = digest_alg[7:-1].split(',')
-        return pbkdf2_hex(text, salt, int(iterations),
+        return pbkdf2_hex(text.encode('utf-8'), salt.encode('utf-8'), int(iterations),
                           int(keylen), get_digest(alg))
     elif key:  # use hmac
         digest_alg = get_digest(digest_alg)
@@ -234,7 +234,7 @@ def fast_urandom16(urandom=[], locker=threading.RLock()):
         try:
             locker.acquire()
             ur = os.urandom(16 * 1024)
-            urandom += [ur[i:i + 16] for i in xrange(16, 1024 * 16, 16)]
+            urandom += [ur[i:i + 16] for i in range(16, 1024 * 16, 16)]
             return ur[0:16]
         finally:
             locker.release()
@@ -307,7 +307,7 @@ def is_loopback_ip_address(ip=None, addrinfo=None):
     if addrinfo: # see socket.getaddrinfo() for layout of addrinfo tuple
         if addrinfo[0] == socket.AF_INET or addrinfo[0] == socket.AF_INET6:
             ip = addrinfo[4]
-    if not isinstance(ip, basestring):
+    if not isinstance(ip, (str, bytes)):
         return False
     # IPv4 or IPv6-embedded IPv4 or IPv4-compatible IPv6
     if ip.count('.') == 3:
@@ -324,6 +324,6 @@ def getipaddrinfo(host):
         return [addrinfo for addrinfo in socket.getaddrinfo(host, None)
                 if (addrinfo[0] == socket.AF_INET or
                     addrinfo[0] == socket.AF_INET6)
-                and isinstance(addrinfo[4][0], basestring)]
+                and isinstance(addrinfo[4][0], (str, bytes))]
     except socket.error:
         return []

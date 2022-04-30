@@ -231,7 +231,7 @@ def mongrel2_handler(application, conn, debug=False):
             environ['SERVER_NAME'] = environ['Host']
             environ['SERVER_PORT'] = ''
         environ['SCRIPT_NAME'] = ''  # empty for now
-        environ['PATH_INFO'] = urllib.unquote(environ['PATH'])
+        environ['PATH_INFO'] = urllib.parse.unquote(environ['PATH'])
         if '?' in environ['URI']:
             environ['QUERY_STRING'] = environ['URI'].split('?')[1]
         else:

@@ -69,7 +69,7 @@ class SimpleXMLElement(object):
             element = self.__document.createElement(name)
         else:
             ##log.debug('adding %s ns "%s" %s', name, self.__ns, ns)
-            if isinstance(ns, basestring):
+            if isinstance(ns, (str, bytes)):
                 element = self.__document.createElement(name)
                 if ns:
                     element.setAttribute("xmlns", ns)
@@ -151,7 +151,7 @@ class SimpleXMLElement(object):
     def __getitem__(self, item):
         """Return xml tag attribute value or a slice of attributes (iter)"""
         ##log.debug('__getitem__(%s)', item)
-        if isinstance(item, basestring):
+        if isinstance(item, (str, bytes)):
             if self._element.hasAttribute(item):
                 return self._element.attributes[item].value
         elif isinstance(item, slice):
@@ -175,7 +175,7 @@ class SimpleXMLElement(object):
 
     def __setitem__(self, item, value):
         """Set an attribute value"""
-        if isinstance(item, basestring):
+        if isinstance(item, (str, bytes)):
             self.add_attribute(item, value)
         elif isinstance(item, slice):
             # set multiple attributes at once
@@ -464,7 +464,7 @@ class SimpleXMLElement(object):
                 child.add_comment("Repetitive array of:")
             for t in value:
                 child.marshall(name, t, False, add_comments=add_comments, ns=ns)
-        elif isinstance(value, basestring):  # do not convert strings or unicodes
+        elif isinstance(value, (str, bytes)):  # do not convert strings or unicodes
             self.add_child(name, value, ns=ns)
         elif value is None:  # sent a empty tag?
             self.add_child(name, ns=ns)

@@ -191,10 +191,10 @@ def run(history, statement, env={}):
     # create a dedicated module to be used as this statement's __main__
     statement_module = new.module('__main__')
 
-    # use this request's __builtin__, since it changes on each request.
+    # use this request's builtins, since it changes on each request.
     # this is needed for import statements, among other things.
-    import __builtin__
-    statement_module.__builtins__ = __builtin__
+    import builtins
+    statement_module.builtins = builtins
 
     # load the history from the datastore
     history = History()
@@ -211,7 +211,7 @@ def run(history, statement, env={}):
 
         # re-evaluate the unpicklables
         for code in history.unpicklables:
-            exec code in statement_module.__dict__
+            exec (code in statement_module.__dict__)
 
         # re-initialize the globals
         for name, val in history.globals_dict().items():
@@ -231,7 +231,7 @@ def run(history, statement, env={}):
             try:
                 sys.stderr = sys.stdout = output
                 locker.acquire()
-                exec compiled in statement_module.__dict__
+                exec (compiled in statement_module.__dict__)
             finally:
                 locker.release()
                 sys.stdout, sys.stderr = old_stdout, old_stderr
@@ -258,7 +258,7 @@ def run(history, statement, env={}):
                 if not name.startswith('__'):
                     try:
                         history.set_global(name, val)
-                    except (TypeError, cPickle.PicklingError), ex:
+                    except (TypeError, cPickle.PicklingError) as ex:
                         UNPICKLABLE_TYPES.append(type(val))
                         history.add_unpicklable(statement, new_globals.keys())
 
@@ -269,4 +269,4 @@ def run(history, statement, env={}):
 if __name__ == '__main__':
     history = History()
     while True:
-        print run(history, raw_input('>>> ')).rstrip()
+        print(run(history, raw_input('>>> ')).rstrip())

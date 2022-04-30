@@ -660,7 +660,7 @@ class Rows(object):
         if len(self.response[0]) != len(self.colnames):
             raise SyntaxError('Rows: internal error')
         row = DALStorage()
-        for j in xrange(len(self.colnames)):
+        for j in range(len(self.colnames)):
             value = self.response[i][j]
             if isinstance(value, unicode):
                 value = value.encode('utf-8')
@@ -741,7 +741,7 @@ class Rows(object):
         iterator over records
         """
 
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             yield self[i]
 
     def __str__(self):
@@ -753,9 +753,9 @@ class Rows(object):
         writer = csv.writer(s)
         writer.writerow(self.colnames)
         c = len(self.colnames)
-        for i in xrange(len(self)):
-            row = [self.response[i][j] for j in xrange(c)]
-            for k in xrange(c):
+        for i in range(len(self)):
+            row = [self.response[i][j] for j in range(c)]
+            for k in range(c):
                 if isinstance(row[k], unicode):
                     row[k] = row[k].encode('utf-8')
             writer.writerow(row)

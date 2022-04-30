@@ -111,10 +111,10 @@ class mybuiltin(object):
     NOTE could simple use a dict and populate it,
     NOTE not sure if this changes things though if monkey patching import.....
     """
-    #__builtins__
+    #builtins
     def __getitem__(self, key):
         try:
-            return getattr(__builtin__, key)
+            return getattr(builtins, key)
         except AttributeError:
             raise KeyError(key)
 
@@ -162,7 +162,7 @@ def LOAD(c=None, f='index', args=None, vars=None,
                          args=args, vars=vars, extension=extension,
                          user_signature=user_signature)
         # timing options
-        if isinstance(times, basestring):
+        if isinstance(times, (str, bytes)):
             if times.upper() in ("INFINITY", "CONTINUOUS"):
                 times = "Infinity"
             else:
@@ -381,7 +381,7 @@ OLD IMPLEMENTATION:
 _base_environment_ = dict((k, getattr(html, k)) for k in html.__all__)
 _base_environment_.update(
     (k, getattr(validators, k)) for k in validators.__all__)
-_base_environment_['__builtins__'] = __builtins__
+_base_environment_['builtins'] = builtins
 _base_environment_['HTTP'] = HTTP
 _base_environment_['redirect'] = redirect
 _base_environment_['DAL'] = DAL
@@ -421,13 +421,13 @@ def build_environment(request, response, session, store_current=True):
         current.T = t
         current.cache = c
 
-    global __builtins__
+    global builtins
     if is_jython:  # jython hack
-        __builtins__ = mybuiltin()
+        builtins = mybuiltin()
     elif is_pypy:  # apply the same hack to pypy too
-        __builtins__ = mybuiltin()
+        builtins = mybuiltin()
     else:
-        __builtins__['__import__'] = __builtin__.__import__  # WHY?
+        builtins['__import__'] = builtins.__import__  # WHY?
     environment['request'] = request
     environment['response'] = response
     environment['session'] = session
@@ -744,7 +744,7 @@ def test():
         >>> os.unlink('a.py')
         >>> if type(read_pyc('a.pyc'))==types.CodeType: print 'code'
         code
-        >>> exec read_pyc('a.pyc') in environment
+        >>> exec (read_pyc('a.pyc') in environment)
         1
     """
 

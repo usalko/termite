@@ -379,9 +379,9 @@ class Mail(object):
             payload_in = MIMEMultipart.MIMEMultipart('mixed')
         elif raw:
             # no encoding configuration for raw messages
-            if not isinstance(message, basestring):
+            if not isinstance(message, (str, bytes)):
                 message = message.read()
-            if isinstance(message, unicode):
+            if isinstance(message, str):
                 text = message.encode('utf-8')
             elif not encoding == 'utf-8':
                 text = message.decode(encoding).encode('utf-8')
@@ -417,14 +417,14 @@ class Mail(object):
         if (not text is None or not html is None) and (not raw):
 
             if not text is None:
-                if not isinstance(text, basestring):
+                if not isinstance(text, (str, bytes)):
                     text = text.read()
                 if isinstance(text, unicode):
                     text = text.encode('utf-8')
                 elif not encoding == 'utf-8':
                     text = text.decode(encoding).encode('utf-8')
             if not html is None:
-                if not isinstance(html, basestring):
+                if not isinstance(html, (str, bytes)):
                     html = html.read()
                 if isinstance(html, unicode):
                     html = html.encode('utf-8')
@@ -3713,7 +3713,7 @@ class Auth(object):
                     wiki = wiki['content']
             else:
                 wiki = self._wiki()
-            if isinstance(wiki, basestring):
+            if isinstance(wiki, (str, bytes)):
                 wiki = XML(wiki)
             return wiki
 
@@ -5294,7 +5294,7 @@ class Wiki(object):
         return LOAD(controller, function, args=args, ajax=True).xml()
 
     def get_renderer(self):
-        if isinstance(self.settings.render, basestring):
+        if isinstance(self.settings.render, (str, bytes)):
             r = getattr(self, "%s_render" % self.settings.render)
         elif callable(self.settings.render):
             r = self.settings.render

@@ -18,7 +18,7 @@ import re
 import optparse
 import glob
 import traceback
-import web2py.gluon.fileutils as fileutils
+import gluon.fileutils as fileutils
 from gluon.settings import global_settings
 from gluon.utils import web2py_uuid
 from gluon.compileapp import build_environment, read_pyc, run_models_in
@@ -88,7 +88,7 @@ def exec_environment(
     if pyfile:
         pycfile = pyfile + 'c'
         if os.path.isfile(pycfile):
-            exec read_pyc(pycfile) in env
+            exec (read_pyc(pycfile) in env)
         else:
             execfile(pyfile, env)
     return Storage(env)
@@ -245,14 +245,14 @@ def run(
                                  "controllers_%s_%s.pyc" % (c, f))
         if ((cronjob and os.path.isfile(pycfile))
             or not os.path.isfile(pyfile)):
-            exec read_pyc(pycfile) in _env
+            exec(read_pyc(pycfile) in _env)
         elif os.path.isfile(pyfile):
             execfile(pyfile, _env)
         else:
             die(errmsg)
 
     if f:
-        exec ('print %s()' % f, _env)
+        exec('print %s()' % f, _env)
         return
 
     _env.update(exec_pythonrc())
@@ -261,14 +261,14 @@ def run(
             ccode = None
             if startfile.endswith('.pyc'):
                 ccode = read_pyc(startfile)
-                exec ccode in _env
+                exec (ccode in _env)
             else:
                 execfile(startfile, _env)
 
             if import_models:
                 BaseAdapter.close_all_instances('commit')
         except Exception as e:
-            print traceback.format_exc()
+            print(traceback.format_exc())
             if import_models:
                 BaseAdapter.close_all_instances('rollback')
     elif python_code:
@@ -277,7 +277,7 @@ def run(
             if import_models:
                 BaseAdapter.close_all_instances('commit')
         except Exception as e:
-            print traceback.format_exc()
+            print(traceback.format_exc())
             if import_models:
                 BaseAdapter.close_all_instances('rollback')
     else:
@@ -309,8 +309,8 @@ def run(
                     else:
                         # following 2 lines fix a problem with
                         # IPython; thanks Michael Toomim
-                        if '__builtins__' in _env:
-                            del _env['__builtins__']
+                        if 'builtins' in _env:
+                            del _env['builtins']
                         shell = IPython.Shell.IPShell(argv=[], user_ns=_env)
                         shell.mainloop()
                         return

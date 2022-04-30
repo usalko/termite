@@ -1016,7 +1016,7 @@ class Client(local):
         if not isinstance(key, str):
             raise Client.MemcachedKeyTypeError("Key must be str()'s")
 
-        if isinstance(key, basestring):
+        if isinstance(key, (str, bytes)):
             if self.server_max_key_length != 0 and \
                 len(key) + key_extra_len > self.server_max_key_length:
                 raise Client.MemcachedKeyLengthError("Key length is > %s"
@@ -1183,7 +1183,7 @@ if __name__ == "__main__":
         mc = Client(servers, debug=1)
 
         def to_s(val):
-            if not isinstance(val, basestring):
+            if not isinstance(val, (str, bytes)):
                 return "%s (%s)" % (val, type(val))
             return "%s" % val
         def test_setget(key, val):

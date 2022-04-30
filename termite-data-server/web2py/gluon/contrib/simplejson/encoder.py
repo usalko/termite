@@ -199,7 +199,7 @@ class JSONEncoder(object):
 
         """
         # This is for extremely simple cases and benchmarks.
-        if isinstance(o, basestring):
+        if isinstance(o, (str, bytes)):
             if isinstance(o, str):
                 _encoding = self.encoding
                 if (_encoding is not None
@@ -356,7 +356,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
                 first = False
             else:
                 buf = separator
-            if isinstance(value, basestring):
+            if isinstance(value, (str, bytes)):
                 yield buf + _encoder(value)
             elif value is None:
                 yield buf + 'null'
@@ -364,7 +364,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
                 yield buf + 'true'
             elif value is False:
                 yield buf + 'false'
-            elif isinstance(value, (int, long)):
+            elif isinstance(value, int):
                 yield buf + str(value)
             elif isinstance(value, float):
                 yield buf + _floatstr(value)
@@ -436,7 +436,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
                 yield item_separator
             yield _encoder(key)
             yield _key_separator
-            if isinstance(value, basestring):
+            if isinstance(value, (str, bytes)):
                 yield _encoder(value)
             elif value is None:
                 yield 'null'
@@ -444,7 +444,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
                 yield 'true'
             elif value is False:
                 yield 'false'
-            elif isinstance(value, (int, long)):
+            elif isinstance(value, int):
                 yield str(value)
             elif isinstance(value, float):
                 yield _floatstr(value)
@@ -467,7 +467,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
             del markers[markerid]
 
     def _iterencode(o, _current_indent_level):
-        if isinstance(o, basestring):
+        if isinstance(o, (str, bytes)):
             yield _encoder(o)
         elif o is None:
             yield 'null'
@@ -475,7 +475,7 @@ def _make_iterencode(markers, _default, _encoder, _indent, _floatstr,
             yield 'true'
         elif o is False:
             yield 'false'
-        elif isinstance(o, (int, long)):
+        elif isinstance(o, int):
             yield str(o)
         elif isinstance(o, float):
             yield _floatstr(o)

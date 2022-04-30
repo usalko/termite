@@ -564,7 +564,7 @@ class web2pyDialog(object):
             value = self.p0[1:] + [10 + 90.0 / math.sqrt(1 + data.count('\n'))]
             self.p0 = value
 
-            for i in xrange(len(self.p0) - 1):
+            for i in range(len(self.p0) - 1):
                 c = self.canvas.coords(self.q0[i])
                 self.canvas.coords(self.q0[i],
                                    (c[0],
@@ -577,7 +577,7 @@ class web2pyDialog(object):
             self.t0 = t1
             self.p0 = [100] * 400
             self.q0 = [self.canvas.create_line(i, 100, i + 1, 100,
-                       fill='green') for i in xrange(len(self.p0) - 1)]
+                       fill='green') for i in range(len(self.p0) - 1)]
 
         self.canvas.after(1000, self.update_canvas)
 

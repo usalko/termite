@@ -467,7 +467,7 @@ class Sheet:
                         self.client["id_columns"].append(y)
                         self.client["id_colnames"][colname] = y
 
-        for k in xrange(self.rows * self.cols):
+        for k in range(self.rows * self.cols):
             key = 'r%sc%s' % (k / self.cols, k % self.cols)
             r, c = self.position(key)
             if key in self.client["cells"]:
@@ -515,7 +515,7 @@ class Sheet:
         """
 
         if not self.regex.match(key):
-            raise SyntaxError, "Invalid cell name: %s" % key
+            raise SyntaxError("Invalid cell name: %s" % key)
         else:
             attributes = self.get_attributes(kwarg)
             if attributes is not None:
@@ -878,4 +878,4 @@ if __name__ == '__main__':
     s.cell('a', value="2")
     s.cell('b', value="=sin(a)")
     s.cell('c', value="=cos(a)**2+b*b")
-    print s['c'].computed_value
+    print(s['c'].computed_value)

@@ -58,7 +58,7 @@ def namedtuple(typename, fieldnames):
     >>>
     """
     # Split up a string, some people do this
-    if isinstance(fieldnames, basestring):
+    if isinstance(fieldnames, (str, bytes)):
         fieldnames = fieldnames.replace(',', ' ').split()
     # Convert anything iterable that enumerates fields to a tuple now
     fieldname_tuple = tuple(str(field) for field in fieldnames)
