@@ -20,7 +20,7 @@ import decimal
 import unicodedata
 from io import StringIO
 from gluon.utils import simple_hash, web2py_uuid, DIGEST_ALG_BY_SIZE
-from gluon.dal import FieldVirtual, FieldMethod
+from functools import reduce
     
 regex_isint = re.compile('^[+-]?\d+$')
 
@@ -186,7 +186,7 @@ class IS_MATCH(Validator):
             if not expression.endswith('$'):
                 expression = '(%s)$' % expression
         if is_unicode:
-            if not isinstance(expression,unicode):
+            if not isinstance(expression,str):
                 expression = expression.decode('utf8')
             self.regex = re.compile(expression,re.UNICODE)
         else:
@@ -196,7 +196,7 @@ class IS_MATCH(Validator):
         self.is_unicode = is_unicode
 
     def __call__(self, value):
-        if self.is_unicode and not isinstance(value,unicode):
+        if self.is_unicode and not isinstance(value,str):
             match = self.regex.search(str(value).decode('utf8'))
         else:
             match = self.regex.search(str(value))
@@ -528,6 +528,9 @@ class IS_IN_DB(Validator):
             self._and.record_id = id
 
     def build_set(self):
+
+        from gluon.dal import FieldVirtual, FieldMethod
+
         table = self.dbset.db[self.ktable]
         if self.fields == 'all':
             fields = [f for f in table]
@@ -645,7 +648,7 @@ class IS_NOT_IN_DB(Validator):
         self.record_id = id
 
     def __call__(self, value):
-        if isinstance(value,unicode):
+        if isinstance(value,str):
             value = value.encode('utf8')
         else:
             value = str(value)

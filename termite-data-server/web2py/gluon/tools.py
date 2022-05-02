@@ -9,7 +9,8 @@ License: LGPLv3 (http://www.gnu.org/licenses/lgpl.html)
 import base64
 import pickle
 import datetime
-import threading
+from _thread import allocate_lock, start_new_thread
+from threading import get_ident
 import logging
 import sys
 import glob
@@ -35,13 +36,18 @@ from gluon.contenttype import contenttype
 from gluon.storage import Storage, StorageList, Settings, Messages
 from gluon.utils import web2py_uuid
 from gluon.fileutils import read_file, check_credentials
-from gluon import *
+# from gluon import *
 from gluon.contrib.autolinks import expand_one
 from gluon.contrib.markmin.markmin2html import \
     replace_at_urls, replace_autolinks, replace_components
-from gluon.dal import Row, Set, Query
+from gluon.dal import Row, Set, Query, DAL, Field
+from gluon.http import redirect, HTTP
+from gluon.html import *
+from gluon.sqlhtml import *
+from gluon import validators
+import urllib
 
-import web2py.gluon.serializers as serializers
+import gluon.serializers as serializers
 
 try:
     # try stdlib (Python 2.6)
@@ -64,7 +70,8 @@ DEFAULT = lambda: None
 
 
 def getarg(position, default=None):
-    args = current.request.args
+    import gluon
+    args = gluon.current.request.args
     if position < 0 and len(args) >= -position:
         return args[position]
     elif position >= 0 and len(args) > position:
@@ -115,7 +122,7 @@ class Mail(object):
     Works with SMTP and Google App Engine.
     """
 
-    class Attachment(MIMEBase.MIMEBase):
+    class Attachment(MIMEBase):
         """
         Email attachment
 
@@ -359,7 +366,7 @@ class Mail(object):
         """
 
         # We don't want to use base64 encoding for unicode mail
-        Charset.add_charset('utf-8', Charset.QP, Charset.QP, 'utf-8')
+        email.charset.add_charset('utf-8', email.charset.QP, email.charset.QP, 'utf-8')
 
         def encode_header(key):
             if [c for c in key if 32 > ord(c) or ord(c) > 127]:
@@ -522,7 +529,7 @@ class Mail(object):
                     # insert the origin payload
                     payload.attach(payload_in)
                     # insert the detached signature
-                    p = MIMEBase.MIMEBase("application", 'pgp-signature')
+                    p = MIMEBase("application", 'pgp-signature')
                     p.set_payload(sig.read())
                     payload.attach(p)
                     # it's just a trick to handle the no encryption case
@@ -562,10 +569,10 @@ class Mail(object):
                                                           boundary=None,
                                                           _subparts=None,
                                                           **dict(protocol="application/pgp-encrypted"))
-                    p = MIMEBase.MIMEBase("application", 'pgp-encrypted')
+                    p = MIMEBase("application", 'pgp-encrypted')
                     p.set_payload("Version: 1\r\n")
                     payload.attach(p)
-                    p = MIMEBase.MIMEBase("application", 'octet-stream')
+                    p = MIMEBase("application", 'octet-stream')
                     p.set_payload(cipher.read())
                     payload.attach(p)
                 except errors.GPGMEError as ex:
@@ -765,7 +772,8 @@ class Recaptcha(DIV):
         comment = '',
         ajax=False
     ):
-        self.request_vars = request and request.vars or current.request.vars
+        import gluon
+        self.request_vars = request and request.vars or gluon.current.request.vars
         self.remote_addr = request.env.remote_addr
         self.public_key = public_key
         self.private_key = private_key
@@ -801,12 +809,12 @@ class Recaptcha(DIV):
             'challenge': recaptcha_challenge_field,
             'response': recaptcha_response_field,
         })
-        request = urllib2.Request(
+        request = urllib.Request(
             url=self.VERIFY_SERVER,
             data=params,
             headers={'Content-type': 'application/x-www-form-urlencoded',
                      'User-agent': 'reCAPTCHA Python'})
-        httpresp = urllib2.urlopen(request)
+        httpresp = urllib.urlopen(request)
         return_values = httpresp.read().splitlines()
         httpresp.close()
         return_code = return_values[0]
@@ -1143,7 +1151,8 @@ class Auth(object):
 
     @staticmethod
     def get_or_create_key(filename=None, alg='sha512'):
-        request = current.request
+        import gluon
+        request = gluon.current.request
         if not filename:
             filename = os.path.join(request.folder, 'private', 'auth.key')
         if os.path.exists(filename):
@@ -1162,7 +1171,8 @@ class Auth(object):
                    f=f, args=args, vars=vars, scheme=scheme)
 
     def here(self):
-        return URL(args=current.request.args,vars=current.request.get_vars)
+        import gluon
+        return URL(args=gluon.current.request.args,vars=gluon.current.request.get_vars)
 
     def __init__(self, environment=None, db=None, mailer=True,
                  hmac_key=None, controller='default', function='user',
@@ -1182,10 +1192,11 @@ class Auth(object):
         if not db and environment and isinstance(environment, DAL):
             db = environment
         self.db = db
-        self.environment = current
+        import gluon
+        self.environment = gluon.current
         self.csrf_prevention = csrf_prevention
-        request = current.request
-        session = current.session
+        request = gluon.current.request
+        session = gluon.current.session
         auth = session.auth
         self.user_groups = auth and auth.user_groups or {}
         if secure:
@@ -1269,20 +1280,20 @@ class Auth(object):
         settings.lock_keys = True
 
         # ## these are messages that can be customized
-        messages = self.messages = Messages(current.T)
+        messages = self.messages = Messages(gluon.current.T)
         messages.update(Auth.default_messages)
         messages.update(ajax_failed_authentication=DIV(H4('NOT AUTHORIZED'),
             'Please ',
             A('login',
               _href=self.settings.login_url +
-              ('?_next=' + urllib.parse.quote(current.request.env.http_web2py_component_location))
-              if current.request.env.http_web2py_component_location else ''),
+              ('?_next=' + urllib.parse.quote(gluon.current.request.env.http_web2py_component_location))
+              if gluon.current.request.env.http_web2py_component_location else ''),
             ' to view this content.',
             _class='not-authorized alert alert-block'))
         messages.lock_keys = True
 
         # for "remember me" option
-        response = current.response
+        response = gluon.current.response
         if auth and auth.remember:
             # when user wants to be logged in for longer
             response.session_cookie_expires = auth.expiration
@@ -1292,7 +1303,8 @@ class Auth(object):
             self.signature = None
 
     def get_vars_next(self):
-        next = current.request.vars._next
+        import gluon
+        next = gluon.current.request.vars._next
         if isinstance(next, (list, tuple)):
             next = next[0]
         return next
@@ -1335,7 +1347,8 @@ class Auth(object):
         def authentication(): return dict(form=auth())
         """
 
-        request = current.request
+        import gluon
+        request = gluon.current.request
         args = request.args
         if not args:
             redirect(self.url(args='login', vars=request.vars))
@@ -1374,14 +1387,15 @@ class Auth(object):
         mode -- see options for list of
 
         """
+        import gluon
         items = []  # Hold all menu items in a list
         self.bar = ''  # The final
-        T = current.T
+        T = gluon.current.T
         referrer_actions = [] if not referrer_actions else referrer_actions
         if not action:
             action = self.url(self.settings.function)
 
-        request = current.request
+        request = gluon.current.request
         if URL() == action:
             next = ''
         else:
@@ -1499,13 +1513,13 @@ class Auth(object):
                                _rel="nofollow",
                                **{"_data-toggle": "dropdown"})
                     li_profile = LI(A(I(_class="icon-user"), ' ',
-                                      current.T("Account details"),
+                                      gluon.current.T("Account details"),
                                       _href=bar["profile"], _rel="nofollow"))
                     li_custom = LI(A(I(_class="icon-book"), ' ',
-                                     current.T("My Agenda"),
+                                     gluon.current.T("My Agenda"),
                                      _href="#", rel="nofollow"))
                     li_logout = LI(A(I(_class="icon-off"), ' ',
-                                     current.T("logout"),
+                                     gluon.current.T("logout"),
                                      _href=bar["logout"], _rel="nofollow"))
                     dropdown = UL(li_profile,
                                   li_custom,
@@ -1614,7 +1628,8 @@ class Auth(object):
         does automatically.
 
         """
-        current_record_label = current_record_label or current.T(
+        import gluon
+        current_record_label = current_record_label or gluon.current.T(
             current_record.replace('_',' ').title())
         for table in tables:
             fieldnames = table.fields()
@@ -1628,10 +1643,11 @@ class Auth(object):
                     current_record_label=current_record_label)
 
     def define_signature(self):
+        import gluon
         db = self.db
         settings = self.settings
-        request = current.request
-        T = current.T
+        request = gluon.current.request
+        T = gluon.current.T
         reference_user = 'reference %s' % settings.table_user_name
 
         def lazy_user(auth=self):
@@ -1686,6 +1702,7 @@ class Auth(object):
 
         """
 
+        import gluon
         db = self.db
         if migrate is None: migrate = db._migrate
         if fake_migrate is None: fake_migrate = db._fake_migrate
@@ -1704,27 +1721,27 @@ class Auth(object):
             signature_list = [signature]
         else:
             signature_list = signature
-        is_not_empty = IS_NOT_EMPTY(error_message=self.messages.is_empty)
-        is_crypted = CRYPT(key=settings.hmac_key,
+        is_not_empty = validators.IS_NOT_EMPTY(error_message=self.messages.is_empty)
+        is_crypted = validators.CRYPT(key=settings.hmac_key,
                            min_length=settings.password_min_length)
         is_unique_email = [
-            IS_EMAIL(error_message=self.messages.invalid_email),
-            IS_NOT_IN_DB(db, '%s.email' % settings.table_user_name,
+            validators.IS_EMAIL(error_message=self.messages.invalid_email),
+            validators.IS_NOT_IN_DB(db, '%s.email' % settings.table_user_name,
                          error_message=self.messages.email_taken)]
         if not settings.email_case_sensitive:
-            is_unique_email.insert(1, IS_LOWER())
+            is_unique_email.insert(1, validators.IS_LOWER())
         if not settings.table_user_name in db.tables:
             passfield = settings.password_field
             extra_fields = settings.extra_fields.get(
                 settings.table_user_name, []) + signature_list
             if username or settings.cas_provider:
                 is_unique_username = \
-                    [IS_MATCH('[\w\.\-]+', strict=True,
+                    [validators.IS_MATCH('[\w\.\-]+', strict=True,
                               error_message=self.messages.invalid_username),
-                     IS_NOT_IN_DB(db, '%s.username' % settings.table_user_name,
+                     validators.IS_NOT_IN_DB(db, '%s.username' % settings.table_user_name,
                                   error_message=self.messages.username_taken)]
                 if not settings.username_case_sensitive:
-                    is_unique_username.insert(1, IS_LOWER())
+                    is_unique_username.insert(1, validators.IS_LOWER())
                 db.define_table(
                     settings.table_user_name,
                     Field('first_name', length=128, default='',
@@ -1795,7 +1812,7 @@ class Auth(object):
                 settings.table_group_name,
                 Field('role', length=512, default='',
                       label=self.messages.label_role,
-                      requires=IS_NOT_IN_DB(
+                      requires=validators.IS_NOT_IN_DB(
                       db, '%s.role' % settings.table_group_name)),
                 Field('description', 'text',
                       label=self.messages.label_description),
@@ -1834,7 +1851,7 @@ class Auth(object):
                       label=self.messages.label_table_name),
                 Field('record_id', 'integer', default=0,
                       label=self.messages.label_record_id,
-                      requires=IS_INT_IN_RANGE(0, 10 ** 9)),
+                      requires=validators.IS_INT_IN_RANGE(0, 10 ** 9)),
                 *extra_fields,
                 **dict(
                     migrate=self.__get_migrate(
@@ -1844,10 +1861,10 @@ class Auth(object):
             db.define_table(
                 settings.table_event_name,
                 Field('time_stamp', 'datetime',
-                      default=current.request.now,
+                      default=gluon.current.request.now,
                       label=self.messages.label_time_stamp),
                 Field('client_ip',
-                      default=current.request.client,
+                      default=gluon.current.request.client,
                       label=self.messages.label_client_ip),
                 Field('user_id', reference_table_user, default=None,
                       label=self.messages.label_user_id),
@@ -1862,7 +1879,7 @@ class Auth(object):
                     migrate=self.__get_migrate(
                         settings.table_event_name, migrate),
                     fake_migrate=fake_migrate))
-        now = current.request.now
+        now = gluon.current.request.now
         if settings.cas_domains:
             if not settings.table_cas_name in db.tables:
                 db.define_table(
@@ -1870,7 +1887,7 @@ class Auth(object):
                     Field('user_id', reference_table_user, default=None,
                           label=self.messages.label_user_id),
                     Field('created_on', 'datetime', default=now),
-                    Field('service', requires=IS_URL()),
+                    Field('service', requires=validators.IS_URL()),
                     Field('ticket'),
                     Field('renew', 'boolean', default=False),
                     *settings.extra_fields.get(settings.table_cas_name, []),
@@ -1992,7 +2009,7 @@ class Auth(object):
         :param basic_auth_realm: optional basic http authentication realm.
         :type basic_auth_realm: str or unicode or function or callable or boolean.
 
-        reads current.request.env.http_authorization
+        reads gluon.current.request.env.http_authorization
         and returns basic_allowed,basic_accepted,user.
 
         if basic_auth_realm is defined is a callable it's return value
@@ -2003,16 +2020,17 @@ class Auth(object):
         is to skip sending any challenge.
 
         """
+        import gluon
         if not self.settings.allow_basic_login:
             return (False, False, False)
-        basic = current.request.env.http_authorization
+        basic = gluon.current.request.env.http_authorization
         if basic_auth_realm:
             if callable(basic_auth_realm):
                 basic_auth_realm = basic_auth_realm()
-            elif isinstance(basic_auth_realm, (unicode, str)):
-                basic_realm = unicode(basic_auth_realm)
+            elif isinstance(basic_auth_realm, (str, bytes)):
+                basic_realm = str(basic_auth_realm)
             elif basic_auth_realm is True:
-                basic_realm = u'' + current.request.application
+                basic_realm = u'' + gluon.current.request.application
             http_401 = HTTP(401, u'Not Authorized',
                        **{'WWW-Authenticate': u'Basic realm="' + basic_realm + '"'})
         if not basic or not basic[:6].lower() == 'basic ':
@@ -2029,6 +2047,7 @@ class Auth(object):
         """
         login the user = db.auth_user(id)
         """
+        import gluon
         from gluon.settings import global_settings
         if global_settings.web2py_runtime_gae:
             user = Row(self.table_user()._filter_fields(user, id=True))
@@ -2039,8 +2058,8 @@ class Auth(object):
                 if callable(value) or key=='password':
                     delattr(user,key)
         if self.settings.renew_session_onlogin:
-            current.session.renew(clear_session=not self.settings.keep_session_onlogin)
-        current.session.auth = Storage(
+            gluon.current.session.renew(clear_session=not self.settings.keep_session_onlogin)
+        gluon.current.session.auth = Storage(
             user = user,
             last_visit=current.request.now,
             expiration=self.settings.expiration,
@@ -2114,9 +2133,10 @@ class Auth(object):
         log=DEFAULT,
         version=2,
     ):
-        request = current.request
-        response = current.response
-        session = current.session
+        import gluon
+        request = gluon.current.request
+        response = gluon.current.response
+        session = gluon.current.session
         db, table = self.db, self.table_cas()
         session._cas_service = request.vars.service or session._cas_service
         if not request.env.http_host in self.settings.cas_domains or \
@@ -2156,9 +2176,10 @@ class Auth(object):
         return self.login(next, onvalidation, cas_onaccept, log)
 
     def cas_validate(self, version=2, proxy=False):
-        request = current.request
+        import gluon
+        request = gluon.current.request
         db, table = self.db, self.table_cas()
-        current.response.headers['Content-Type'] = 'text'
+        gluon.current.response.headers['Content-Type'] = 'text'
         ticket = request.vars.ticket
         renew = 'renew' in request.vars
         row = table(ticket=ticket)
@@ -2215,21 +2236,22 @@ class Auth(object):
 
         """
 
+        import gluon
         table_user = self.table_user()
         settings = self.settings
         if 'username' in table_user.fields or \
                 not settings.login_email_validate:
-            tmpvalidator = IS_NOT_EMPTY(error_message=self.messages.is_empty)
+            tmpvalidator = validators.IS_NOT_EMPTY(error_message=self.messages.is_empty)
             if not settings.username_case_sensitive:
-                tmpvalidator = [IS_LOWER(), tmpvalidator]
+                tmpvalidator = [validators.IS_LOWER(), tmpvalidator]
         else:
-            tmpvalidator = IS_EMAIL(error_message=self.messages.invalid_email)
+            tmpvalidator = validators.IS_EMAIL(error_message=self.messages.invalid_email)
             if not settings.email_case_sensitive:
-                tmpvalidator = [IS_LOWER(), tmpvalidator]
+                tmpvalidator = [validators.IS_LOWER(), tmpvalidator]
 
-        request = current.request
-        response = current.response
-        session = current.session
+        request = gluon.current.request
+        response = gluon.current.response
+        session = gluon.current.session
 
         passfield = settings.password_field
         try:
@@ -2463,6 +2485,7 @@ class Auth(object):
 
         """
 
+        import gluon
         if next is DEFAULT:
             next = self.get_vars_next() or self.settings.logout_next
         if onlogout is DEFAULT:
@@ -2479,10 +2502,10 @@ class Auth(object):
             if cas_user:
                 next = cas.logout_url(next)
 
-        current.session.auth = None
+        gluon.current.session.auth = None
         if self.settings.renew_session_onlogout:
-            current.session.renew(clear_session=not self.settings.keep_session_onlogout)
-        current.session.flash = self.messages.logged_out
+            gluon.current.session.renew(clear_session=not self.settings.keep_session_onlogout)
+        gluon.current.session.flash = self.messages.logged_out
         if not next is None:
             redirect(next)
 
@@ -2501,10 +2524,11 @@ class Auth(object):
 
         """
 
+        import gluon
         table_user = self.table_user()
-        request = current.request
-        response = current.response
-        session = current.session
+        request = gluon.current.request
+        response = gluon.current.response
+        session = gluon.current.session
         if self.is_logged_in():
             redirect(self.settings.logged_url,
                      client_side=self.settings.client_side)
@@ -2526,17 +2550,17 @@ class Auth(object):
             username = 'email'
 
         # Ensure the username field is unique.
-        unique_validator = IS_NOT_IN_DB(self.db, table_user[username])
+        unique_validator = validators.IS_NOT_IN_DB(self.db, table_user[username])
         if not table_user[username].requires:
             table_user[username].requires = unique_validator
         elif isinstance(table_user[username].requires, (list, tuple)):
-            if not any([isinstance(validator, IS_NOT_IN_DB) for validator in
+            if not any([isinstance(validator, validators.IS_NOT_IN_DB) for validator in
                         table_user[username].requires]):
                 if isinstance(table_user[username].requires, list):
                     table_user[username].requires.append(unique_validator)
                 else:
                     table_user[username].requires += (unique_validator, )
-        elif not isinstance(table_user[username].requires, IS_NOT_IN_DB):
+        elif not isinstance(table_user[username].requires, validators.IS_NOT_IN_DB):
             table_user[username].requires = [table_user[username].requires,
                                              unique_validator]
 
@@ -2558,7 +2582,7 @@ class Auth(object):
                     form.custom.widget.password_two = \
                         INPUT(_name="password_two", _type="password",
                               _class="password",
-                              requires=IS_EXPR(
+                              requires=validators.IS_EXPR(
                               'value==%s' %
                               repr(request.vars.get(passfield, None)),
                               error_message=self.messages.mismatched_password))
@@ -2658,6 +2682,7 @@ class Auth(object):
 
         """
 
+        import gluon
         key = getarg(-1)
         table_user = self.table_user()
         user = table_user(registration_key=key)
@@ -2665,13 +2690,13 @@ class Auth(object):
             redirect(self.settings.login_url)
         if self.settings.registration_requires_approval:
             user.update_record(registration_key='pending')
-            current.session.flash = self.messages.registration_pending
+            gluon.current.session.flash = self.messages.registration_pending
         else:
             user.update_record(registration_key='')
-            current.session.flash = self.messages.email_verified
+            gluon.current.session.flash = self.messages.email_verified
         # make sure session has same user.registrato_key as db record
-        if current.session.auth and current.session.auth.user:
-            current.session.auth.user.registration_key = user.registration_key
+        if gluon.current.session.auth and gluon.current.session.auth.user:
+            gluon.current.session.auth.user.registration_key = user.registration_key
         if log is DEFAULT:
             log = self.messages['verify_email_log']
         if next is DEFAULT:
@@ -2698,12 +2723,13 @@ class Auth(object):
 
         """
 
+        import gluon
         table_user = self.table_user()
         if not 'username' in table_user.fields:
             raise HTTP(404)
-        request = current.request
-        response = current.response
-        session = current.session
+        request = gluon.current.request
+        response = gluon.current.response
+        session = gluon.current.session
         captcha = self.settings.retrieve_username_captcha or \
                 (self.settings.retrieve_username_captcha != False and self.settings.captcha)
         if not self.settings.mailer:
@@ -2718,7 +2744,7 @@ class Auth(object):
         if log is DEFAULT:
             log = self.messages['retrieve_username_log']
         old_requires = table_user.email.requires
-        table_user.email.requires = [IS_IN_DB(self.db, table_user.email,
+        table_user.email.requires = [validators.IS_IN_DB(self.db, table_user.email,
             error_message=self.messages.invalid_email)]
         form = SQLFORM(table_user,
                        fields=['email'],
@@ -2738,7 +2764,7 @@ class Auth(object):
                         onvalidation=onvalidation, hideerror=self.settings.hideerror):
             users = table_user._db(table_user.email==form.vars.email).select()
             if not users:
-                current.session.flash = \
+                gluon.current.session.flash = \
                     self.messages.invalid_email
                 redirect(self.url(args=request.args))
             username = ', '.join(u.username for u in users)
@@ -2785,10 +2811,11 @@ class Auth(object):
 
         """
 
+        import gluon
         table_user = self.table_user()
-        request = current.request
-        response = current.response
-        session = current.session
+        request = gluon.current.request
+        response = gluon.current.response
+        session = gluon.current.session
         if not self.settings.mailer:
             response.flash = self.messages.function_disabled
             return ''
@@ -2801,7 +2828,7 @@ class Auth(object):
         if log is DEFAULT:
             log = self.messages['retrieve_password_log']
         old_requires = table_user.email.requires
-        table_user.email.requires = [IS_IN_DB(self.db, table_user.email,
+        table_user.email.requires = [validators.IS_IN_DB(self.db, table_user.email,
             error_message=self.messages.invalid_email)]
         form = SQLFORM(table_user,
                        fields=['email'],
@@ -2817,11 +2844,11 @@ class Auth(object):
                         onvalidation=onvalidation, hideerror=self.settings.hideerror):
             user = table_user(email=form.vars.email)
             if not user:
-                current.session.flash = \
+                gluon.current.session.flash = \
                     self.messages.invalid_email
                 redirect(self.url(args=request.args))
             elif user.registration_key in ('pending', 'disabled', 'blocked'):
-                current.session.flash = \
+                gluon.current.session.flash = \
                     self.messages.registration_pending
                 redirect(self.url(args=request.args))
             password = self.random_password()
@@ -2864,10 +2891,11 @@ class Auth(object):
 
         """
 
+        import gluon
         table_user = self.table_user()
-        request = current.request
-        # response = current.response
-        session = current.session
+        request = gluon.current.request
+        # response = gluon.current.response
+        session = gluon.current.session
 
         if next is DEFAULT:
             next = self.get_vars_next() or self.settings.reset_password_next
@@ -2889,7 +2917,7 @@ class Auth(object):
                   requires=self.table_user()[passfield].requires),
             Field('new_password2', 'password',
                   label=self.messages.verify_password,
-                  requires=[IS_EXPR(
+                  requires=[validators.IS_EXPR(
                       'value==%s' % repr(request.vars.new_password),
                                     self.messages.mismatched_password)]),
             submit_button=self.messages.password_reset_button,
@@ -2923,10 +2951,12 @@ class Auth(object):
             [, onvalidation=DEFAULT [, onaccept=DEFAULT [, log=DEFAULT]]]])
 
         """
+
+        import gluon
         table_user = self.table_user()
-        request = current.request
-        response = current.response
-        session = current.session
+        request = gluon.current.request
+        response = gluon.current.response
+        session = gluon.current.session
         captcha = self.settings.retrieve_password_captcha or \
                 (self.settings.retrieve_password_captcha != False and self.settings.captcha)
 
@@ -2945,12 +2975,12 @@ class Auth(object):
             if 'username' in table_user.fields else 'email'        
         if userfield=='email':
             table_user.email.requires = [
-                IS_EMAIL(error_message=self.messages.invalid_email),
-                IS_IN_DB(self.db, table_user.email,
+                validators.IS_EMAIL(error_message=self.messages.invalid_email),
+                validators.IS_IN_DB(self.db, table_user.email,
                          error_message=self.messages.invalid_email)]
         else:
             table_user.username.requires = [
-                IS_IN_DB(self.db, table_user.username,
+                validators.IS_IN_DB(self.db, table_user.username,
                          error_message=self.messages.invalid_username)]
         form = SQLFORM(table_user,
                        fields=[userfield],
@@ -3032,6 +3062,7 @@ class Auth(object):
             onaccept=DEFAULT[, log=DEFAULT]]]])
         """
 
+        import gluon
         if not self.is_logged_in():
             redirect(self.settings.login_url,
                      client_side=self.settings.client_side)
@@ -3039,8 +3070,8 @@ class Auth(object):
         table_user = self.table_user()
         s = db(table_user.id == self.user.id)
 
-        request = current.request
-        session = current.session
+        request = gluon.current.request
+        session = gluon.current.session
         if next is DEFAULT:
             next = self.get_vars_next() or self.settings.change_password_next
         if onvalidation is DEFAULT:
@@ -3059,7 +3090,7 @@ class Auth(object):
                 requires=table_user[passfield].requires),
             Field('new_password2', 'password',
                 label=self.messages.verify_password,
-                requires=[IS_EXPR(
+                requires=[validators.IS_EXPR(
                     'value==%s' % repr(request.vars.new_password),
                               self.messages.mismatched_password)]),
             submit_button=self.messages.password_change_button,
@@ -3102,14 +3133,15 @@ class Auth(object):
 
         """
 
+        import gluon
         table_user = self.table_user()
         if not self.is_logged_in():
             redirect(self.settings.login_url,
                      client_side=self.settings.client_side)
         passfield = self.settings.password_field
         table_user[passfield].writable = False
-        request = current.request
-        session = current.session
+        request = gluon.current.request
+        session = gluon.current.session
         if next is DEFAULT:
             next = self.get_vars_next() or self.settings.profile_next
         if onvalidation is DEFAULT:
@@ -3158,7 +3190,9 @@ class Auth(object):
                  callback(form)
 
     def is_impersonating(self):
-        return self.is_logged_in() and 'impersonator' in current.session.auth
+
+        import gluon
+        return self.is_logged_in() and 'impersonator' in gluon.current.session.auth
 
     def impersonate(self, user_id=DEFAULT):
         """
@@ -3168,8 +3202,10 @@ class Auth(object):
         requires impersonator is logged in and
         has_permission('impersonate', 'auth_user', user_id)
         """
-        request = current.request
-        session = current.session
+
+        import gluon
+        request = gluon.current.request
+        session = gluon.current.session
         auth = session.auth
         table_user = self.table_user()
         if not self.is_logged_in():
@@ -3177,7 +3213,7 @@ class Auth(object):
         current_id = auth.user.id
         requested_id = user_id
         if user_id is DEFAULT:
-            user_id = current.request.post_vars.user_id
+            user_id = gluon.current.request.post_vars.user_id
         if user_id and user_id != self.user.id and user_id != '0':
             if not self.has_permission('impersonate',
                                        self.table_user(),
@@ -3207,11 +3243,13 @@ class Auth(object):
         return SQLFORM(table_user, user.id, readonly=True)
 
     def update_groups(self):
+
+        import gluon
         if not self.user:
             return
         user_groups = self.user_groups = {}
-        if current.session.auth:
-            current.session.auth.user_groups = self.user_groups
+        if gluon.current.session.auth:
+            gluon.current.session.auth.user_groups = self.user_groups
         table_group = self.table_group()
         table_membership = self.table_membership()
         memberships = self.db(
@@ -3226,6 +3264,7 @@ class Auth(object):
         displays the groups and their roles for the logged in user
         """
 
+        import gluon
         if not self.is_logged_in():
             redirect(self.settings.login_url)
         table_membership = self.table_membership()
@@ -3247,7 +3286,9 @@ class Auth(object):
         """
         you can change the view for this page to make it look as you like
         """
-        if current.request.ajax:
+
+        import gluon
+        if gluon.current.request.ajax:
             raise HTTP(403, 'ACCESS DENIED')
         return self.messages.access_denied
 
@@ -3255,6 +3296,8 @@ class Auth(object):
         """
         decorator that prevents access to action if not logged in
         """
+
+        import gluon
 
         def decorator(action):
 
@@ -3264,18 +3307,18 @@ class Auth(object):
                 user = user or self.user
                 if requires_login:
                     if not user:
-                        if current.request.ajax:
+                        if gluon.current.request.ajax:
                             raise HTTP(401, self.messages.ajax_failed_authentication)
                         elif not otherwise is None:
                             if callable(otherwise):
                                 return otherwise()
                             redirect(otherwise)
                         elif self.settings.allow_basic_login_only or \
-                                basic_accepted or current.request.is_restful:
+                                basic_accepted or gluon.current.request.is_restful:
                             raise HTTP(403, "Not authorized")
                         else:
                             next = self.here()
-                            current.session.flash = current.response.flash
+                            gluon.current.session.flash = gluon.current.response.flash
                             return call_or_redirect(
                                 self.settings.on_failed_authentication,
                                 self.settings.login_url +
@@ -3286,7 +3329,7 @@ class Auth(object):
                 else:
                     flag = condition
                 if not flag:
-                    current.session.flash = self.messages.access_denied
+                    gluon.current.session.flash = self.messages.access_denied
                     return call_or_redirect(
                         self.settings.on_failed_authorization)
                 return action(*a, **b)
@@ -3514,13 +3557,13 @@ class Auth(object):
         if group_id == 0:
             group_id = self.user_group()
         record = self.db(permission.group_id == group_id)(permission.name == name)(permission.table_name == str(table_name))(
-                permission.record_id == long(record_id)).select(limitby=(0,1), orderby_on_limitby=False).first()
+                permission.record_id == int(record_id)).select(limitby=(0,1), orderby_on_limitby=False).first()
         if record:
             id = record.id
         else:
             id = permission.insert(group_id=group_id, name=name,
                                    table_name=str(table_name),
-                                   record_id=long(record_id))
+                                   record_id=int(record_id))
         self.log_event(self.messages['add_permission_log'],
                        dict(permission_id=id, group_id=group_id,
                             name=name, table_name=table_name,
@@ -3545,7 +3588,7 @@ class Auth(object):
         return self.db(permission.group_id == group_id)(permission.name
                  == name)(permission.table_name
                            == str(table_name))(permission.record_id
-                 == long(record_id)).delete()
+                 == int(record_id)).delete()
 
     def accessible_query(self, name, table, user_id=None):
         """
@@ -3795,7 +3838,9 @@ class Crud(object):
         messages.lock_keys = True
 
     def __call__(self):
-        args = current.request.args
+
+        import gluon
+        args = gluon.current.request.args
         if len(args) < 1:
             raise HTTP(404)
         elif args[0] == 'tables':
@@ -3862,6 +3907,8 @@ class Crud(object):
             [, message=DEFAULT[, deletable=DEFAULT]]]]]])
 
         """
+
+        import gluon
         if not (isinstance(table, self.db.Table) or table in self.db.tables) \
                 or (isinstance(record, str) and not str(record).isdigit()):
             raise HTTP(404)
@@ -3876,9 +3923,9 @@ class Crud(object):
         if not record_id and not self.has_permission('create', table, record_id):
             redirect(self.settings.auth.settings.on_failed_authorization)
 
-        request = current.request
-        response = current.response
-        session = current.session
+        request = gluon.current.request
+        response = gluon.current.response
+        session = gluon.current.session
         if request.extension == 'json' and request.vars.json:
             request.vars.update(json_parser.loads(request.vars.json))
         if next is DEFAULT:
@@ -4017,7 +4064,7 @@ class Crud(object):
             formstyle=self.settings.formstyle,
             separator=self.settings.label_separator
             )
-        if not current.request.extension in ('html', 'load'):
+        if not gluon.current.request.extension in ('html', 'load'):
             return table._filter_fields(form.record, id=True)
         return form
 
@@ -4032,14 +4079,16 @@ class Crud(object):
         method: Crud.delete(table, record_id, [next=DEFAULT
             [, message=DEFAULT]])
         """
+
+        import gluon
         if not (isinstance(table, self.db.Table) or table in self.db.tables):
             raise HTTP(404)
         if not isinstance(table, self.db.Table):
             table = self.db[table]
         if not self.has_permission('delete', table, record_id):
             redirect(self.settings.auth.settings.on_failed_authorization)
-        request = current.request
-        session = current.session
+        request = gluon.current.request
+        session = gluon.current.session
         if next is DEFAULT:
             next = request.get_vars._next \
                 or request.post_vars._next \
@@ -4090,13 +4139,15 @@ class Crud(object):
         headers=None,
         **attr
         ):
+
+        import gluon
         headers = headers or {}
         rows = self.rows(table, query, fields, orderby, limitby)
         if not rows:
             return None  # Nicer than an empty table.
         if not 'upload' in attr:
             attr['upload'] = self.url('download')
-        if not current.request.extension in ('html', 'load'):
+        if not gluon.current.request.extension in ('html', 'load'):
             return rows.as_list()
         if not headers:
             if isinstance(table, str):
@@ -4167,10 +4218,12 @@ class Crud(object):
                                zero='Please choose',
                                query = (db.test.id > 0)&(db.test.id != 3) )
         """
+
+        import gluon
         table = tables[0]
         fields = args.get('fields', table.fields)
         validate = args.get('validate',True)
-        request = current.request
+        request = gluon.current.request
         db = self.db
         if not (isinstance(table, db.Table) or table in db.tables):
             raise HTTP(404)
@@ -4245,12 +4298,14 @@ class Crud(object):
         return form, results
 
 
-urllib2.install_opener(urllib2.build_opener(urllib2.HTTPCookieProcessor()))
+urllib.request.install_opener(urllib.request.build_opener(urllib.request.HTTPCookieProcessor()))
 
 
 def fetch(url, data=None, headers=None,
           cookie=http.cookies.SimpleCookie(),
           user_agent='Mozilla/5.0'):
+    
+    import gluon
     headers = headers or {}
     if not data is None:
         data = urllib.parse.urlencode(data)
@@ -4261,8 +4316,8 @@ def fetch(url, data=None, headers=None,
     try:
         from google.appengine.api import urlfetch
     except ImportError:
-        req = urllib2.Request(url, data, headers)
-        html = urllib2.urlopen(req).read()
+        req = urllib.rquest.Request(url, data, headers)
+        html = urllib.request.urlopen(req).read()
     else:
         method = ((data is None) and urlfetch.GET) or urlfetch.POST
         while url is not None:
@@ -4572,7 +4627,7 @@ class Service(object):
         return _soap
 
     def serve_run(self, args=None):
-        request = current.request
+        request = gluon.current.request
         if not args:
             args = request.args
         if args and args[0] in self.run_procedures:
@@ -4581,8 +4636,8 @@ class Service(object):
         self.error()
 
     def serve_csv(self, args=None):
-        request = current.request
-        response = current.response
+        request = gluon.current.request
+        response = gluon.current.response
         response.headers['Content-Type'] = 'text/x-csv'
         if not args:
             args = request.args
@@ -4618,8 +4673,10 @@ class Service(object):
         self.error()
 
     def serve_xml(self, args=None):
-        request = current.request
-        response = current.response
+
+        import gluon
+        request = gluon.current.request
+        response = gluon.current.response
         response.headers['Content-Type'] = 'text/xml'
         if not args:
             args = request.args
@@ -4632,8 +4689,10 @@ class Service(object):
         self.error()
 
     def serve_rss(self, args=None):
-        request = current.request
-        response = current.response
+
+        import gluon
+        request = gluon.current.request
+        response = gluon.current.response
         if not args:
             args = request.args
         if args and args[0] in self.rss_procedures:
@@ -4645,8 +4704,10 @@ class Service(object):
         return serializers.rss(feed)
 
     def serve_json(self, args=None):
-        request = current.request
-        response = current.response
+
+        import gluon
+        request = gluon.current.request
+        response = gluon.current.response
         response.headers['Content-Type'] = 'application/json; charset=utf-8'
         if not args:
             args = request.args
@@ -4676,6 +4737,9 @@ class Service(object):
 
 
     def serve_jsonrpc(self):
+
+        import gluon
+
         def return_response(id, result):
             return serializers.json({'version': '1.1',
                 'id': id, 'result': result, 'error': None})
@@ -4690,8 +4754,8 @@ class Service(object):
                                      'error': error,
                                      })
 
-        request = current.request
-        response = current.response
+        request = gluon.current.request
+        response = gluon.current.response
         response.headers['Content-Type'] = 'application/json; charset=utf-8'
         methods = self.jsonrpc_procedures
         data = json_parser.loads(request.body.read())
@@ -4721,6 +4785,8 @@ class Service(object):
             return return_error(id, 100, message, data)
 
     def serve_jsonrpc2(self, data=None, batch_element=False):
+
+        import gluon
 
         def return_response(id, result):
             if not must_respond:
@@ -4771,8 +4837,8 @@ class Service(object):
 
 
 
-        request = current.request
-        response = current.response
+        request = gluon.current.request
+        response = gluon.current.response
         if not data:
             response.headers['Content-Type'] = 'application/json; charset=utf-8'
             try:
@@ -4825,19 +4891,24 @@ class Service(object):
 
 
     def serve_xmlrpc(self):
-        request = current.request
-        response = current.response
+
+        import gluon
+        request = gluon.current.request
+        response = gluon.current.response
         services = self.xmlrpc_procedures.values()
         return response.xmlrpc(request, services)
 
     def serve_amfrpc(self, version=0):
+        
+        import gluon
+
         try:
             import pyamf
             import pyamf.remoting.gateway
         except:
             return "pyamf not installed or not in Python sys.path"
-        request = current.request
-        response = current.response
+        request = gluon.current.request
+        response = gluon.current.response
         if version == 3:
             services = self.amfrpc3_procedures
             base_gateway = pyamf.remoting.gateway.BaseGateway(services)
@@ -4857,12 +4928,15 @@ class Service(object):
             return pyamf.remoting.encode(pyamf_response, context).getvalue()
 
     def serve_soap(self, version="1.1"):
+
+        import gluon
+
         try:
             from gluon.contrib.pysimplesoap.server import SoapDispatcher
         except:
             return "pysimplesoap not installed in contrib"
-        request = current.request
-        response = current.response
+        request = gluon.current.request
+        response = gluon.current.response
         procedures = self.soap_procedures
 
         location = "%s://%s%s" % (
@@ -4957,7 +5031,7 @@ class Service(object):
         http://..../app/default/call/soap
         """
 
-        request = current.request
+        request = gluon.current.request
         if len(request.args) < 1:
             raise HTTP(404, "Not Found")
         arg0 = request.args(0)
@@ -5009,7 +5083,7 @@ def completion(callback):
                 d = f(*a, **b)
                 return d
             finally:
-                thread.start_new_thread(callback, (d,))
+                start_new_thread(callback, (d,))
         return __completion
     return _completion
 
@@ -5068,10 +5142,10 @@ def test_thread_separation():
         c.x = 7
         lock1.release()
         lock2.release()
-    lock1 = thread.allocate_lock()
-    lock2 = thread.allocate_lock()
+    lock1 = allocate_lock()
+    lock2 = allocate_lock()
     lock1.acquire()
-    thread.start_new_thread(f, ())
+    start_new_thread(f, ())
     a = PluginManager()
     a.x = 5
     lock1.release()
@@ -5135,8 +5209,8 @@ class PluginManager(object):
     instances = {}
 
     def __new__(cls, *a, **b):
-        id = thread.get_ident()
-        lock = thread.allocate_lock()
+        id = get_ident()
+        lock = allocate_lock()
         try:
             lock.acquire()
             try:
@@ -5187,19 +5261,21 @@ class Expose(object):
         ['.py', '.jpg']
         allow_download: whether to allow downloading selected files
         """
-        current.session.forget()
+
+        import gluon
+        gluon.current.session.forget()
         base = base or os.path.join(current.request.folder, 'static')
-        basename = basename or current.request.function
+        basename = basename or gluon.current.request.function
         self.basename = basename
-        self.args = current.request.raw_args and \
-            [arg for arg in current.request.raw_args.split('/') if arg] or []
+        self.args = gluon.current.request.raw_args and \
+            [arg for arg in gluon.current.request.raw_args.split('/') if arg] or []
         filename = os.path.join(base, *self.args)
         if not os.path.exists(filename):
             raise HTTP(404, "FILE NOT FOUND")
         if not os.path.normpath(filename).startswith(base):
             raise HTTP(401, "NOT AUTHORIZED")
         if allow_download and not os.path.isdir(filename):
-            current.response.headers['Content-Type'] = contenttype(filename)
+            gluon.current.response.headers['Content-Type'] = contenttype(filename)
             raise HTTP(200, open(filename, 'rb'), **current.response.headers)
         self.path = path = os.path.join(filename, '*')
         self.folders = [f[len(path) - 1:] for f in sorted(glob.glob(path))
@@ -5295,9 +5371,11 @@ class Wiki(object):
         In wiki docs allows @{component:controller/function/args}
         which renders as a LOAD(..., ajax=True)
         """
+
+        import gluon
         items = text.split('/')
         controller, function, args = items[0], items[1], items[2:]
-        return LOAD(controller, function, args=args, ajax=True).xml()
+        return gluon.compileapp.LOAD(controller, function, args=args, ajax=True).xml()
 
     def get_renderer(self):
         if isinstance(self.settings.render, (str, bytes)):
@@ -5339,6 +5417,8 @@ class Wiki(object):
                     Is the same as {}. It enables per-record formats
                     using builtins
         """
+
+        import gluon
         engines = set(['markmin', 'html'])
         show_engine = False
         if render == "multiple":
@@ -5370,14 +5450,14 @@ class Wiki(object):
         else:
             self.settings.force_prefix = force_prefix
 
-        self.host = current.request.env.http_host
+        self.host = gluon.current.request.env.http_host
 
         table_definitions = [
             ('wiki_page', {
                     'args':[
                         Field('slug',
-                              requires=[IS_SLUG(),
-                                        IS_NOT_IN_DB(db, 'wiki_page.slug')],
+                              requires=[validators.IS_SLUG(),
+                                        validators.IS_NOT_IN_DB(db, 'wiki_page.slug')],
                               writable=False),
                         Field('title', length=255, unique=True),
                         Field('body', 'text', notnull=True),
@@ -5396,8 +5476,8 @@ class Wiki(object):
                         Field('render', default="markmin",
                               readable=show_engine,
                               writable=show_engine,
-                              requires=IS_EMPTY_OR(
-                                  IS_IN_SET(engines))),
+                              requires=validators.IS_EMPTY_OR(
+                                  validators.IS_IN_SET(engines))),
                         auth.signature],
                     'vars':{'format':'%(title)s', 'migrate':migrate}}),
             ('wiki_tag', {
@@ -5511,15 +5591,19 @@ class Wiki(object):
 
     def automenu(self):
         """adds the menu if not present"""
+
+        import gluon
         if (not self.wiki_menu_items and 
             self.settings.controller and 
             self.settings.function):
             self.wiki_menu_items = self.menu(self.settings.controller,
                                              self.settings.function)
-            current.response.menu += self.wiki_menu_items
+            gluon.current.response.menu += self.wiki_menu_items
 
     def __call__(self):
-        request = current.request
+
+        import gluon
+        request = gluon.current.request
         settings = self.settings
         settings.controller = settings.controller or request.controller
         settings.function = settings.function or request.function
@@ -5567,6 +5651,8 @@ class Wiki(object):
         return (body or '').replace('://HOSTNAME', '://%s' % self.host)
 
     def read(self, slug, force_render=False):
+
+        import gluon
         if slug in '_cloud':
             return self.cloud()
         elif slug in '_search':
@@ -5574,7 +5660,7 @@ class Wiki(object):
         page = self.auth.db.wiki_page(slug=slug)
         if page and (not self.can_read(page)):
             return self.not_authorized(page)
-        if current.request.extension == 'html':
+        if gluon.current.request.extension == 'html':
             if not page:
                 url = URL(args=('_create', slug))
                 return dict(content=A('Create page "%s"' % slug, _href=url, _class="btn"))
@@ -5588,7 +5674,7 @@ class Wiki(object):
                             tags=page.tags,
                             created_on=page.created_on,
                             modified_on=page.modified_on)
-        elif current.request.extension == 'load':
+        elif gluon.current.request.extension == 'load':
             return self.fix_hostname(page.html) if page else ''
         else:
             if not page:
@@ -5603,6 +5689,8 @@ class Wiki(object):
                             modified_on=page.modified_on)
 
     def edit(self,slug,from_template=0):
+
+        import gluon
         auth = self.auth
         db = auth.db
         page = db.wiki_page(slug=slug)
@@ -5612,7 +5700,7 @@ class Wiki(object):
         if not page:
             if not (self.can_manage() or
                     slug.startswith(self.settings.force_prefix)):
-                current.session.flash = 'slug must have "%s" prefix' \
+                gluon.current.session.flash = 'slug must have "%s" prefix' \
                     % self.settings.force_prefix
                 redirect(URL(args=('_create')))
             db.wiki_page.can_read.default = [Wiki.everybody]
@@ -5624,16 +5712,16 @@ class Wiki(object):
                     '- Menu Item > @////index\n- - Submenu > http://web2py.com'
             else:
                 db.wiki_page.body.default = db(db.wiki_page.id==from_template).select(db.wiki_page.body)[0].body if int(from_template) > 0 else '## %s\n\npage content' % title_guess
-        vars = current.request.post_vars
+        vars = gluon.current.request.post_vars
         if vars.body:
             vars.body = vars.body.replace('://%s' % self.host, '://HOSTNAME')
         form = SQLFORM(db.wiki_page, page, deletable=True,
                        formstyle='table2cols', showid=False).process()
         if form.deleted:
-            current.session.flash = 'page deleted'
+            gluon.current.session.flash = 'page deleted'
             redirect(URL())
         elif form.accepted:
-            current.session.flash = 'page created'
+            gluon.current.session.flash = 'page created'
             redirect(URL(args=slug))
         script = """
         jQuery(function() {
@@ -5682,6 +5770,8 @@ class Wiki(object):
         return dict(content=TAG[''](form, SCRIPT(script)))
 
     def editmedia(self, slug):
+
+        import gluon
         auth = self.auth
         db = auth.db
         page = db.wiki_page(slug=slug)
@@ -5690,14 +5780,14 @@ class Wiki(object):
         self.auth.db.wiki_media.id.represent = lambda id, row: \
             id if not row.filename else \
             SPAN('@////%i/%s.%s' %
-                     (id, IS_SLUG.urlify(row.title.split('.')[0]),
+                     (id, validators.IS_SLUG.urlify(row.title.split('.')[0]),
                       row.filename.split('.')[-1]))
         self.auth.db.wiki_media.wiki_page.default = page.id
         self.auth.db.wiki_media.wiki_page.writable = False
         links = []
         csv = True
         create = True
-        if current.request.vars.embedded:
+        if gluon.current.request.vars.embedded:
             script = "var c = jQuery('#wiki_page_body'); c.val(c.val() + jQuery('%s').text()); return false;"
             fragment = self.auth.db.wiki_media.id.represent
             csv = False
@@ -5717,6 +5807,8 @@ class Wiki(object):
         return dict(content=content)
 
     def create(self):
+
+        import gluon
         if not self.can_edit():
             return self.not_authorized()
         db = self.auth.db
@@ -5737,7 +5829,7 @@ class Wiki(object):
                         "Choose Template or empty for new Page")))
         form = SQLFORM.factory(*fields, **dict(_class="well"))
         form.element("[type=submit]").attributes["_value"] = \
-            current.T("Create Page from Slug")
+            gluon.current.T("Create Page from Slug")
 
         if form.process().accepted:
              form.vars.from_template = 0 if not form.vars.from_template \
@@ -5771,7 +5863,9 @@ class Wiki(object):
         return dict(content=content)
 
     def media(self, id):
-        request, response, db = current.request, current.response, self.auth.db
+
+        import gluon
+        request, response, db = gluon.current.request, gluon.current.response, self.auth.db
         media = db.wiki_media(id)
         if media:
             if self.settings.manage_permissions:
@@ -5780,7 +5874,7 @@ class Wiki(object):
                     return self.not_authorized(page)
             request.args = [media.filename]
             m = response.download(request, db)
-            current.session.forget() # get rid of the cookie
+            gluon.current.session.forget() # get rid of the cookie
             response.headers['Last-Modified'] = \
                 request.utcnow.strftime("%a, %d %b %Y %H:%M:%S GMT")
             if 'Content-Disposition' in response.headers:
@@ -5792,8 +5886,10 @@ class Wiki(object):
             raise HTTP(404)
 
     def menu(self, controller='default', function='index'):
+
+        import gluon
         db = self.auth.db
-        request = current.request
+        request = gluon.current.request
         menu_page = db.wiki_page(slug='wiki-menu')
         menu = []
         if menu_page:
@@ -5856,9 +5952,11 @@ class Wiki(object):
 
     def search(self, tags=None, query=None, cloud=True, preview=True,
                limitby=(0, 100), orderby=None):
+
+        import gluon
         if not self.can_search():
             return self.not_authorized()
-        request = current.request
+        request = gluon.current.request
         content = CAT()
         if tags is None and query is None:
             form = FORM(INPUT(_name='q', requires=IS_NOT_EMPTY(),
@@ -5939,7 +6037,9 @@ class Wiki(object):
         return dict(content=DIV(_class='w2p_cloud', *items))
 
     def preview(self, render):
-        request = current.request
+
+        import gluon
+        request = gluon.current.request
         # FIXME: This is an ugly hack to ensure a default render
         # engine if not specified (with multiple render engines)
         if not "render" in request.post_vars:
@@ -5961,20 +6061,24 @@ class Config(object):
         self.filename = filename
 
     def read(self):
+
+        import gluon
         if not( isinstance(current.session['settings_%s' % self.section], dict) ):
             settings = dict(self.config.items(self.section))
         else:
-            settings = current.session['settings_%s' % self.section]
+            settings = gluon.current.session['settings_%s' % self.section]
         return settings
 
     def save(self, options):
+
+        import gluon
         for option, value in options:
             self.config.set(self.section, option, value)
         try:
             self.config.write(open(self.filename, 'w'))
             result = True
         except:
-            current.session['settings_%s' % self.section] = dict(self.config.items(self.section))
+            gluon.current.session['settings_%s' % self.section] = dict(self.config.items(self.section))
             result = False
         return result
 

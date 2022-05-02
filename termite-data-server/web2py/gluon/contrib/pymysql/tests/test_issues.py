@@ -109,10 +109,10 @@ KEY (`station`,`dh`,`echeance`)) ENGINE=MyISAM DEFAULT CHARSET=latin1;""")
     def test_issue_14(self):
         """ typo in converters.py """
         self.assertEqual('1', pymysql.converters.escape_item(1, "utf8"))
-        self.assertEqual('1', pymysql.converters.escape_item(1L, "utf8"))
+        self.assertEqual('1', pymysql.converters.escape_item(1, "utf8"))
 
         self.assertEqual('1', pymysql.converters.escape_object(1))
-        self.assertEqual('1', pymysql.converters.escape_object(1L))
+        self.assertEqual('1', pymysql.converters.escape_object(1))
 
     def test_issue_15(self):
         """ query should be expanded before perform character encoding """
@@ -162,9 +162,9 @@ KEY (`station`,`dh`,`echeance`)) ENGINE=MyISAM DEFAULT CHARSET=latin1;""")
 def _uni(s, e):
     # hack for py3
     if sys.version_info[0] > 2:
-        return unicode(bytes(s, sys.getdefaultencoding()), e)
+        return str(bytes(s, sys.getdefaultencoding()), e)
     else:
-        return unicode(s, e)
+        return str(s, e)
 
 class TestNewIssues(base.PyMySQLTestCase):
     def test_issue_34(self):
@@ -191,7 +191,7 @@ class TestNewIssues(base.PyMySQLTestCase):
     def test_issue_35(self):
         conn = self.connections[0]
         c = conn.cursor()
-        print "sudo killall -9 mysqld within the next 10 seconds"
+        print("sudo killall -9 mysqld within the next 10 seconds")
         try:
             c.execute("select sleep(10)")
             self.fail()

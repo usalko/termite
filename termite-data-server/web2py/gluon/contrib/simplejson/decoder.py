@@ -119,7 +119,7 @@ def py_scanstring(s, end, encoding=None, strict=True,
         # Content is contains zero or more unescaped string characters
         if content:
             if not isinstance(content, str):
-                content = unicode(content, encoding)
+                content = str(content, encoding)
             _append(content)
         # Terminator is the end of string, a literal control character,
         # or a backslash denoting that an escape sequence follows

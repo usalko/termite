@@ -87,7 +87,7 @@ def sqlite(database_name):
                 if hit is not None:
                     name, d_type = hit.group(1), hit.group(2)
                     d_type = re.sub(r'(\w+)\(.*', r'\1', d_type)
-                    name = unicode(re.sub('`', '', name))
+                    name = str(re.sub('`', '', name))
                     if name in fks.keys():
                         if fks[name][1].lower() == 'id':
                             field_type = 'reference %s' % (fks[name][0])

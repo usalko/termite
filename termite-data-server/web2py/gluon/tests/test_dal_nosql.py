@@ -50,7 +50,7 @@ fix_sys_path()
 
 #for travis-ci
 DEFAULT_URI = os.environ.get('DB', 'sqlite:memory')
-print 'Testing against %s engine (%s)' % (DEFAULT_URI.partition(':')[0], DEFAULT_URI)
+print('Testing against %s engine (%s)' % (DEFAULT_URI.partition(':')[0], DEFAULT_URI))
 
 IS_GAE = "datastore" in DEFAULT_URI
 IS_MONGODB = "mongodb" in DEFAULT_URI
@@ -171,29 +171,29 @@ class TestFields(unittest.TestCase):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         for ft in ['string', 'text', 'password', 'upload', 'blob']:
             db.define_table('tt', Field('aa', ft, default=''))
-            self.assertEqual(isinstance(db.tt.insert(aa='x'), long), True)
+            self.assertEqual(isinstance(db.tt.insert(aa='x'), int), True)
             self.assertEqual(db().select(db.tt.aa)[0].aa, 'x')
             drop(db.tt)
         db.define_table('tt', Field('aa', 'integer', default=1))
-        self.assertEqual(isinstance(db.tt.insert(aa=3), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=3), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, 3)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'double', default=1))
-        self.assertEqual(isinstance(db.tt.insert(aa=3.1), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=3.1), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, 3.1)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'boolean', default=True))
-        self.assertEqual(isinstance(db.tt.insert(aa=True), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=True), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, True)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'json', default={}))
-        self.assertEqual(isinstance(db.tt.insert(aa={}), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa={}), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, {})
         drop(db.tt)
         db.define_table('tt', Field('aa', 'date',
                         default=datetime.date.today()))
         t0 = datetime.date.today()
-        self.assertEqual(isinstance(db.tt.insert(aa=t0), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=t0), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, t0)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'datetime',
@@ -207,7 +207,7 @@ class TestFields(unittest.TestCase):
             55,
             0,
             )
-        self.assertEqual(isinstance(db.tt.insert(aa=t0), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=t0), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, t0)
 
         ## Row APIs
@@ -232,7 +232,7 @@ class TestFields(unittest.TestCase):
         drop(db.tt)
         db.define_table('tt', Field('aa', 'time', default='11:30'))
         t0 = datetime.time(10, 30, 55)
-        self.assertEqual(isinstance(db.tt.insert(aa=t0), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=t0), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, t0)
         drop(db.tt)
 
@@ -322,14 +322,14 @@ class TestInsert(unittest.TestCase):
                                                content="Nurse!\r\nNurse!"), 2)
             self.assertEqual(imap.Draft[2].subject, "Nurse!")
             self.assertEqual(imap.Draft[2].sender, "gumby@example.com")
-            self.assertEqual(isinstance(imap.Draft[2].uid, long), True)
+            self.assertEqual(isinstance(imap.Draft[2].uid, int), True)
             self.assertEqual(imap.Draft[2].content[0]["text"], "Nurse!\r\nNurse!")
         else:
             db = DAL(DEFAULT_URI, check_reserved=['all'])
             db.define_table('tt', Field('aa'))
-            self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
-            self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
-            self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
+            self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
+            self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
+            self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
             self.assertEqual(db(db.tt.aa == '1').count(), 3)
             self.assertEqual(db(db.tt.aa == '2').isempty(), True)
             self.assertEqual(db(db.tt.aa == '1').update(aa='2'), 3)
@@ -340,15 +340,15 @@ class TestInsert(unittest.TestCase):
             drop(db.tt)
 
 
-@unittest.skipIf(IS_GAE or IS_MONGODB or IS_IMAP, 'TODO: Datastore throws "SyntaxError: Not supported (query using or)". MongoDB assertionerror 5L != 3')
+@unittest.skipIf(IS_GAE or IS_MONGODB or IS_IMAP, 'TODO: Datastore throws "SyntaxError: Not supported (query using or)". MongoDB assertionerror 5 != 3')
 class TestSelect(unittest.TestCase):
 
     def testRun(self):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         db.define_table('tt', Field('aa'))
-        self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa='2'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa='3'), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='2'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='3'), int), True)
         self.assertEqual(db(db.tt.id > 0).count(), 3)
         self.assertEqual(db(db.tt.id > 0).select(orderby=~db.tt.aa
                           | db.tt.id)[0].aa, '3')
@@ -380,9 +380,9 @@ class TestAddMethod(unittest.TestCase):
         @db.tt.add_method.all
         def select_all(table,orderby=None):
             return table._db(table).select(orderby=orderby)
-        self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa='2'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa='3'), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='2'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='3'), int), True)
         self.assertEqual(len(db.tt.all()), 3)
         drop(db.tt)
 
@@ -393,9 +393,9 @@ class TestBelongs(unittest.TestCase):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         db.define_table('tt', Field('aa'))
 
-        self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa='2'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa='3'), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='2'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='3'), int), True)
         self.assertEqual(db(db.tt.aa.belongs(('1', '3'))).count(),
                          2)
         if not (IS_GAE or IS_MONGODB):
@@ -408,7 +408,7 @@ class TestBelongs(unittest.TestCase):
                          db.tt.aa))).count(),
                          2)
         else:
-            print "Datastore/Mongodb belongs does not accept queries (skipping)"
+            print("Datastore/Mongodb belongs does not accept queries (skipping)")
         drop(db.tt)
 
 
@@ -418,9 +418,9 @@ class TestContains(unittest.TestCase):
     def testRun(self):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         db.define_table('tt', Field('aa', 'list:string'), Field('bb','string'))
-        self.assertEqual(isinstance(db.tt.insert(aa=['aaa','bbb'],bb='aaa'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa=['bbb','ddd'],bb='abb'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa=['eee','aaa'],bb='acc'), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=['aaa','bbb'],bb='aaa'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=['bbb','ddd'],bb='abb'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=['eee','aaa'],bb='acc'), int), True)
         self.assertEqual(db(db.tt.aa.contains('aaa')).count(), 2)
         self.assertEqual(db(db.tt.aa.contains('bbb')).count(), 2)
         self.assertEqual(db(db.tt.aa.contains('aa')).count(), 0)
@@ -437,7 +437,7 @@ class TestLike(unittest.TestCase):
     def testRun(self):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         db.define_table('tt', Field('aa'))
-        self.assertEqual(isinstance(db.tt.insert(aa='abc'), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='abc'), int), True)
         self.assertEqual(db(db.tt.aa.like('a%')).count(), 1)
         self.assertEqual(db(db.tt.aa.like('%b%')).count(), 1)
         self.assertEqual(db(db.tt.aa.like('%c')).count(), 1)
@@ -452,7 +452,7 @@ class TestLike(unittest.TestCase):
         self.assertEqual(db(db.tt.aa.upper().like('%C')).count(), 1)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'integer'))
-        self.assertEqual(isinstance(db.tt.insert(aa=1111111111), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=1111111111), int), True)
         self.assertEqual(db(db.tt.aa.like('1%')).count(), 1)
         self.assertEqual(db(db.tt.aa.like('2%')).count(), 0)
         drop(db.tt)
@@ -464,11 +464,11 @@ class TestDatetime(unittest.TestCase):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         db.define_table('tt', Field('aa', 'datetime'))
         self.assertEqual(isinstance(db.tt.insert(aa=datetime.datetime(1971, 12, 21,
-                         11, 30)), long), True)
+                         11, 30)), int), True)
         self.assertEqual(isinstance(db.tt.insert(aa=datetime.datetime(1971, 11, 21,
-                         10, 30)), long), True)
+                         10, 30)), int), True)
         self.assertEqual(isinstance(db.tt.insert(aa=datetime.datetime(1970, 12, 21,
-                         9, 30)), long), True)
+                         9, 30)), int), True)
         self.assertEqual(db(db.tt.aa == datetime.datetime(1971, 12,
                          21, 11, 30)).count(), 1)
         self.assertEqual(db(db.tt.aa >= datetime.datetime(1971, 1, 1)).count(), 2)
@@ -480,9 +480,9 @@ class TestExpressions(unittest.TestCase):
     def testRun(self):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         db.define_table('tt', Field('aa', 'integer'))
-        self.assertEqual(isinstance(db.tt.insert(aa=1), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa=2), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa=3), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=1), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=2), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=3), int), True)
         self.assertEqual(db(db.tt.aa == 3).update(aa=db.tt.aa + 1), 1)
         self.assertEqual(db(db.tt.aa == 4).count(), 1)
         self.assertEqual(db(db.tt.aa == -2).count(), 0)
@@ -566,9 +566,9 @@ class TestMinMaxSumAvg(unittest.TestCase):
     def testRun(self):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         db.define_table('tt', Field('aa', 'integer'))
-        self.assertEqual(isinstance(db.tt.insert(aa=1), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa=2), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa=3), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=1), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=2), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=3), int), True)
         s = db.tt.aa.min()
         self.assertEqual(db(db.tt.id > 0).select(s)[0]._extra[s], 1)
         self.assertEqual(db(db.tt.id > 0).select(s).first()[s], 1)
@@ -644,10 +644,10 @@ class TestReference(unittest.TestCase):
         db.define_table('tt', Field('name'), Field('aa','reference tt'))
         db.commit()
         x = db.tt.insert(name='max')
-        assert isinstance(x.id, long) == True
-        assert isinstance(x['id'], long) == True
+        assert isinstance(x.id, int) == True
+        assert isinstance(x['id'], int) == True
         x.aa = x
-        assert isinstance(x.aa, long) == True
+        assert isinstance(x.aa, int) == True
         x.update_record()
         y = db.tt[x.id]
         assert y.aa == x.aa
@@ -864,9 +864,9 @@ class TestDALDictImportExport(unittest.TestCase):
         assert "staff" in db4.tables
         assert "name" in db4.staff
         assert db4.tvshow.rating.type == "double"
-        assert (isinstance(db4.tvshow.insert(), long), isinstance(db4.tvshow.insert(name="Loriot"), long),
-                isinstance(db4.tvshow.insert(name="Il Mattatore"), long)) == (True, True, True)
-        assert isinstance(db4(db4.tvshow).select().first().id, long) == True
+        assert (isinstance(db4.tvshow.insert(), int), isinstance(db4.tvshow.insert(name="Loriot"), int),
+                isinstance(db4.tvshow.insert(name="Il Mattatore"), int)) == (True, True, True)
+        assert isinstance(db4(db4.tvshow).select().first().id, int) == True
         assert db4(db4.tvshow).select().first().name == mpfc
 
         drop(db4.staff)
@@ -892,7 +892,7 @@ class TestDALDictImportExport(unittest.TestCase):
         assert "name" in db6["tvshow"].fields
 
         assert db6.staff.insert() is not None
-        assert isinstance(db6(db6.staff).select().first().id, long) == True
+        assert isinstance(db6(db6.staff).select().first().id, int) == True
 
 
         drop(db6.staff)
@@ -912,7 +912,7 @@ class TestValidateAndInsert(unittest.TestCase):
                               requires=IS_INT_IN_RANGE(1,5))
                        )
         rtn = db.val_and_insert.validate_and_insert(aa='test1', bb=2)
-        self.assertEqual(isinstance(rtn.id, long), True)
+        self.assertEqual(isinstance(rtn.id, int), True)
         #errors should be empty
         self.assertEqual(len(rtn.errors.keys()), 0)
         #this insert won't pass
@@ -956,10 +956,10 @@ class TestRNameTable(unittest.TestCase):
             rname=rname
             )
         rtn = db.easy_name.insert(a_field='a')
-        self.assertEqual(isinstance(rtn.id, long), True)
+        self.assertEqual(isinstance(rtn.id, int), True)
         rtn = db(db.easy_name.a_field == 'a').select()
         self.assertEqual(len(rtn), 1)
-        self.assertEqual(isinstance(rtn[0].id, long), True)
+        self.assertEqual(isinstance(rtn[0].id, int), True)
         self.assertEqual(rtn[0].a_field, 'a')
         db.easy_name.insert(a_field='b')
         self.assertEqual(db(db.easy_name).count(), 2)
@@ -1052,10 +1052,10 @@ class TestRNameFields(unittest.TestCase):
             Field('rating', 'integer', rname=rname2, default=2)
             )
         rtn = db.easy_name.insert(a_field='a')
-        self.assertEqual(isinstance(rtn.id, long), True)
+        self.assertEqual(isinstance(rtn.id, int), True)
         rtn = db(db.easy_name.a_field == 'a').select()
         self.assertEqual(len(rtn), 1)
-        self.assertEqual(isinstance(rtn[0].id, long), True)
+        self.assertEqual(isinstance(rtn[0].id, int), True)
         self.assertEqual(rtn[0].a_field, 'a')
         db.easy_name.insert(a_field='b')
         rtn = db(db.easy_name.id > 0).delete()
@@ -1163,29 +1163,29 @@ class TestRNameFields(unittest.TestCase):
         rname = db._adapter.QUOTE_TEMPLATE % 'a very complicated fieldname'
         for ft in ['string', 'text', 'password', 'upload', 'blob']:
             db.define_table('tt', Field('aa', ft, default='', rname=rname))
-            self.assertEqual(isinstance(db.tt.insert(aa='x'), long), True)
+            self.assertEqual(isinstance(db.tt.insert(aa='x'), int), True)
             self.assertEqual(db().select(db.tt.aa)[0].aa, 'x')
             drop(db.tt)
         db.define_table('tt', Field('aa', 'integer', default=1, rname=rname))
-        self.assertEqual(isinstance(db.tt.insert(aa=3), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=3), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, 3)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'double', default=1, rname=rname))
-        self.assertEqual(isinstance(db.tt.insert(aa=3.1), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=3.1), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, 3.1)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'boolean', default=True, rname=rname))
-        self.assertEqual(isinstance(db.tt.insert(aa=True), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=True), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, True)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'json', default={}, rname=rname))
-        self.assertEqual(isinstance(db.tt.insert(aa={}), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa={}), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, {})
         drop(db.tt)
         db.define_table('tt', Field('aa', 'date',
                         default=datetime.date.today(), rname=rname))
         t0 = datetime.date.today()
-        self.assertEqual(isinstance(db.tt.insert(aa=t0), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=t0), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, t0)
         drop(db.tt)
         db.define_table('tt', Field('aa', 'datetime',
@@ -1224,7 +1224,7 @@ class TestRNameFields(unittest.TestCase):
         drop(db.tt)
         db.define_table('tt', Field('aa', 'time', default='11:30', rname=rname))
         t0 = datetime.time(10, 30, 55)
-        self.assertEqual(isinstance(db.tt.insert(aa=t0), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa=t0), int), True)
         self.assertEqual(db().select(db.tt.aa)[0].aa, t0)
         drop(db.tt)
 
@@ -1232,9 +1232,9 @@ class TestRNameFields(unittest.TestCase):
         db = DAL(DEFAULT_URI, check_reserved=['all'])
         rname = db._adapter.QUOTE_TEMPLATE % 'a very complicated fieldname'
         db.define_table('tt', Field('aa', rname=rname))
-        self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
-        self.assertEqual(isinstance(db.tt.insert(aa='1'), long), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
+        self.assertEqual(isinstance(db.tt.insert(aa='1'), int), True)
         self.assertEqual(db(db.tt.aa == '1').count(), 3)
         self.assertEqual(db(db.tt.aa == '2').isempty(), True)
         self.assertEqual(db(db.tt.aa == '1').update(aa='2'), 3)

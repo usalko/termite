@@ -68,7 +68,7 @@
 
 	def WriteURL( keysAndValues = {} ):
 		urlStr = configs['url']
-		queryStr = urllib.parse.urlencode({key : (value.encode('utf-8') if isinstance(value,unicode) else value) for key, value in params.items() if value is not None})
+		queryStr = urllib.parse.urlencode({key : (value.encode('utf-8') if isinstance(value,str) else value) for key, value in params.items() if value is not None})
 		s = urlStr if len(queryStr) == 0 else '{}?{}'.format(urlStr, queryStr)
 		response.write(s, escape=False)
 	pass

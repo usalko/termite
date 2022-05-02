@@ -53,12 +53,13 @@ import sys
 import os
 import signal
 import struct
-import cStringIO as StringIO
+import io
 import select
 import socket
 import errno
 import traceback
 import html
+from _thread import start_new_thread
 
 try:
     import threading
@@ -881,7 +882,7 @@ class MultiplexedConnection(Connection):
             self._lock.release()
 
     def _start_request(self, req):
-        thread.start_new_thread(req.run, ())
+        start_new_thread(req.run, ())
 
     def _do_params(self, inrec):
         self._lock.acquire()
@@ -1099,7 +1100,7 @@ class Server(object):
                 # Instantiate a new Connection and begin processing FastCGI
                 # messages (either in a new thread or this thread).
                 conn = self._connectionClass(clientSock, addr, self)
-                thread.start_new_thread(conn.run, ())
+                start_new_thread(conn.run, ())
 
             self._mainloopPeriodic()
 

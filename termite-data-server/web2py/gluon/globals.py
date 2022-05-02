@@ -43,6 +43,7 @@ import copy
 import tempfile
 from gluon.cache import CacheInRam
 from gluon.fileutils import copystream
+import urllib
 
 FMT = '%a, %d-%b-%Y %H:%M:%S PST'
 PAST = 'Sat, 1-Jan-1971 00:00:00'
@@ -189,7 +190,7 @@ class Request(Storage):
         """Takes the QUERY_STRING and unpacks it to get_vars
         """
         query_string = self.env.get('QUERY_STRING','')
-        dget = cgi.parse(query_string, keep_blank_values=1)
+        dget = urllib.parse.parse_qs(query_string, keep_blank_values=1)
         get_vars = self._get_vars = Storage(dget)
         for (key, value) in get_vars.items():
             if isinstance(value,list) and len(value)==1:

@@ -14,6 +14,7 @@ import sys
 import io
 import time
 import threading
+from _thread import start_new_thread
 import os
 import socket
 import signal
@@ -505,7 +506,7 @@ class web2pyDialog(object):
                 path=options.folder,
                 interfaces=options.interfaces)
 
-            thread.start_new_thread(self.server.start, ())
+            start_new_thread(self.server.start, ())
         except Exception as e:
             self.button_start.configure(state='normal')
             return self.error(str(e))
@@ -517,7 +518,7 @@ class web2pyDialog(object):
         self.button_stop.configure(state='normal')
 
         if not options.taskbar:
-            thread.start_new_thread(
+            start_new_thread(
                 start_browser, (get_url(ip, proto=proto, port=port), True))
 
         self.password.configure(state='readonly')

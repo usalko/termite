@@ -174,6 +174,7 @@ import glob
 import traceback
 import platform
 from gluon.utils import compare
+from gluon import validators
 
 PYTHON_VERSION = sys.version_info[:3]
 if PYTHON_VERSION[0] == 2:
@@ -5406,7 +5407,7 @@ class CouchDBAdapter(NoSQLAdapter):
             return repr(str(long(value)))
         elif fieldtype in ('date','time','datetime','boolean'):
             return serializers.json(value)
-        return repr(not isinstance(value,unicode) and value \
+        return repr(not isinstance(value,str) and value \
                         or value and value.encode('utf8'))
 
     def __init__(self,db,uri='couchdb://127.0.0.1:5984',

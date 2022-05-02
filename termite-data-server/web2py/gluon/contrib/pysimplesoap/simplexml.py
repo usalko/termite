@@ -405,14 +405,14 @@ class SimpleXMLElement(object):
             else:
                 if fn is None:  # xsd:anyType not unmarshalled
                     value = node
-                elif unicode(node) or (fn == str and unicode(node) != ''):
+                elif str(node) or (fn == str and str(node) != ''):
                     try:
                         # get special deserialization function (if any)
                         fn = TYPE_UNMARSHAL_FN.get(fn, fn)
                         if fn == str:
                             # always return an unicode object:
                             # (avoid encoding errors in py<3!)
-                            value = unicode(node)
+                            value = str(node)
                         else:
                             value = fn(unicode(node))
                     except (ValueError, TypeError) as e:

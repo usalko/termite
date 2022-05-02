@@ -72,7 +72,7 @@ if sys.version_info[:2] < (2,4):
         for i in sequence[::-1]:
             yield i
     def _unicode_decode(s, encoding, errors='xmlcharrefreplace'):
-        return unicode(s, encoding, errors)
+        return str(s, encoding, errors)
 else:
     def _unicode_decode(s, encoding, errors='strict'):
         return s.decode(encoding, errors)
@@ -212,7 +212,7 @@ class Markdown(object):
 
         if not isinstance(text, str):
             #TODO: perhaps shouldn't presume UTF-8 for string input?
-            text = unicode(text, 'utf-8')
+            text = str(text, 'utf-8')
 
         if self.use_file_vars:
             # Look for emacs-style file variable hints.

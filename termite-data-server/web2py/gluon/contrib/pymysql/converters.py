@@ -349,7 +349,7 @@ try:
     decoders[FIELD_TYPE.NEWDECIMAL] = convert_decimal
 
     def escape_decimal(obj):
-        return unicode(obj)
+        return str(obj)
     encoders[Decimal] = escape_decimal
 
 except ImportError:

@@ -1835,7 +1835,7 @@ class IPv6Address(_BaseV6, _BaseAddress):
 
               Additionally, an integer can be passed, so
               IPv6Address('2001:4860::') ==
-                IPv6Address(42541956101370907050197289607612071936L).
+                IPv6Address(42541956101370907050197289607612071936).
               or, more generally
               IPv6Address(IPv6Address('2001:4860::')._ip) ==
                 IPv6Address('2001:4860::')
@@ -1900,7 +1900,7 @@ class IPv6Interface(_BaseV6, _BaseInterface):
 
               Additionally, an integer can be passed, so
               IPv6Network('2001:4860::') ==
-                IPv6Network(42541956101370907050197289607612071936L).
+                IPv6Network(42541956101370907050197289607612071936).
               or, more generally
               IPv6Network(IPv6Network('2001:4860::')._ip) ==
                 IPv6Network('2001:4860::')

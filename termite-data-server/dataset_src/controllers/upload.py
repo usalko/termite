@@ -52,7 +52,7 @@ def spreadsheet():
     def process_upload(form):
         upload = form.vars.corpus.file
         ptext = []
-        reader = csv.DictReader(io.TextIOWrapper(upload, encoding='utf-8'), delimiter=",")
+        reader = csv.DictReader(io.TextIOWrapper(upload, encoding='utf-8'), delimiter=',', quotechar='"')
         field_map = {form.vars.doc_id: DOC_ID_FIELD, form.vars.doc_content: DOC_CONTENT_FIELD}
         ssheet = [[field_map[field] if field in field_map else field
                 for field in reader.fieldnames]]

@@ -11,6 +11,7 @@ import copy
 import web2py.gluon.contenttype
 import web2py.gluon.fileutils
 from urllib import request, response
+from web2py.gluon.validators import IS_NOT_EMPTY
 
 try:
     import pygraphviz as pgv

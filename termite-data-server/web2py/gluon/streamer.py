@@ -53,9 +53,9 @@ def stream_file_or_304_or_206(
     try:
         fp = open(static_file)
     except IOError as e:
-        if e[0] == errno.EISDIR:
+        if e.errno == errno.EISDIR:
             raise HTTP(403, error_message, web2py_error='file is a directory')
-        elif e[0] == errno.EACCES:
+        elif e.errno == errno.EACCES:
             raise HTTP(403, error_message, web2py_error='inaccessible file')
         else:
             raise HTTP(404, error_message, web2py_error='invalid file')

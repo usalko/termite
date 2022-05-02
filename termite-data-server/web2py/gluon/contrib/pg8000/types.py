@@ -442,7 +442,7 @@ def encoding_convert(encoding):
     return pg_to_py_encodings.get(encoding.lower(), encoding)
 
 def varcharin(data, client_encoding, **kwargs):
-    return unicode(data, encoding_convert(client_encoding))
+    return str(data, encoding_convert(client_encoding))
 
 def textout(v, client_encoding, **kwargs):
     if isinstance(v, str):

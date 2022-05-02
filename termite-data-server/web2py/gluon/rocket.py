@@ -1769,6 +1769,12 @@ class WSGIWorker(Worker):
             try:
                 if self.chunked:
                     self.conn.sendall(b('%x\r\n%s\r\n' % (len(data), data)))
+                elif isinstance(data, list):
+                    for d in data:
+                        if isinstance(d, str):
+                            self.conn.sendall(d.encode('utf-8'))
+                        else:
+                            self.conn.sendall(d)
                 else:
                     self.conn.sendall(data)
             except socket.timeout:

@@ -136,10 +136,11 @@ EXTENSION_MAPS = {
 }
 
 
-class VimeoURLOpener(urllib.FancyURLopener):
+class VimeoURLOpener(urllib.request.BaseHandler):
     "Vimeo blocks the urllib user agent for some reason"
     version = "Mozilla/4.0"
-urllib._urlopener = VimeoURLOpener()
+vimeo_url_opener = urllib.request.build_opener(VimeoURLOpener)
+urllib.request.install_opener(vimeo_url_opener)
 
 
 def oembed(url):
@@ -147,7 +148,7 @@ def oembed(url):
         if k.match(url):
             oembed = v + '?format=json&url=' + html.escape(url)
             try:
-                data = urllib.urlopen(oembed).read()
+                data = urllib.request.urlopen(oembed).read()
                 return loads(data)  # json!
             except:
                 pass

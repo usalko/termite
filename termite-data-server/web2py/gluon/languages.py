@@ -32,6 +32,7 @@ from gluon.cfs import getcfs
 from gluon.html import XML, xmlescape
 from gluon.contrib.markmin.markmin2html import render, markmin_escape
 from gluon.utils import compare
+from gluon.utf8 import Utf8
 
 __all__ = ['translator', 'findT', 'update_all_languages']
 
@@ -375,8 +376,8 @@ class lazyT(object):
         return "<lazyT %s>" % (repr(Utf8(self.m)), )
 
     def __str__(self):
-        return str(self.T.apply_filter(self.m, self.s, self.f, self.t) if self.M else
-                   self.T.translate(self.m, self.s))
+        return str(self.T.apply_filter(self.m, self.s, self.f, self.t)) if self.M else \
+                   str(self.T.translate(self.m, self.s))
 
     def __eq__(self, other):
         return str(self) == str(other)
@@ -795,17 +796,17 @@ class translator(object):
         if mt is not None:
             return mt
         # we did not find a translation
-        if message.find('##') > 0 and not '\n' in message:
+        if str(message).find('##') >= 0 and not '\n' in message:
             # remove comments
-            message = message.rsplit('##', 1)[0]
+            message = str(str(message).rsplit('##', 1)[0]).encode('utf8')
         # guess translation same as original
         self.t[key] = mt = self.default_t.get(key, message)
         # update language file for latter translation
         if is_writable() and \
                 self.language_file != self.default_language_file:
             write_dict(self.language_file, self.t)
-        return regex_backslash.sub(
-            lambda m: m.group(1).translate(ttab_in), mt)
+        return str(regex_backslash.sub(
+            lambda m: m.group(1).translate(ttab_in), str(mt)))
 
     def params_substitution(self, message, symbols):
         """

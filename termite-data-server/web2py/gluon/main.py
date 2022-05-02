@@ -485,11 +485,11 @@ def wsgibase(environ, responder):
                     if request.ajax:
                         if response.flash:
                             http_response.headers['web2py-component-flash'] = \
-                                urllib2.quote(xmlescape(response.flash)\
+                                urllib.parse.quote(xmlescape(response.flash)\
                                                   .replace('\n',''))
                         if response.js:
                             http_response.headers['web2py-component-command'] = \
-                                urllib2.quote(response.js.replace('\n',''))
+                                urllib.parse.quote(response.js.replace('\n',''))
 
                     # ##################################################
                     # store cookies in headers

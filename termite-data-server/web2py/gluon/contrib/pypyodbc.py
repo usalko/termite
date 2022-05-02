@@ -480,7 +480,7 @@ def UCS_dec(buffer):
     uchars = []
     while True:
         uchar = buffer.raw[i:i + ucs_length].decode(odbc_decoding)
-        if uchar == unicode('\x00'):
+        if uchar == str('\x00'):
             break
         uchars.append(uchar)
         i += ucs_length
@@ -2508,7 +2508,7 @@ class Connection:
             else:
                 result = UCS_dec(alloc_buffer)
             if aInfoTypes[infotype] == 'GI_YESNO':
-                if unicode(result[0]) == unicode('Y'):
+                if str(result[0]) == str('Y'):
                     result = True
                 else:
                     result = False
