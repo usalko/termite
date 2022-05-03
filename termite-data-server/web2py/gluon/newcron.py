@@ -23,6 +23,7 @@ import gluon.portalocker as portalocker
 import gluon.fileutils
 import pickle
 from gluon.settings import global_settings
+import functools
 
 logger = logging.getLogger("web2py.cron")
 _cron_stopping = False
@@ -328,7 +329,7 @@ def crondance(applications_parent, ctype='soft', startup=False, apps=None):
                 continue
             elif not startup and task_min == [-1]:
                 continue
-            elif task_min != [-1] and reduce(lambda a, b: a or b, citems):
+            elif task_min != [-1] and functools.reduce(lambda a, b: a or b, citems):
                 continue
             logger.info('WEB2PY CRON (%s): %s executing %s in %s at %s'
                         % (ctype, app, task.get('cmd'),

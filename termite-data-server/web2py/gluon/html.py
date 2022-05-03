@@ -33,6 +33,8 @@ from gluon.utils import web2py_uuid, simple_hash, compare
 from gluon.highlight import highlight
 from gluon.utils import compare
 
+import functools
+
 
 regex_crlf = re.compile('\r|\n')
 
@@ -1090,13 +1092,13 @@ class DIV(XmlComponent):
             args = [a.strip() for a in args[0].split(',')]
         if len(args) > 1:
             subset = [self.elements(a, **kargs) for a in args]
-            return reduce(lambda a, b: a + b, subset, [])
+            return functools.reduce(lambda a, b: a + b, subset, [])
         elif len(args) == 1:
             items = args[0].split()
             if len(items) > 1:
                 subset = [a.elements(' '.join(
                     items[1:]), **kargs) for a in self.elements(items[0])]
-                return reduce(lambda a, b: a + b, subset, [])
+                return functools.reduce(lambda a, b: a + b, subset, [])
             else:
                 item = items[0]
                 if '#' in item or '.' in item or '[' in item:

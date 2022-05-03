@@ -10,6 +10,7 @@ import errno
 import socket
 import logging
 import platform
+from typing import Iterable, List
 
 # Define Constants
 VERSION = '1.2.6'
@@ -38,11 +39,11 @@ class NullHandler(logging.Handler):
         pass
 
 if PY3K:
-    def b(val):
+    def b(val, encoding: str = 'utf-8'):
         """ Convert string/unicode/bytes literals into bytes.  This allows for
         the same code to run on Python 2.x and 3.x. """
         if isinstance(val, str):
-            return val.encode()
+            return val.encode(encoding)
         else:
             return val
 
@@ -1851,12 +1852,19 @@ class WSGIWorker(Worker):
             if hasattr(output, '__len__'):
                 sections = len(output)
 
-            for data in output:
-                # Don't send headers until body appears
-                if data and isinstance(data, str):
-                    self.write(data.encode('utf-8'), sections)
-                elif data:
-                    self.write(data, sections)
+            if isinstance(output, bytes):
+                self.write(output, sections)
+            elif isinstance(output, str):
+                self.write(output.encode('utf-8'), sections)
+            elif isinstance(output, Iterable):
+                for data in output:
+                    # Don't send headers until body appears
+                    if data and isinstance(data, str):
+                        self.write(data.encode('utf-8'), sections)
+                    elif data:
+                        self.write(data, sections)
+            else:
+                raise Exception(f'2Gra#Unexpected data-type:{type(output)}')
 
             if self.chunked:
                 # If chunked, send our final chunk length

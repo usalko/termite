@@ -634,10 +634,11 @@ def run_controller_in(controller, function, environment):
     response = environment['response']
     vars = response._vars
     if response.postprocessing:
-        vars = reduce(lambda vars, p: p(vars), response.postprocessing, vars)
-    if isinstance(vars, str):
-        vars = vars.encode('utf8')
-    elif hasattr(vars, 'xml') and callable(vars.xml):
+        vars = functools.reduce(lambda vars, p: p(vars), response.postprocessing, vars)
+    #if isinstance(vars, str):
+    #    vars = vars.encode('utf8')
+    #elif hasattr(vars, 'xml') and callable(vars.xml):
+    if hasattr(vars, 'xml') and callable(vars.xml):
         vars = vars.xml()
     return vars
 

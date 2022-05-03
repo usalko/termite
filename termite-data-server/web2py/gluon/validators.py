@@ -539,7 +539,7 @@ class IS_IN_DB(Validator):
         ignore = (FieldVirtual,FieldMethod)
         fields = filter(lambda f:not isinstance(f,ignore), fields)
         if self.dbset.db._dbname != 'gae':
-            orderby = self.orderby or reduce(lambda a, b: a | b, fields)
+            orderby = self.orderby or functools.reduce(lambda a, b: a | b, fields)
             groupby = self.groupby
             distinct = self.distinct
             dd = dict(orderby=orderby, groupby=groupby,
@@ -548,7 +548,7 @@ class IS_IN_DB(Validator):
             records = self.dbset(table).select(*fields, **dd)
         else:
             orderby = self.orderby or \
-                reduce(lambda a, b: a | b, (
+                functools.reduce(lambda a, b: a | b, (
                     f for f in fields if not f.name == 'id'))
             dd = dict(orderby=orderby, cache=self.cache, cacheable=True)
             records = self.dbset(table).select(table.ALL, **dd)

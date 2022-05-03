@@ -23,6 +23,8 @@ __author__ = "Thadeus Burgess <thadeusb@thadeusb.com>"
 # never be used as a table or column. Even if you use one of these
 # the cursor will throw an OperationalError for the SQL syntax.
 
+import functools
+
 COMMON = set((
     'SELECT',
     'INSERT',
@@ -1715,5 +1717,5 @@ ADAPTERS = {
     'mongodb_nonreserved': MONGODB_NONRESERVED
 }
 
-ADAPTERS['all'] = reduce(lambda a, b: a.union(b), (
+ADAPTERS['all'] = functools.reduce(lambda a, b: a.union(b), (
     x for x in ADAPTERS.values()))

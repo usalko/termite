@@ -9,10 +9,10 @@ def index():
 
 def csv():
     corpus = request.vars['corpus']
-    with open(os.path.join(uploads.spreadsheet_dir(request), corpus), encoding='utf-8') as f:
+    with open(os.path.join(uploads.spreadsheet_dir(request), corpus), 'r', encoding='utf-8') as f:
         return f.read()
 
 def plaintext():
     corpus = request.vars['corpus']
-    with open(os.path.join(uploads.plaintext_dir(request), corpus), encoding='utf-8') as f:
+    with open(os.path.join(uploads.plaintext_dir(request), corpus), 'r', encoding='utf-8') as f:
         return f.read()

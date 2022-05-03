@@ -19,6 +19,7 @@ try:
 except ImportError as err:
     print('gluon path not found')
 from functools import reduce
+import functools
 
 
 class refTable(object):
@@ -94,7 +95,7 @@ class refTable(object):
         return output.getvalue()
 
     def wrap_onspace(self, text, width):
-        return reduce(lambda line, word, width=width: '{0}{1}{2}'
+        return functools.reduce(lambda line, word, width=width: '{0}{1}{2}'
                       .format(line, ' \n'[(len(
                                            line[line.rfind('\n'
                                                            ) + 1:]) + len(

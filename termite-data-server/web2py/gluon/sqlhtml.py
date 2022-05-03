@@ -35,6 +35,7 @@ from io import StringIO
 from gluon.globals import current
 from gluon.http import redirect
 import inspect
+import functools
 
 try:
     import web2py.gluon.settings as settings
@@ -1436,7 +1437,7 @@ class SQLFORM(FORM):
         if self.deleted and self.custom.deletable:
             if dbio:
                 if keyed:
-                    qry = reduce(lambda x, y: x & y,
+                    qry = functools.reduce(lambda x, y: x & y,
                                  [self.table[k] == record_id[k]
                                   for k in self.table._primarykey])
                 else:
@@ -1571,9 +1572,9 @@ class SQLFORM(FORM):
                     elif not self.table[field.name].default is None:
                         fields[field.name] = self.table[field.name].default
             if keyed:
-                if reduce(lambda x, y: x and y, record_id.values()):  # if record_id
+                if functools.reduce(lambda x, y: x and y, record_id.values()):  # if record_id
                     if fields:
-                        qry = reduce(lambda x, y: x & y,
+                        qry = functools.reduce(lambda x, y: x & y,
                                      [self.table[k] == self.record[k] for k in self.table._primarykey])
                         self.table._db(qry).update(**fields)
                 else:
@@ -1665,7 +1666,7 @@ class SQLFORM(FORM):
         else:
             parts = None
         if parts:
-            return reduce(lambda a, b: a | b, parts)
+            return functools.reduce(lambda a, b: a | b, parts)
         else:
             return smart_query(fields, key)
 
@@ -2201,7 +2202,7 @@ class SQLFORM(FORM):
                 if request.vars.keywords:
                     try:
                         #the query should be constructed using searchable fields but not virtual fields
-                        sfields = reduce(lambda a, b: a + b,
+                        sfields = functools.reduce(lambda a, b: a + b,
                             [[f for f in t if f.readable and not isinstance(f,Field.Virtual)] for t in tables])
                         dbset = dbset(SQLFORM.build_query(
                             sfields, request.vars.get('keywords', '')))
@@ -2246,7 +2247,7 @@ class SQLFORM(FORM):
             add = ''
 
         if searchable:
-            sfields = reduce(lambda a, b: a + b,
+            sfields = functools.reduce(lambda a, b: a + b,
                              [[f for f in t if f.readable] for t in tables])
             if isinstance(search_widget, dict):
                 search_widget = search_widget[tablename]

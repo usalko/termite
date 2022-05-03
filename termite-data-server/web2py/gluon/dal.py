@@ -175,6 +175,7 @@ import traceback
 import platform
 from gluon.utils import compare
 from gluon import validators
+import functools
 
 PYTHON_VERSION = sys.version_info[:3]
 if PYTHON_VERSION[0] == 2:
@@ -7249,7 +7250,7 @@ def sqlhtml_validators(field):
             if isinstance(db._adapter, GoogleDatastoreAdapter):
                 def count(values): return db(id.belongs(values)).select(id)
                 rx = range(0, len(ids), 30)
-                refs = reduce(lambda a,b:a&b, [count(ids[i:i+30]) for i in rx])
+                refs = functools.reduce(lambda a,b:a&b, [count(ids[i:i+30]) for i in rx])
             else:
                 refs = db(id.belongs(ids)).select(id)
             return (refs and ', '.join(f(r,x.id) for x in refs) or '')
@@ -8824,7 +8825,7 @@ class Table(object):
             self._before_delete.append(
                 lambda qset: qset.update(is_active=False))
             newquery = lambda query, t=self, name=self._tablename: \
-                reduce(AND, [db[tn].is_active == True
+                functools.reduce(AND, [db[tn].is_active == True
                             for tn in db._adapter.tables(query)
                             if tn == name or getattr(db[tn],'_ot',None)==name])
             query = self._common_filter
@@ -8937,7 +8938,7 @@ class Table(object):
                     if record[k]!=v: return None
             return record
         elif kwargs:
-            query = reduce(lambda a,b:a&b,[self[k]==v for k,v in kwargs.items()])
+            query = functools.reduce(lambda a,b:a&b,[self[k]==v for k,v in kwargs.items()])
             return self._db(query).select(limitby=(0,1),for_update=for_update, orderby=orderby, orderby_on_limitby=False).first()
         else:
             return None
@@ -9662,7 +9663,7 @@ class Expression(object):
             if not subqueries:
                 return self.contains('')
             else:
-                return reduce(all and AND or OR,subqueries)
+                return functools.reduce(all and AND or OR,subqueries)
         if not self.type in ('string', 'text', 'json', 'upload') and not self.type.startswith('list:'):
             raise SyntaxError("contains used with incompatible field type")
         return Query(db, db._adapter.CONTAINS, self, value, case_sensitive=case_sensitive)

@@ -78,13 +78,13 @@ class X509Auth(object):
 
         p = profile = dict()
 
-        username = p['username'] = reduce(lambda a, b: '%s | %s' % (
+        username = p['username'] = functools.reduce(lambda a, b: '%s | %s' % (
             a, b), self.subject.CN or self.subject.commonName)
-        p['first_name'] = reduce(lambda a, b: '%s | %s' % (a, b),
+        p['first_name'] = functools.reduce(lambda a, b: '%s | %s' % (a, b),
                                  self.subject.givenName or username)
-        p['last_name'] = reduce(
+        p['last_name'] = functools.reduce(
             lambda a, b: '%s | %s' % (a, b), self.subject.surname)
-        p['email'] = reduce(lambda a, b: '%s | %s' % (
+        p['email'] = functools.reduce(lambda a, b: '%s | %s' % (
             a, b), self.subject.Email or self.subject.emailAddress)
 
         # IMPORTANT WE USE THE CERT SERIAL AS UNIQUE KEY FOR THE USER
