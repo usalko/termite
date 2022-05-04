@@ -79,18 +79,18 @@ class refTable(object):
         output = io.StringIO()
 
         if separateRows:
-            print >> output, rowSeparator
+            print(rowSeparator, file=output)
 
         for physicalRows in logicalRows:
             for row in physicalRows:
-                print >> output,\
+                print(\
                     prefix + delim.join([
                                         justify(str(item), width) for (
                                         item, width) in zip(row, maxWidths)]
-                                        ) + postfix
+                                        ) + postfix, file=output)
 
             if separateRows or hasHeader:
-                print >> output, rowSeparator
+                print(rowSeparator, file=output)
                 hasHeader = False
         return output.getvalue()
 
@@ -206,7 +206,7 @@ class console:
                 break
             except Exception as a:
                 self.printError(a)
-        print ("\r\n\r\nBye!...")
+        print("\r\n\r\nBye!...")
         sys.exit(0)
 
     def printError(self, err):
@@ -379,25 +379,25 @@ style choices:
                     lengths[j] = len(i[j])
                 j += 1
 
-        print ("-" * (lengths[0] + lengths[1] + 4))
+        print("-" * (lengths[0] + lengths[1] + 4))
         for i in alldata:
-            print (("%-" + str(lengths[0]) + "s  - %-" + str(
-                lengths[1]) + "s") % (i[0], i[1]))
+            print((("%-" + str(lengths[0]) + "s  - %-" + str(
+                lengths[1]) + "s") % (i[0], i[1])))
             if len(i) > 2:
-                for j in i[2:]: print (("%" + str(lengths[
+                for j in i[2:]: print(("%" + str(lengths[
                                        0] + 9) + "s* %s") % (" ", j))
-        print
+        print()
 
     def cmd_vars(self, *args):
         '''-2|vars|Show variables'''
-        print ("variables\r\n" + "-" * 79)
+        print("variables\r\n" + "-" * 79)
         for i, j in self.configvars.items():
             value = self.parfmt(repr(getattr(self, j)), 52)
-            print ("| %20s | %52s |" % (i, value[0]))
-            for k in value[1:]: print ("| %20s | %52s |" % ("", k))
+            print("| %20s | %52s |" % (i, value[0]))
+            for k in value[1:]: print("| %20s | %52s |" % ("", k))
             if len(value) > 1:
                 print("| %20s | %52s |" % ("", ""))
-        print ("-" * 79)
+        print("-" * 79)
 
     def parfmt(self, txt, width):
         res = []

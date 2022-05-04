@@ -38,7 +38,7 @@ including:
 
 Example of usage:
 
->>> # from dal import DAL, Field
+>>> # from gluon.dal import DAL, Field
 
 ### create DAL connection (and create DB if it doesn't exist)
 >>> db = DAL(('sqlite://storage.sqlite','mysql://a:b@localhost/x'),
@@ -78,12 +78,12 @@ Example of usage:
 
 ### further filter them
 >>> james = people.find(lambda row: row.name == 'James').first()
->>> print james.id, james.name
+>>> print(james.id, james.name)
 1 James
 
 ### check aggregates
 >>> counter = person.id.count()
->>> print db(person).select(counter).first()(counter)
+>>> print(db(person).select(counter).first()(counter))
 1
 
 ### delete one record
@@ -149,6 +149,7 @@ SPATIALLIBS = {
 DEFAULT_URI = 'sqlite://dummy.db'
 MAX_SIZE=0xffffffff
 
+import io
 import re
 import sys
 import locale
@@ -173,9 +174,11 @@ import uuid
 import glob
 import traceback
 import platform
-from gluon.utils import compare
+from gluon.utils import compare, StrToBytes
 from gluon import validators
 import functools
+from pathlib import Path
+
 
 PYTHON_VERSION = sys.version_info[:3]
 if PYTHON_VERSION[0] == 2:
@@ -776,6 +779,8 @@ class BaseAdapter(ConnectionPool):
             return table._id != None
 
     def adapt(self, obj):
+        if isinstance(obj, bytes):
+            return "'%s'" % str(obj, encoding='utf-8').replace("'", "''")        
         return "'%s'" % obj.replace("'", "''")
 
     def smart_adapt(self, obj):
@@ -794,9 +799,9 @@ class BaseAdapter(ConnectionPool):
         to be used ONLY for files that on GAE may not be on filesystem
         """
         if have_portalocker and lock:
-            fileobj = portalocker.LockedFile(filename,mode)
+            fileobj = portalocker.LockedFile(filename, mode)
         else:
-            fileobj = open(filename,mode)
+            fileobj = open(filename, mode)
         return fileobj
 
     def file_close(self, fileobj):
@@ -1113,7 +1118,7 @@ class BaseAdapter(ConnectionPool):
                     self.execute(query)
                     table._db.commit()
             if table._dbt:
-                tfile = self.file_open(table._dbt, 'w')
+                tfile = self.file_open(table._dbt, 'wb')
                 pickle.dump(sql_fields, tfile)
                 self.file_close(tfile)
                 if fake_migrate:
@@ -1121,7 +1126,7 @@ class BaseAdapter(ConnectionPool):
                 else:
                     self.log('success!\n', table)
         else:
-            tfile = self.file_open(table._dbt, 'r')
+            tfile = self.file_open(table._dbt, 'rb')
             try:
                 sql_fields_old = pickle.load(tfile)
             except EOFError:
@@ -1266,7 +1271,7 @@ class BaseAdapter(ConnectionPool):
             self.log('success!\n', table)
 
     def save_dbt(self,table, sql_fields_current):
-        tfile = self.file_open(table._dbt, 'w')
+        tfile = self.file_open(table._dbt, 'wb')
         pickle.dump(sql_fields_current, tfile)
         self.file_close(tfile)
 
@@ -1983,6 +1988,8 @@ class BaseAdapter(ConnectionPool):
             return value
         if isinstance(obj, (Expression, Field)):
             return str(obj)
+        if field_is_type('string'):
+            return self.adapt(str(obj))
         if field_is_type('list:'):
             if not obj:
                 obj = []
@@ -2396,9 +2403,19 @@ class SQLiteAdapter(BaseAdapter):
     def web2py_regexp(expression, item):
         return re.compile(expression).search(item) is not None
 
-    def __init__(self, db, uri, pool_size=0, folder=None, db_codec ='UTF-8',
-                 credential_decoder=IDENTITY, driver_args={},
-                 adapter_args={}, do_connect=True, after_connection=None):
+    def __init__(self,
+        db,
+        uri,
+        pool_size=0,
+        folder=None,
+        db_codec ='UTF-8',
+        credential_decoder=IDENTITY,
+        driver_args={},
+        adapter_args={},
+        do_connect=True,
+        after_connection=None,
+        entity_quoting=True):
+
         self.db = db
         self.dbengine = "sqlite"
         self.uri = uri
@@ -2428,7 +2445,9 @@ class SQLiteAdapter(BaseAdapter):
         def connector(dbpath=self.dbpath, driver_args=driver_args):
             return self.driver.Connection(dbpath, **driver_args)
         self.connector = connector
-        if do_connect: self.reconnect()
+        if do_connect:
+            Path(self.dbpath).touch(mode=0o777, exist_ok=True)
+            self.reconnect()
 
     def after_connection(self):
         self.connection.create_function('web2py_extract', 2,
@@ -5949,7 +5968,7 @@ class MongoDBAdapter(NoSQLAdapter):
 
     ## OPERATORS
     def INVERT(self, first):
-        #print "in invert first=%s" % first
+        #print("in invert first=%s" % first)
         return '-%s' % self.expand(first)
 
     # TODO This will probably not work:(
@@ -7836,17 +7855,24 @@ class DAL(object):
                             raise SyntaxError("Error in URI '%s' or database not supported" % self._dbname)
                         # notice that driver args or {} else driver_args
                         # defaults to {} global, not correct
-                        kwargs = dict(db=self,uri=uri,
-                                      pool_size=pool_size,
-                                      folder=folder,
-                                      db_codec=db_codec,
-                                      credential_decoder=credential_decoder,
-                                      driver_args=driver_args or {},
-                                      adapter_args=adapter_args or {},
-                                      do_connect=do_connect,
-                                      after_connection=after_connection,
-                                      entity_quoting=entity_quoting)
-                        self._adapter = ADAPTERS[self._dbname](**kwargs)
+                        kwargs = {
+                            'db' :self,
+                            'uri':uri,
+                            'pool_size':pool_size,
+                            'folder':folder,
+                            'db_codec':db_codec,
+                            'credential_decoder':credential_decoder,
+                            'driver_args':driver_args or {},
+                            'adapter_args':adapter_args or {},
+                            'do_connect':do_connect,
+                            'after_connection':after_connection,
+                            'entity_quoting':entity_quoting,
+                        }
+                        try:
+                            self._adapter = ADAPTERS[self._dbname](**kwargs)
+                        except BaseException as e:
+                            traceback.print_exc()
+                            raise e
                         types = ADAPTERS[self._dbname].types
                         # copy so multiple DAL() possible
                         self._adapter.types = copy.copy(types)
@@ -8066,7 +8092,7 @@ def index():
                 continue
             for tag in tags:
                 if re1.match(tag):
-                    # print 're1:'+tag
+                    # print('re1:'+tag)
                     tokens = tag[1:-1].split('.')
                     table, field = tokens[0], tokens[1]
                     if not otable or table == otable:
@@ -8137,7 +8163,7 @@ def index():
                             dbset = db(queries[table])
                         dbset=dbset(db[table])
                 elif tag==':field' and table:
-                    # print 're3:'+tag
+                    # print('re3:'+tag)
                     field = args[i]
                     if not field in db[table]: break
                     # hand-built patterns should respect .readable=False as well
@@ -8631,7 +8657,7 @@ class Table(object):
 
         db = DAL(...)
         db.define_table('users', Field('name'))
-        db.users.insert(name='me') # print db.users._insert(...) to see SQL
+        db.users.insert(name='me') # print(db.users._insert(...)) to see SQL
         db.users.drop()
     """
 
@@ -10756,7 +10782,7 @@ class Rows(object):
         db.x.virtualfields.append(MyVirtualFields())
 
         for row in db(db.x).select():
-            print row.number, row.normal_shift, row.lazy_shift(delta=7)
+            print(row.number, row.normal_shift, row.lazy_shift(delta=7))
         """
         if not keyed_virtualfields:
             return self
@@ -11329,21 +11355,21 @@ def test_all():
 
     >>> authored_papers = db((db.author.id==db.authorship.author_id)&(db.paper.id==db.authorship.paper_id))
     >>> rows = authored_papers.select(db.author.name, db.paper.title)
-    >>> for row in rows: print row.author.name, row.paper.title
+    >>> for row in rows: print(row.author.name, row.paper.title)
     Massimo QCD
 
     Example of search condition using  belongs
 
     >>> set = (1, 2, 3)
     >>> rows = db(db.paper.id.belongs(set)).select(db.paper.ALL)
-    >>> print rows[0].title
+    >>> print(rows[0].title)
     QCD
 
     Example of search condition using nested select
 
     >>> nested_select = db()._select(db.authorship.paper_id)
     >>> rows = db(db.paper.id.belongs(nested_select)).select(db.paper.ALL)
-    >>> print rows[0].title
+    >>> print(rows[0].title)
     QCD
 
     Example of expressions
@@ -11360,7 +11386,7 @@ def test_all():
 
     Output in csv
 
-    >>> print str(authored_papers.select(db.author.name, db.paper.title)).strip()
+    >>> print(str(authored_papers.select(db.author.name, db.paper.title)).strip())
     author.name,paper.title\r
     Massimo,QCD
 

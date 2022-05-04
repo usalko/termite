@@ -8,10 +8,14 @@ import os
 import socket
 import datetime
 import copy
-import web2py.gluon.contenttype
-import web2py.gluon.fileutils
+import gluon.contenttype
+import gluon.fileutils
+from gluon.html import *
 from urllib import request, response
-from web2py.gluon.validators import IS_NOT_EMPTY
+from gluon.validators import IS_NOT_EMPTY
+from gluon.globals import current
+from gluon import session, auth, T
+from gluon.http import HTTP, redirect
 
 try:
     import pygraphviz as pgv

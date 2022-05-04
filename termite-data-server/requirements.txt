@@ -4,3 +4,4 @@ pygraphviz
 #simplejson
 #pyme
 pymysql
+gensim

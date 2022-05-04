@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 import os
@@ -95,7 +95,14 @@ class Home_Core(object):
 		})
 		return operations
 
-	EXCLUDE_SYSTEM_FOLDERS = frozenset([ 'admin', 'examples', 'welcome', 'init', 'dataset', 'echo' ])
+	EXCLUDE_SYSTEM_FOLDERS = frozenset([
+		'admin',
+		'examples',
+		'welcome',
+		'init',
+		'dataset',
+	    'echo',
+		'__pycache__' ])
 	EXCLUDE_TEMP_FOLDERS = re.compile(r'^temp_.*$')
 	def IsExcludedDataset(self, folder):
 		if folder in Home_Core.EXCLUDE_SYSTEM_FOLDERS:

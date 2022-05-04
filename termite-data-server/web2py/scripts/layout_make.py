@@ -82,13 +82,13 @@ def process(folder):
         page = soup.prettify()
         page = re.compile("\s*\{\{=response\.flash or ''\}\}\s*", re.MULTILINE)\
             .sub("{{=response.flash or ''}}", page)
-        print page
+        print(page)
     else:
         raise Exception("Unable to convert")
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print """USAGE:
+        print("""USAGE:
 1) start a new web2py application
 2) Download a sample free layout from the web into the static/ folder of
    your web2py application (make sure a sample index.html is there)
@@ -96,8 +96,8 @@ if __name__ == '__main__':
 
    python layout_make.py /path/to/web2py/applications/app/static/
      > /path/to/web2py/applications/app/views/layout.html
-"""
+""")
     elif not os.path.exists(sys.argv[1]):
-        print 'Folder %s does not exist' % sys.argv[1]
+        print('Folder %s does not exist' % sys.argv[1])
     else:
         process(sys.argv[1])

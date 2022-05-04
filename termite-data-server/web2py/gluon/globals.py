@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -631,7 +631,7 @@ class Response(Storage):
             import xmlrpclib
             connection = xmlrpclib.ServerProxy(
                 'http://hostname/app/contr/func')
-            print connection.add(3, 4)
+            print(connection.add(3, 4))
 
         """
 

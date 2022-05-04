@@ -33,8 +33,8 @@ mysql -N -s -e "select id, character_set_name, collation_name, is_default
 from information_schema.collations order by id;" | python -c "import sys
 for l in sys.stdin.readlines():
         id, name, collation, is_default  = l.split(chr(9))
-        print '_charsets.add(Charset(%s, \'%s\', \'%s\', \'%s\'))' \
-                % (id, name, collation, is_default.strip())
+        print('_charsets.add(Charset(%s, \'%s\', \'%s\', \'%s\'))' \
+                % (id, name, collation, is_default.strip()))
 "
 
 """

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -112,10 +112,10 @@ class LockedFile(object):
         self.mode = mode
         self.file = None
         if 'r' in mode:
-            self.file = open(filename, mode, encoding='utf-8')
+            self.file = open(filename, mode, encoding='utf-8') if not('b' in mode) else open(filename, mode)
             lock(self.file, LOCK_SH)
         elif 'w' in mode or 'a' in mode:
-            self.file = open(filename, mode.replace('w', 'a'), encoding='utf-8')
+            self.file = open(filename, mode.replace('w', 'a'), encoding='utf-8') if not('b' in mode) else open(filename, mode.replace('w', 'a'))
             lock(self.file, LOCK_EX)
             if not 'a' in mode:
                 self.file.seek(0)

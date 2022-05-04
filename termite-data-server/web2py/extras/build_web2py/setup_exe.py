@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
   
 #Adapted from http://bazaar.launchpad.net/~flavour/sahana-eden/trunk/view/head:/static/scripts/tools/standalone_exe.py

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -330,3 +330,13 @@ def getipaddrinfo(host):
 
 def compare(a, b):
     return (a > b) - (a < b)
+
+
+class StrToBytes:
+    def __init__(self, fileobj):
+        self.fileobj = fileobj
+    def read(self, size):
+        return self.fileobj.read(size).encode()
+    def readline(self, size=-1):
+        return self.fileobj.readline(size).encode()
+

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -41,7 +41,7 @@ import imp
 import logging
 logger = logging.getLogger("web2py")
 from gluon import rewrite
-from custom_import import custom_import_install
+from gluon.custom_import import custom_import_install
 import functools
 
 try:
@@ -743,10 +743,10 @@ def test():
 
         >>> import traceback, types
         >>> environment={'x':1}
-        >>> open('a.py', 'w').write('print 1/x')
+        >>> open('a.py', 'w').write('print(1/x)')
         >>> save_pyc('a.py')
         >>> os.unlink('a.py')
-        >>> if type(read_pyc('a.pyc'))==types.CodeType: print 'code'
+        >>> if type(read_pyc('a.pyc'))==types.CodeType: print('code')
         code
         >>> exec (read_pyc('a.pyc') in environment)
         1

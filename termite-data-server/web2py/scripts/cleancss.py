@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 import sys
@@ -29,4 +29,4 @@ data = re.compile('\n\s*/[\*]+(?P<a>.*?)[\*]+/', re.DOTALL).sub(
 data = re.compile('[ \t]+(?P<a>\S.+?){').sub(' \g<a>{', data)
 data = data.replace('}', '}\n')
 
-print data
+print(data)

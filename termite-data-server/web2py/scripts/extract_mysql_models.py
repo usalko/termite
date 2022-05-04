@@ -108,7 +108,7 @@ def mysql(database_name, username, password):
 
 regex = re.compile('(.*?):(.*?)@(.*)')
 if len(sys.argv) < 2 or not regex.match(sys.argv[1]):
-    print 'USAGE:\n\n    extract_mysql_models.py username:password@data_basename\n\n'
+    print('USAGE:\n\n    extract_mysql_models.py username:password@data_basename\n\n')
 else:
     m = regex.match(sys.argv[1])
-    print mysql(m.group(3), m.group(1), m.group(2))
+    print(mysql(m.group(3), m.group(1), m.group(2)))

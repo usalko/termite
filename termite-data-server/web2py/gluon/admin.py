@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -367,7 +367,7 @@ def unzip(filename, dir, subfolder=''):
     for name in sorted(zf.namelist()):
         if not name.startswith(subfolder):
             continue
-        #print name[n:]
+        #print(name[n:])
         if name.endswith('/'):
             folder = os.path.join(dir, name[n:])
             if not os.path.exists(folder):

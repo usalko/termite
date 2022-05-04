@@ -4,6 +4,7 @@ from    binascii    import  hexlify
 
 from    Constants   import  *
 from    Styles      import  *
+from    io          import  *
 
 class UnhandledParamError( Exception ) :
     def __init__( self, param ) :
@@ -387,7 +388,7 @@ def _get_emf_dimensions( fin ):
         klist = header.__dict__.keys()
         klist.sort()
         for k in klist:
-            print "%20s:%s" % (k,header.__dict__[k])
+            print("%20s:%s" % (k,header.__dict__[k]))
 
     dw = header.FrameRight-header.FrameLeft
     dh = header.FrameBottom-header.FrameTop
@@ -416,10 +417,10 @@ class Image( RawCode ) :
             fin = infile
             if 'datatype' not in kwargs.keys():
                 msg = "If passing in a file object, you must also specify type='xxx' where xxx is one of %s" % self.PICT_TYPES.keys()
-                raise ValueError,msg
+                raise ValueError(msg)
             file_name = kwargs.pop('datatype')
         else:
-            fin = file( infile, 'rb' )
+            fin = FileIO( infile, 'rb' )
             file_name = infile
 
         pict_type = self.PICT_TYPES[ file_name[ -3 : ].lower() ]

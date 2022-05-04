@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf8 -*-
 # Plural-Forms for de (Deutsch)
 

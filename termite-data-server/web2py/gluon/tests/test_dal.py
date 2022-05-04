@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 """
     Unit tests for gluon.dal
@@ -46,9 +46,9 @@ fix_sys_path()
 #for travis-ci
 DEFAULT_URI = os.environ.get('DB', 'sqlite:memory')
 
-print 'Testing against %s engine (%s)' % (DEFAULT_URI.partition(':')[0], DEFAULT_URI)
+print('Testing against %s engine (%s)' % (DEFAULT_URI.partition(':')[0], DEFAULT_URI))
 
-from dal import DAL, Field, Table, SQLALL
+from gluon.dal import DAL, Field, Table, SQLALL
 
 ALLOWED_DATATYPES = [
     'string',

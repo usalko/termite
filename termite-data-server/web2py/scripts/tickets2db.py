@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 import sys
@@ -31,7 +31,7 @@ hashes = {}
 
 while 1:
     if request.tickets_db:
-        print "You're storing tickets yet in database"
+        print("You're storing tickets yet in database")
         sys.exit(1)
 
     for file in os.listdir(errors_path):

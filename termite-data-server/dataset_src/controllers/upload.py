@@ -1,10 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 
 import csv
 import os
 import io
 from db.Corpus_DB import Corpus_DB
 import utils.uploads as uploads
+from gluon import session
+from gluon import request
+from gluon.html import *
+from gluon.validators import *
 
 def index():
     return {}

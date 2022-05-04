@@ -19,6 +19,7 @@ from glob import glob
 import shutil
 import platform
 import functools
+from gluon.http import HTTP, redirect
 
 try:
     import git
@@ -1293,7 +1294,7 @@ def create_file():
             lang = re.match('^plural_rules-(.*)\.py$', filename).group(1)
             langinfo = read_possible_languages(apath(app, r=request))[lang]
             text = dedent("""
-                   #!/usr/bin/env python
+                   #!/usr/bin/env .venv/bin/python3
                    # -*- coding: utf8 -*-
                    # Plural-Forms for %(lang)s (%(langname)s)
 
@@ -1384,7 +1385,7 @@ def create_file():
                 raise SyntaxError
 
             text = dedent("""
-                   #!/usr/bin/env python
+                   #!/usr/bin/env .venv/bin/python3
                    # coding: utf8
                    from gluon import *\n""")[1:]
 

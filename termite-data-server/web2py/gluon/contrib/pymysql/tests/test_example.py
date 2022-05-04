@@ -10,10 +10,10 @@ class TestExample(base.PyMySQLTestCase):
 
         cur.execute("SELECT Host,User FROM user")
 
-        # print cur.description
+        # print(cur.description)
 
         # r = cur.fetchall()
-        # print r
+        # print(r)
         # ...or...
         u = False
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -733,7 +733,7 @@ class DIV(XmlComponent):
 
         >>> a=DIV()
         >>> a.append(SPAN('x'))
-        >>> print a
+        >>> print(a)
         <div><span>x</span></div>
         """
         self._setnode(value)

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # created my Massimo Di Pierro
 # license MIT/BSD/GPL
 import re

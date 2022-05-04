@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -1065,7 +1065,7 @@ def start(cron=True):
         print(ProgramAuthor)
         print(ProgramVersion)
 
-    from dal import DRIVERS
+    from gluon.dal import DRIVERS
     if not options.nobanner:
         print('Database drivers available: %s' % ', '.join(DRIVERS))
 

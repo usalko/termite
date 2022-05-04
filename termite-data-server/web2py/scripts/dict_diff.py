@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
 '''
@@ -95,17 +95,17 @@ def compare_dicts(dict1, dict2, dict1_name, dict2_name):
     dict2_keyset = set(dict2.keys())
     print_key_diff(dict1_keyset - dict2_keyset, dict1_name, dict2_name)
     print_key_diff(dict2_keyset - dict1_keyset, dict2_name, dict1_name)
-    print "Value differences:"
+    print("Value differences:")
     has_value_differences = False
     for key in dict1_keyset & dict2_keyset:
         if dict1[key] != dict2[key]:
-            print "  %s:" % (key,)
-            print "    %s: %s" % (dict1_name, dict1[key],)
-            print "    %s: %s" % (dict2_name, dict2[key],)
-            print
+            print("  %s:" % (key,))
+            print("    %s: %s" % (dict1_name, dict1[key],))
+            print("    %s: %s" % (dict2_name, dict2[key],))
+            print()
             has_value_differences = True
     if not has_value_differences:
-        print "  None"
+        print("  None")
 
 
 def print_key_diff(key_diff, dict1_name, dict2_name):
@@ -116,12 +116,12 @@ def print_key_diff(key_diff, dict1_name, dict2_name):
     @param dict2_name: Name used for the second dictionary.
     """
 
-    print "Keys in %s not in %s:" % (dict1_name, dict2_name)
+    print("Keys in %s not in %s:" % (dict1_name, dict2_name))
     if len(key_diff):
         for key in key_diff:
-            print "  %s" % (key,)
+            print("  %s" % (key,))
     else:
-        print "  None"
+        print("  None")
     print
 
 if __name__ == "__main__":

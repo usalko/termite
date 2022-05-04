@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: latin-1 -*-
 # ****************************************************************************
 # * Software: FPDF for python                                                *

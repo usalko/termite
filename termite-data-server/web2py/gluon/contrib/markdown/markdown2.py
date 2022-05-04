@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # Copyright (c) 2007-2008 ActiveState Corp.
 # License: MIT (http://www.opensource.org/licenses/mit-license.php)
 
@@ -1603,8 +1603,8 @@ def _dedentlines(lines, tabsize=8, skip_first_line=False):
     """
     DEBUG = False
     if DEBUG:
-        print "dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
-              % (tabsize, skip_first_line)
+        print("dedent: dedent(..., tabsize=%d, skip_first_line=%r)"\
+              % (tabsize, skip_first_line))
     indents = []
     margin = None
     for i, line in enumerate(lines):

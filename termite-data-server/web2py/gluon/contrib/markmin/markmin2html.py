@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 # created by Massimo Di Pierro
 # recreated by Vladyslav Kozlovskyy

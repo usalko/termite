@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 """
     Unit tests for gluon.dal (NoSQL adapters)
@@ -57,11 +57,11 @@ IS_MONGODB = "mongodb" in DEFAULT_URI
 IS_IMAP = "imap" in DEFAULT_URI
 
 if IS_IMAP:
-    from dal import IMAPAdapter
-    from contrib import mockimaplib
+    from gluon.dal import IMAPAdapter
+    from gluon.contrib import mockimaplib
     IMAPAdapter.driver = mockimaplib
 
-from dal import DAL, Field, Table, SQLALL
+from gluon.dal import DAL, Field, Table, SQLALL
 
 def drop(table, cascade=None):
     # mongodb implements drop()

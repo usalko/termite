@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
+import csv
 import glob
 import re
 from gluon.sql import DAL, Field
@@ -203,8 +204,9 @@ class Corpus_DB():
 		metadata = []
 		
 		def ReadCSV():
-			with open(filename, 'r') as f:
-				reader = UnicodeReader(f)
+			with open(filename, 'r', encoding='utf-8') as f:
+				# reader = UnicodeReader(f)
+				reader = csv.reader(f, dialect=csv.excel)
 				for row in reader:
 					yield row
 
