@@ -4,6 +4,7 @@
 import argparse
 import subprocess
 import os
+import shutil
 
 
 DEFAULT_DATASET = 'infovis'
@@ -88,6 +89,9 @@ def process_spreadsheet(spreadsheet: str, datasets_folder: str):
         os.mkdir(dataset_folder)
     corpus_folder = os.path.join(dataset_folder, 'corpus')
     if not os.path.exists(corpus_folder):
+        os.mkdir(corpus_folder)
+    else:
+        shutil.rmtree(corpus_folder)
         os.mkdir(corpus_folder)
 
     model = 'mallet'

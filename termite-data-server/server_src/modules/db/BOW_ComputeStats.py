@@ -25,7 +25,7 @@ class BOW_ComputeStats():
         self.stopwords = self.LoadStopwords(
             STOPWORDS if STOPWORDS is not None else BOW_ComputeStats.DEFAULT_STOPWORDS)
 
-        self.tokenRegexStr = self.corpusDB.GetOption('token_regex')
+        self.tokenRegexStr = str(self.corpusDB.GetOption('token_regex'), encoding='utf-8')
         self.tokenRegex = re.compile(self.tokenRegexStr)
         self.minFreq = int(self.corpusDB.GetOption('min_freq'))
         self.minDocFreq = int(self.corpusDB.GetOption('min_doc_freq'))
@@ -57,8 +57,7 @@ class BOW_ComputeStats():
         self.logger.debug('    Loading corpus: %s', filename)
         with open(filename, 'r') as f:
             for line in f:
-                docID, docContent = line.decode(
-                    'utf-8').rstrip('\n').split('\t')
+                docID, docContent = line.rstrip('\n').split('\t')
                 docTokens = self.tokenRegex.findall(docContent)
                 docTokens = [token.lower()
                              for token in docTokens if token not in self.stopwords]
@@ -124,19 +123,19 @@ class BOW_ComputeStats():
 
         coStats = termCoStats['co_freqs']
         self.logger.debug('    Saving term_co_freqs (%d term pairs)...', min(
-            sum(len(stats) for stats in coStats.itervalues()), self.maxCoFreqCount))
+            sum(len(stats) for stats in coStats.values()), self.maxCoFreqCount))
         rows = self.UnfoldCoStats(coStats)
         self.logger.debug('        inserting %d rows...', len(rows))
         self.db.term_co_freqs.bulk_insert(rows)
         coStats = termCoStats['co_probs']
         self.logger.debug('    Saving term_co_probs (%d term pairs)...', min(
-            sum(len(stats) for stats in coStats.itervalues()), self.maxCoFreqCount))
+            sum(len(stats) for stats in coStats.values()), self.maxCoFreqCount))
         rows = self.UnfoldCoStats(coStats)
         self.logger.debug('        inserting %d rows...', len(rows))
         self.db.term_co_probs.bulk_insert(rows)
         coStats = termCoStats['g2']
         self.logger.debug('    Saving term_g2 (%d term pairs)...', min(
-            sum(len(stats) for stats in coStats.itervalues()), self.maxCoFreqCount))
+            sum(len(stats) for stats in coStats.values()), self.maxCoFreqCount))
         rows = self.UnfoldCoStats(coStats)
         self.logger.debug('        inserting %d rows...', len(rows))
         self.db.term_g2.bulk_insert(rows)
@@ -149,19 +148,19 @@ class BOW_ComputeStats():
 
         coStats = termCoStats['co_freqs']
         self.logger.debug('    Saving sentences_co_freqs (%d term pairs)...', min(
-            sum(len(stats) for stats in coStats.itervalues()), self.maxCoFreqCount))
+            sum(len(stats) for stats in coStats.values()), self.maxCoFreqCount))
         rows = self.UnfoldCoStats(coStats)
         self.logger.debug('        inserting %d rows...', len(rows))
         self.db.sentences_co_freqs.bulk_insert(rows)
         coStats = termCoStats['co_probs']
         self.logger.debug('    Saving sentences_co_probs (%d term pairs)...', min(
-            sum(len(stats) for stats in coStats.itervalues()), self.maxCoFreqCount))
+            sum(len(stats) for stats in coStats.values()), self.maxCoFreqCount))
         rows = self.UnfoldCoStats(coStats)
         self.logger.debug('        inserting %d rows...', len(rows))
         self.db.sentences_co_probs.bulk_insert(rows)
         coStats = termCoStats['g2']
         self.logger.debug('    Saving sentences_g2 (%d term pairs)...', min(
-            sum(len(stats) for stats in coStats.itervalues()), self.maxCoFreqCount))
+            sum(len(stats) for stats in coStats.values()), self.maxCoFreqCount))
         rows = self.UnfoldCoStats(coStats)
         self.logger.debug('        inserting %d rows...', len(rows))
         self.db.sentences_g2.bulk_insert(rows)
@@ -181,7 +180,7 @@ class BOW_ComputeStats():
             return docFreqs
 
         def NormalizeFreqs(freqs):
-            normalization = sum(freqs.itervalues())
+            normalization = sum(freqs.values())
             normalization = 1.0 / normalization if normalization > 1.0 else 1.0
             probs = {term: freq * normalization for term,
                      freq in freqs.items()}
@@ -236,7 +235,7 @@ class BOW_ComputeStats():
             allCoFreq = 0
             for docID, docTokens in corpus.items():
                 freqs = Counter(docTokens)
-                allFreq += sum(freqs.itervalues())
+                allFreq += sum(freqs.values())
                 for firstToken, firstFreq in freqs.items():
                     for secondToken, secondFreq in freqs.items():
                         coFreq = firstFreq * secondFreq
@@ -252,8 +251,8 @@ class BOW_ComputeStats():
 
         def NormalizeJointFreqs(jointFreqs, normalization=None):
             if normalization is None:
-                normalization = sum(sum(d.itervalues())
-                                    for d in jointFreqs.itervalues())
+                normalization = sum(sum(d.values())
+                                    for d in jointFreqs.values())
                 normalization = 1.0 / normalization if normalization > 1.0 else 1.0
             jointProbs = {term: {t: f * normalization for t, f in freqs.items()}
                           for term, freqs in jointFreqs.items()}
