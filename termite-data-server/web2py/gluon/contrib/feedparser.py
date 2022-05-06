@@ -124,6 +124,8 @@ else:
     def _l2bytes(l):
         return bytes(l)
 
+import urllib
+
 # If you want feedparser to allow all URL schemes, set this to ()
 # List culled from Python's urlparse documentation at:
 #   http://docs.python.org/library/urlparse.html
@@ -331,7 +333,7 @@ class FeedParserDict(dict):
             try:
                 return dict.__getitem__(self, 'tags')[0]['term']
             except IndexError:
-                raise KeyError, "object doesn't have key 'category'"
+                raise KeyError("object doesn't have key 'category'")
         elif key == 'enclosures':
             norel = lambda link: FeedParserDict([(name,value) for (name,value) in link.items() if name!='rel'])
             return [norel(link) for link in dict.__getitem__(self, 'links') if link['rel']==u'enclosure']
@@ -418,33 +420,33 @@ class FeedParserDict(dict):
         return id(self)
 
 _cp1252 = {
-    128: unichr(8364), # euro sign
-    130: unichr(8218), # single low-9 quotation mark
-    131: unichr( 402), # latin small letter f with hook
-    132: unichr(8222), # double low-9 quotation mark
-    133: unichr(8230), # horizontal ellipsis
-    134: unichr(8224), # dagger
-    135: unichr(8225), # double dagger
-    136: unichr( 710), # modifier letter circumflex accent
-    137: unichr(8240), # per mille sign
-    138: unichr( 352), # latin capital letter s with caron
-    139: unichr(8249), # single left-pointing angle quotation mark
-    140: unichr( 338), # latin capital ligature oe
-    142: unichr( 381), # latin capital letter z with caron
-    145: unichr(8216), # left single quotation mark
-    146: unichr(8217), # right single quotation mark
-    147: unichr(8220), # left double quotation mark
-    148: unichr(8221), # right double quotation mark
-    149: unichr(8226), # bullet
-    150: unichr(8211), # en dash
-    151: unichr(8212), # em dash
-    152: unichr( 732), # small tilde
-    153: unichr(8482), # trade mark sign
-    154: unichr( 353), # latin small letter s with caron
-    155: unichr(8250), # single right-pointing angle quotation mark
-    156: unichr( 339), # latin small ligature oe
-    158: unichr( 382), # latin small letter z with caron
-    159: unichr( 376), # latin capital letter y with diaeresis
+    128: chr(8364), # euro sign
+    130: chr(8218), # single low-9 quotation mark
+    131: chr( 402), # latin small letter f with hook
+    132: chr(8222), # double low-9 quotation mark
+    133: chr(8230), # horizontal ellipsis
+    134: chr(8224), # dagger
+    135: chr(8225), # double dagger
+    136: chr( 710), # modifier letter circumflex accent
+    137: chr(8240), # per mille sign
+    138: chr( 352), # latin capital letter s with caron
+    139: chr(8249), # single left-pointing angle quotation mark
+    140: chr( 338), # latin capital ligature oe
+    142: chr( 381), # latin capital letter z with caron
+    145: chr(8216), # left single quotation mark
+    146: chr(8217), # right single quotation mark
+    147: chr(8220), # left double quotation mark
+    148: chr(8221), # right double quotation mark
+    149: chr(8226), # bullet
+    150: chr(8211), # en dash
+    151: chr(8212), # em dash
+    152: chr( 732), # small tilde
+    153: chr(8482), # trade mark sign
+    154: chr( 353), # latin small letter s with caron
+    155: chr(8250), # single right-pointing angle quotation mark
+    156: chr( 339), # latin small ligature oe
+    158: chr( 382), # latin small letter z with caron
+    159: chr( 376), # latin capital letter y with diaeresis
 }
 
 _urifixer = re.compile('^([A-Za-z][A-Za-z0-9+-.]*://)(/*)(.*?)')
@@ -453,13 +455,13 @@ def _urljoin(base, uri):
     #try:
     if not isinstance(uri, str):
         uri = uri.decode('utf-8', 'ignore')
-    uri = urlparse.urljoin(base, uri)
+    uri = urllib.parse.urljoin(base, uri)
     if not isinstance(uri, str):
         return uri.decode('utf-8', 'ignore')
     return uri
     #except:
-    #    uri = urlparse.urlunparse([urllib.parse.quote(part) for part in urlparse.urlparse(uri)])
-    #    return urlparse.urljoin(base, uri)
+    #    uri = urllib.parse.urlunparse([urllib.parse.quote(part) for part in urllib.parse.urlparse(uri)])
+    #    return urllib.parse.urljoin(base, uri)
 
 class _FeedParserMixin:
     namespaces = {
@@ -637,7 +639,7 @@ class _FeedParserMixin:
             # element declared itself as escaped markup, but it isn't really
             self.contentparams['type'] = u'application/xhtml+xml'
         if self.incontent and self.contentparams.get('type') == u'application/xhtml+xml':
-            if tag.find(':') <> -1:
+            if tag.find(':') != -1:
                 prefix, tag = tag.split(':', 1)
                 namespace = self.namespacesInUse.get(prefix, '')
                 if tag=='math' and namespace=='http://www.w3.org/1998/Math/MathML':
@@ -649,7 +651,7 @@ class _FeedParserMixin:
             return self.handle_data('<%s%s>' % (tag, self.strattrs(attrs)), escape=0)
 
         # match namespaces
-        if tag.find(':') <> -1:
+        if tag.find(':') != -1:
             prefix, suffix = tag.split(':', 1)
         else:
             prefix, suffix = '', tag
@@ -681,7 +683,7 @@ class _FeedParserMixin:
 
     def unknown_endtag(self, tag):
         # match namespaces
-        if tag.find(':') <> -1:
+        if tag.find(':') != -1:
             prefix, suffix = tag.split(':', 1)
         else:
             prefix, suffix = '', tag
@@ -735,7 +737,7 @@ class _FeedParserMixin:
                 c = int(ref[1:], 16)
             else:
                 c = int(ref)
-            text = unichr(c).encode('utf-8')
+            text = chr(c).encode('utf-8')
         self.elementstack[-1][2].append(text)
 
     def handle_entityref(self, ref):
@@ -754,7 +756,7 @@ class _FeedParserMixin:
             except KeyError:
                 text = '&%s;' % ref
             else:
-                text = unichr(name2codepoint[ref]).encode('utf-8')
+                text = chr(name2codepoint[ref]).encode('utf-8')
         self.elementstack[-1][2].append(text)
 
     def handle_data(self, text, escape=1):
@@ -814,7 +816,7 @@ class _FeedParserMixin:
                 self.version = u'rss10'
             elif loweruri == 'http://www.w3.org/2005/atom':
                 self.version = u'atom10'
-        if loweruri.find(u'backend.userland.com/rss') <> -1:
+        if loweruri.find(u'backend.userland.com/rss') != -1:
             # match any backend.userland.com namespace
             uri = u'http://backend.userland.com/rss'
             loweruri = uri
@@ -1045,7 +1047,7 @@ class _FeedParserMixin:
 
     def _mapToStandardPrefix(self, name):
         colonpos = name.find(':')
-        if colonpos <> -1:
+        if colonpos != -1:
             prefix = name[:colonpos]
             suffix = name[colonpos+1:]
             prefix = self.namespacemap.get(prefix, prefix)
@@ -1787,7 +1789,7 @@ if _XML_AVAILABLE:
         def startElementNS(self, name, qname, attrs):
             namespace, localname = name
             lowernamespace = str(namespace or '').lower()
-            if lowernamespace.find(u'backend.userland.com/rss') <> -1:
+            if lowernamespace.find(u'backend.userland.com/rss') != -1:
                 # match any backend.userland.com namespace
                 namespace = u'http://backend.userland.com/rss'
                 lowernamespace = namespace
@@ -1948,7 +1950,7 @@ class _BaseHTMLProcessor(sgmllib.SGMLParser):
                     value = value.decode(self.encoding, 'ignore')
                 try:
                     # Currently, in Python 3 the key is already a str, and cannot be decoded again
-                    uattrs.append((unicode(key, self.encoding), value))
+                    uattrs.append((str(key, self.encoding), value))
                 except TypeError:
                     uattrs.append((key, value))
             strattrs = u''.join([u' %s="%s"' % (key, value) for key, value in uattrs])
@@ -2455,7 +2457,7 @@ class _MicroformatsParser:
            linktype.startswith('video/') or \
            (linktype.startswith('application/') and not linktype.endswith('xml')):
             return 1
-        path = urlparse.urlparse(attrsD['href'])[2]
+        path = urllib.parse.urlparse(attrsD['href'])[2]
         if path.find('.') == -1:
             return 0
         fileext = path.split('.').pop().lower()
@@ -2468,7 +2470,7 @@ class _MicroformatsParser:
             if not href:
                 continue
             urlscheme, domain, path, params, query, fragment = \
-                       urlparse.urlparse(_urljoin(self.baseuri, href))
+                       urllib.parse.urlparse(_urljoin(self.baseuri, href))
             segments = path.split('/')
             tag = segments.pop()
             if not tag:
@@ -2477,7 +2479,7 @@ class _MicroformatsParser:
                 else:
                     # there are no tags
                     continue
-            tagscheme = urlparse.urlunparse((urlscheme, domain, '/'.join(segments), '', '', ''))
+            tagscheme = urllib.parse.urlunparse((urlscheme, domain, '/'.join(segments), '', '', ''))
             if not tagscheme.endswith('/'):
                 tagscheme += '/'
             self.tags.append(FeedParserDict({"term": tag, "scheme": tagscheme, "label": elm.string or ''}))
@@ -2574,7 +2576,7 @@ def _makeSafeAbsoluteURI(base, rel=None):
         return rel or u''
     if not rel:
         try:
-            scheme = urlparse.urlparse(base)[0]
+            scheme = urllib.parse.urlparse(base)[0]
         except ValueError:
             return u''
         if not scheme or scheme in ACCEPTABLE_URI_SCHEMES:
@@ -2762,7 +2764,7 @@ class _HTMLSanitizer(_BaseHTMLProcessor):
 
         # declare xlink namespace, if needed
         if self.mathmlOK or self.svgOK:
-            if filter(lambda (n,v): n.startswith('xlink:'),attrs):
+            if filter(lambda x: x[0].startswith('xlink:'),attrs):
                 if not ('xmlns:xlink','http://www.w3.org/1999/xlink') in attrs:
                     attrs.append(('xmlns:xlink','http://www.w3.org/1999/xlink'))
 
@@ -2889,7 +2891,7 @@ def _sanitizeHTML(htmlSource, encoding, _type):
     data = data.strip().replace('\r\n', '\n')
     return data
 
-class _FeedURLHandler(urllib2.HTTPDigestAuthHandler, urllib2.HTTPRedirectHandler, urllib2.HTTPDefaultErrorHandler):
+class _FeedURLHandler(urllib.request.HTTPDigestAuthHandler, urllib.request.HTTPRedirectHandler, urllib.request.HTTPDefaultErrorHandler):
     def http_error_default(self, req, fp, code, msg, headers):
         # The default implementation just raises HTTPError.
         # Forget that.
@@ -2897,7 +2899,7 @@ class _FeedURLHandler(urllib2.HTTPDigestAuthHandler, urllib2.HTTPRedirectHandler
         return fp
 
     def http_error_301(self, req, fp, code, msg, hdrs):
-        result = urllib2.HTTPRedirectHandler.http_error_301(self, req, fp,
+        result = urllib.request.HTTPRedirectHandler.http_error_301(self, req, fp,
                                                             code, msg, hdrs)
         result.status = code
         result.newurl = result.geturl()
@@ -2920,7 +2922,7 @@ class _FeedURLHandler(urllib2.HTTPDigestAuthHandler, urllib2.HTTPRedirectHandler
         # header the server sent back (for the realm) and retry
         # the request with the appropriate digest auth headers instead.
         # This evil genius hack has been brought to you by Aaron Swartz.
-        host = urlparse.urlparse(req.get_full_url())[1]
+        host = urllib.parse.urlparse(req.get_full_url())[1]
         if base64 is None or 'Authorization' not in req.headers \
                           or 'WWW-Authenticate' not in headers:
             return self.http_error_default(req, fp, code, msg, headers)
@@ -2968,7 +2970,7 @@ def _open_resource(url_file_stream_or_string, etag, modified, agent, referrer, h
         return url_file_stream_or_string
 
     if isinstance(url_file_stream_or_string, (str, bytes)) \
-       and urlparse.urlparse(url_file_stream_or_string)[0] in ('http', 'https', 'ftp', 'file', 'feed'):
+       and urllib.parse.urlparse(url_file_stream_or_string)[0] in ('http', 'https', 'ftp', 'file', 'feed'):
         # Deal with the feed URI scheme
         if url_file_stream_or_string.startswith('feed:http'):
             url_file_stream_or_string = url_file_stream_or_string[5:]
@@ -2993,7 +2995,7 @@ def _open_resource(url_file_stream_or_string, etag, modified, agent, referrer, h
 
         # try to open with urllib2 (to use optional headers)
         request = _build_urllib2_request(url_file_stream_or_string, agent, etag, modified, referrer, auth, request_headers)
-        opener = urllib2.build_opener(*tuple(handlers + [_FeedURLHandler()]))
+        opener = urllib.request.build_opener(*tuple(handlers + [_FeedURLHandler()]))
         opener.addheaders = [] # RMK - must clear so we only send our custom User-Agent
         try:
             return opener.open(request)
@@ -3023,7 +3025,7 @@ def _convert_to_idn(url):
     # this function should only be called with a unicode string
     # strategy: if the host cannot be encoded in ascii, then
     # it'll be necessary to encode it in idn form
-    parts = list(urlparse.urlsplit(url))
+    parts = list(urllib.parse.urlsplit(url))
     try:
         parts[1].encode('ascii')
     except UnicodeEncodeError:
@@ -3038,12 +3040,12 @@ def _convert_to_idn(url):
         parts[1] = '.'.join(newhost)
         if port:
             parts[1] += ':' + port
-        return urlparse.urlunsplit(parts)
+        return urllib.parse.urlunsplit(parts)
     else:
         return url
 
 def _build_urllib2_request(url, agent, etag, modified, referrer, auth, request_headers):
-    request = urllib2.Request(url)
+    request = urllib.request.Request(url)
     request.add_header('User-Agent', agent)
     if etag:
         request.add_header('If-None-Match', etag)

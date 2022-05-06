@@ -85,8 +85,8 @@ def install(app_name, filename, data, overwrite=True):
 
 @service.jsonrpc
 def attach_debugger(host='localhost', port=6000, authkey='secret password'):
-    import web2py.gluon.contrib.qdb as qdb
-    import web2py.gluon.debug
+    import gluon.contrib.qdb as qdb
+    import gluon.debug
     from multiprocessing.connection import Listener
 
     if isinstance(authkey, str):
@@ -107,8 +107,8 @@ def attach_debugger(host='localhost', port=6000, authkey='secret password'):
 
 @service.jsonrpc
 def detach_debugger():
-    import web2py.gluon.contrib.qdb as qdb
-    import web2py.gluon.debug
+    import gluon.contrib.qdb as qdb
+    import gluon.debug
     # stop current debugger
     if gluon.debug.qdb_debugger:
         try:

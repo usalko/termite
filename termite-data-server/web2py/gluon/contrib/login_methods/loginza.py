@@ -11,7 +11,7 @@ import urllib
 from gluon.html import *
 from gluon.tools import fetch
 from gluon.storage import Storage
-import web2py.gluon.contrib.simplejson as json
+import gluon.contrib.simplejson as json
 
 
 class Loginza(object):

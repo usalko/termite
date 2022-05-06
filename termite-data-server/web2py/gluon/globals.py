@@ -23,7 +23,8 @@ from gluon.http import HTTP, redirect
 from gluon.fileutils import up
 from gluon.serializers import json, custom_json
 import gluon.settings as settings
-from gluon.utils import web2py_uuid, secure_dumps, secure_loads
+from gluon.internal_utils import web2py_uuid, secure_dumps, secure_loads
+#from gluon.utils import web2py_uuid, secure_dumps, secure_loads
 from gluon.settings import global_settings
 import hashlib
 import gluon.portalocker as portalocker
@@ -61,7 +62,7 @@ except:
     try:
         import json as sj #standard installed library
     except:
-        import web2py.gluon.contrib.simplejson as sj #pure python library
+        import gluon.contrib.simplejson as sj #pure python library
 
 regex_session_id = re.compile('^([\w\-]+/)?[\w\-\.]+$')
 

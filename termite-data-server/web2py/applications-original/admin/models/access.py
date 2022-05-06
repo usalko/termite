@@ -33,7 +33,7 @@ try:
     if not 'password' in _config or not _config['password']:
         raise HTTP(200, T('admin disabled because no admin password'))
 except IOError:
-    import web2py.gluon.fileutils
+    import gluon.fileutils
     if is_gae:
         if gluon.fileutils.check_credentials(request):
             session.authorized = True
@@ -54,7 +54,7 @@ def verify_password(password):
         return False
     elif _config['password'].startswith('pam_user:'):
         session.pam_user = _config['password'][9:].strip()
-        import web2py.gluon.contrib.pam
+        import gluon.contrib.pam
         return gluon.contrib.pam.authenticate(session.pam_user, password)
     else:
         return _config['password'] == CRYPT()(password)[0]

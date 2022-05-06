@@ -295,7 +295,7 @@ def run(servername, ip, port, softcron=True, logging=False, profiler=None,
         import eventlet
         eventlet.monkey_patch()
 
-    import web2py.gluon.main
+    import gluon.main
 
     if logging:
         application = gluon.main.appfactory(wsgiapp=gluon.main.wsgibase,

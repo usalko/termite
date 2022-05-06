@@ -23,7 +23,7 @@ import time
 from gluon import *
 from gluon.storage import Storage
 from gluon.tools import fetch
-import web2py.gluon.contrib.simplejson as json
+import gluon.contrib.simplejson as json
 
 
 class BrowserID(object):

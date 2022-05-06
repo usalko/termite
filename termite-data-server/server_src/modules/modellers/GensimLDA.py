@@ -41,7 +41,7 @@ class GensimTermiteCorpusReader(corpora.TextCorpus):
 				if not os.path.isdir( filename ):
 					with utils.smart_open( filename ) as f:
 						docId = filename
-						docContent = u' '.join(f.read().decode('utf-8', 'ignore').splitlines())
+						docContent = u' '.join(f.read().splitlines())
 						tokens = self.tokenRegex.findall(docContent)
 						tokens = [token.lower().encode('utf-8') for token in tokens if token not in STOPWORDS]
 						yield tokens
@@ -50,7 +50,7 @@ class GensimTermiteCorpusReader(corpora.TextCorpus):
 		else:
 			with utils.smart_open(self.input) as f:
 				for line in f:
-					docId, docContent = line.decode('utf-8', 'ignore').rstrip('\n').split('\t')
+					docId, docContent = line.rstrip('\n').split('\t')
 					tokens = self.tokenRegex.findall(docContent)
 					tokens = [token.lower().encode('utf-8') for token in tokens if token not in STOPWORDS]
 					yield tokens

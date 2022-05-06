@@ -89,7 +89,7 @@ def communicate(command=None):
 
 # New debugger implementation using qdb and a web UI
 
-import web2py.gluon.contrib.qdb as qdb
+import gluon.contrib.qdb as qdb
 from threading import RLock
 
 interact_lock = RLock()
@@ -192,5 +192,5 @@ dbg = qdb_debugger
 # enable getting context (stack, globals/locals) at interaction
 qdb_debugger.set_params(dict(call_stack=True, environment=True))
 
-import web2py.gluon.main
+import gluon.main
 gluon.main.global_settings.debugging = True

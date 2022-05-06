@@ -46,8 +46,8 @@ class TreeTMReader(LDAReader):
 	def ReadVocabFile( self ):
 		self.termList = []
 		self.logger.debug( '    Loading vocbuary: %s', self.corpusVocab )
-		with open( self.corpusVocab ) as f:
-			self.termList = [ line.decode('utf-8', 'ignore').rstrip('\n').split('\t')[1] for line in f ]
+		with open( self.corpusVocab, 'r', encoding='utf-8' ) as f:
+			self.termList = [ line.rstrip('\n').split('\t')[1] for line in f ]
 
 	def ReadTopicWordWeights( self ):
 		accumulator = {}

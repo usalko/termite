@@ -38,7 +38,7 @@ import inspect
 import functools
 
 try:
-    import web2py.gluon.settings as settings
+    import gluon.settings as settings
     is_gae = settings.global_settings.web2py_runtime_gae
 except ImportError:
     is_gae = False # this is an assumption (if settings missing)

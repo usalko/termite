@@ -4,9 +4,8 @@ import csv
 import os
 import io
 from db.Corpus_DB import Corpus_DB
-import utils.uploads as uploads
-from gluon import session
-from gluon import request
+import bin.utils.uploads as uploads
+# from gluon import *
 from gluon.html import *
 from gluon.validators import *
 

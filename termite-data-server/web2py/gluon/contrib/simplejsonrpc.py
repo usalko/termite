@@ -23,7 +23,7 @@ from io import StringIO
 import random
 import sys
 try:
-    import web2py.gluon.contrib.simplejson as json     # try web2py json serializer
+    import gluon.contrib.simplejson as json     # try web2py json serializer
 except ImportError:
     try:
         import json                             # try stdlib (py2.6)
@@ -153,4 +153,4 @@ if __name__ == "__main__":
     # basic tests:
     location = "http://www.web2py.com.ar/webservices/sample/call/jsonrpc"
     client = ServerProxy(location, verbose='--verbose' in sys.argv,)
-    print client.add(1, 2)
+    print(client.add(1, 2))

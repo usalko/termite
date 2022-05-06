@@ -16,6 +16,6 @@ class SplitSentences():
 	def Shell( self, command ):
 		p = subprocess.Popen( command, stdout = subprocess.PIPE, stderr = subprocess.STDOUT )
 		while p.poll() is None:
-			line = p.stdout.readline().rstrip('\n')
+			line = str(p.stdout.readline(), encoding='utf-8').rstrip('\n')
 			if len(line) > 0:
 				self.logger.debug( line )

@@ -775,7 +775,7 @@ class Sheet:
                 node.value = d[key]
 
     def sheet(self):
-        import web2py.gluon.html
+        import gluon.html
         (DIV, TABLE, TR, TD, TH, BR, SCRIPT) = \
             (gluon.html.DIV, gluon.html.TABLE, gluon.html.TR, gluon.html.TD,
              gluon.html.TH, gluon.html.BR, gluon.html.SCRIPT)

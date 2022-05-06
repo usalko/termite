@@ -58,7 +58,7 @@ except ImportError:
         import simplejson as json_parser
     except:
         # fallback to pure-Python module
-        import web2py.gluon.contrib.simplejson as json_parser
+        import gluon.contrib.simplejson as json_parser
 
 __all__ = ['Mail', 'Auth', 'Recaptcha', 'Crud', 'Service', 'Wiki',
            'PluginManager', 'fetch', 'geocode', 'prettydate']

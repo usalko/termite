@@ -33,7 +33,7 @@ except:
     try:
         import json as sj #standard installed library
     except:
-        import web2py.gluon.contrib.simplejson as sj #pure python library
+        import gluon.contrib.simplejson as sj #pure python library
 
 from _thread import allocate_lock
 
@@ -436,7 +436,7 @@ def wsgibase(environ, responder):
                 # ##################################################
 
                 if global_settings.debugging and app != "admin":
-                    import web2py.gluon.debug
+                    import gluon.debug
                     # activate the debugger
                     gluon.debug.dbg.do_debug(mainpyfile=request.folder)
 

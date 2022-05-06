@@ -1,6 +1,6 @@
 #!/usr/bin/env .venv/bin/python3
 import os
-import gluon.utils.uploads as uploads
+import bin.utils.uploads as uploads
 
 def index():
     corpus = request.vars['corpus']

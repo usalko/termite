@@ -15,7 +15,7 @@ from gluon import *
 from gluon.storage import Storage
 from gluon.contrib.simplejson import JSONDecodeError
 from gluon.tools import fetch
-import web2py.gluon.contrib.simplejson as json
+import gluon.contrib.simplejson as json
 
 
 class LoginRadiusAccount(object):

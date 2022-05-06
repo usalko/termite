@@ -71,7 +71,7 @@ def setUpModule():
         if not os.path.isdir('gluon'):
             os.chdir(os.path.realpath(
                 '../../'))    # run from web2py base directory
-        import web2py.gluon.main     # for initialization after chdir
+        import gluon.main     # for initialization after chdir
         global logger
         logger = logging.getLogger('web2py.rewrite')
         global_settings.applications_parent = tempfile.mkdtemp()

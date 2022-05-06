@@ -21,7 +21,7 @@ import math
 import logging
 import newcron
 import getpass
-import web2py.gluon.main as main
+import gluon.main as main
 
 from gluon.fileutils import read_file, write_file, create_welcome_w2p
 from gluon.settings import global_settings
@@ -308,7 +308,7 @@ class web2pyDialog(object):
         self.button_stop.configure(state='disabled')
 
         if options.taskbar:
-            import web2py.gluon.contrib.taskbar_widget
+            import gluon.contrib.taskbar_widget
             self.tb = gluon.contrib.taskbar_widget.TaskBarIcon()
             self.checkTaskBar()
 

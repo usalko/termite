@@ -1,7 +1,7 @@
 #!/usr/bin/env .venv/bin/python3
 # -*- coding: utf-8 -*-
 
-from LDAReader import LDAReader
+from .LDAReader import LDAReader
 
 class MalletReader(LDAReader):
 	"""

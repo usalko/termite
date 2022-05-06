@@ -13,7 +13,6 @@ import gluon.fileutils
 from gluon.html import *
 from urllib import request, response
 from gluon.validators import IS_NOT_EMPTY
-from gluon.globals import current
 from gluon import session, auth, T
 from gluon.http import HTTP, redirect
 
@@ -174,7 +173,7 @@ def download():
 
 
 def csv():
-    import web2py.gluon.contenttype
+    import gluon.contenttype
     response.headers['Content-Type'] = \
         gluon.contenttype.contenttype('.csv')
     db = get_database(request)

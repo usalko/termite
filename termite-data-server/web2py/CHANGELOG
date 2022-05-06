@@ -1128,7 +1128,7 @@ recalled
 - Lots of internal cleanup and better code reusage (thanks Hans)
 
 ## 1.63-1.63.4
-- no more import web2py.gluon.
+- no more import gluon.
 - support for generic.xxx
 - simplejson can handle datetime date and time
 

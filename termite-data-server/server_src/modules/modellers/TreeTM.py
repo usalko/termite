@@ -410,8 +410,8 @@ class TreeTM(object):
 		mustLinkConstraints = []
 		cannotLinkConstraints = []
 		if self.filenameConstraintsPrevious is not None:
-			with open( self.filenameConstraintsPrevious, 'r' ) as f:
-				for line in f.read().decode('utf-8').splitlines():
+			with open( self.filenameConstraintsPrevious, 'r', encoding='utf-8' ) as f:
+				for line in f.read().splitlines():
 					values = line.split('\t')
 					action = values[0]
 					terms = values[1:]
@@ -434,8 +434,8 @@ class TreeTM(object):
 	def ReadKeepTermsFile( self ):
 		keepTerms = {}
 		if self.filenameKeepTermsPrevious is not None:
-			with open( self.filenameKeepTermsPrevious, 'r' ) as f:
-				for line in f.read().decode('utf-8').splitlines():
+			with open( self.filenameKeepTermsPrevious, 'r', encoding='utf-8' ) as f:
+				for line in f.read().splitlines():
 					term, topic = line.split(' ')
 					if topic not in keepTerms:
 						keepTerms[topic] = set()
@@ -453,11 +453,11 @@ class TreeTM(object):
 	def ReadRemoveTermsFile( self ):
 		lines = []
 		if self.filenameRemoveTermsPrevAll is not None:
-			with open( self.filenameRemoveTermsPrevAll, 'r' ) as f:
-				lines += f.read().decode('utf-8').splitlines()
+			with open( self.filenameRemoveTermsPrevAll, 'r', encoding='utf-8' ) as f:
+				lines += f.read().splitlines()
 		if self.filenameRemoveTermsPrevNew is not None:
-			with open( self.filenameRemoveTermsPrevNew, 'r') as f:
-				lines += f.read().decode('utf-8').splitlines()
+			with open( self.filenameRemoveTermsPrevNew, 'r', encoding='utf8') as f:
+				lines += f.read().splitlines()
 		self.removeTermsPrev = frozenset(lines)
 		
 	def WriteRemoveTermsFiles( self ):
@@ -511,7 +511,7 @@ class TreeTM(object):
 	def Shell( self, command ):
 		p = subprocess.Popen( command, stdout = subprocess.PIPE, stderr = subprocess.STDOUT )
 		while p.poll() is None:
-			self.logger.debug( p.stdout.readline().rstrip('\n') )
+			self.logger.debug( str(p.stdout.readline(), encoding='utf-8').rstrip('\n') )
 	
 	def PrepareToInspect( self ):
 		assert self.resume

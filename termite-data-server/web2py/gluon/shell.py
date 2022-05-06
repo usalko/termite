@@ -30,7 +30,8 @@ from gluon.dal import BaseAdapter
 
 logger = logging.getLogger("web2py")
 
-def enable_autocomplete_and_history(adir,env):
+
+def enable_autocomplete_and_history(adir, env):
     try:
         import rlcompleter
         import atexit
@@ -41,7 +42,7 @@ def enable_autocomplete_and_history(adir,env):
         readline.parse_and_bind("bind ^I rl_complete"
                                 if sys.platform == 'darwin'
                                 else "tab: complete")
-        history_file = os.path.join(adir,'.pythonhistory')
+        history_file = os.path.join(adir, '.pythonhistory')
         try:
             readline.read_history_file(history_file)
         except IOError:
@@ -90,7 +91,7 @@ def exec_environment(
         if os.path.isfile(pycfile):
             exec(read_pyc(pycfile), env)
         else:
-            execfile(pyfile, env)
+            exec(open(pyfile).read(), env)
     return Storage(env)
 
 
@@ -133,10 +134,10 @@ def env(
                                     request.function)
     if global_settings.cmd_options:
         ip = global_settings.cmd_options.ip
-        port = global_settings.cmd_options.port 
+        port = global_settings.cmd_options.port
     else:
         ip, port = '127.0.0.1', '8000'
-    request.env.http_host = '%s:%s' % (ip,port)
+    request.env.http_host = '%s:%s' % (ip, port)
     request.env.remote_addr = '127.0.0.1'
     request.env.web2py_runtime_gae = global_settings.web2py_runtime_gae
 
@@ -147,8 +148,8 @@ def env(
     if request.args:
         path_info = '%s/%s' % (path_info, '/'.join(request.args))
     if request.vars:
-        vars = ['%s=%s' % (k,v) if v else '%s' % k
-                for (k,v) in request.vars.items()]
+        vars = ['%s=%s' % (k, v) if v else '%s' % k
+                for (k, v) in request.vars.items()]
         path_info = '%s?%s' % (path_info, '&'.join(vars))
     request.env.path_info = path_info
 
@@ -176,7 +177,7 @@ def exec_pythonrc():
     pythonrc = os.environ.get('PYTHONSTARTUP')
     if pythonrc and os.path.isfile(pythonrc):
         def execfile_getlocals(file):
-            execfile(file)
+            exec(open(file).read(), env)
             return locals()
         try:
             return execfile_getlocals(pythonrc)
@@ -186,13 +187,13 @@ def exec_pythonrc():
 
 
 def run(
-    appname,
-    plain=False,
-    import_models=False,
-    startfile=None,
-    bpython=False,
-    python_code=False,
-    cronjob=False):
+        appname,
+        plain=False,
+        import_models=False,
+        startfile=None,
+        bpython=False,
+        python_code=False,
+        cronjob=False):
     """
     Start interactive shell or run Python script (startfile) in web2py
     controller environment. appname is formatted like:
@@ -238,16 +239,17 @@ def run(
         extra_request['args'] = args
     if vars:
         extra_request['vars'] = vars
-    _env = env(a, c=c, f=f, import_models=import_models, extra_request=extra_request)
+    _env = env(a, c=c, f=f, import_models=import_models,
+               extra_request=extra_request)
     if c:
         pyfile = os.path.join('applications', a, 'controllers', c + '.py')
         pycfile = os.path.join('applications', a, 'compiled',
-                                 "controllers_%s_%s.pyc" % (c, f))
+                               "controllers_%s_%s.pyc" % (c, f))
         if ((cronjob and os.path.isfile(pycfile))
-            or not os.path.isfile(pyfile)):
+                or not os.path.isfile(pyfile)):
             exec(read_pyc(pycfile) in _env)
         elif os.path.isfile(pyfile):
-            execfile(pyfile, _env)
+            exec(open(pyfile).read(), env)
         else:
             die(errmsg)
 
@@ -263,7 +265,7 @@ def run(
                 ccode = read_pyc(startfile)
                 exec(ccode, _env)
             else:
-                execfile(startfile, _env)
+                exec(open(startfile).read(), _env)
 
             if import_models:
                 BaseAdapter.close_all_instances('commit')
@@ -317,7 +319,7 @@ def run(
                 except:
                     logger.warning(
                         'import IPython error; use default python shell')
-        enable_autocomplete_and_history(adir,_env)
+        enable_autocomplete_and_history(adir, _env)
         code.interact(local=_env)
 
 
@@ -394,7 +396,7 @@ def test(testpath, import_models=True, verbose=False):
     for testfile in files:
         globs = env(a, import_models)
         ignores = globs.keys()
-        execfile(testfile, globs)
+        exec(open(testfile).read(), globs)
 
         def doctest_object(name, obj):
             """doctest obj and enclosed methods and classes."""
@@ -406,7 +408,7 @@ def test(testpath, import_models=True, verbose=False):
                 # Reload environment before each test.
 
                 globs = env(a, c=c, f=f, import_models=import_models)
-                execfile(testfile, globs)
+                exec(open(testfile).read(), globs)
                 doctest.run_docstring_examples(
                     obj, globs=globs,
                     name='%s: %s' % (os.path.basename(testfile),

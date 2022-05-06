@@ -182,7 +182,7 @@ def read_possible_plural_rules():
     """
     plurals = {}
     try:
-        import web2py.gluon.contrib.plural_rules as package
+        import gluon.contrib.plural_rules as package
         for importer, modname, ispkg in pkgutil.iter_modules(package.__path__):
             if len(modname) == 2:
                 module = __import__(package.__name__ + '.' + modname,

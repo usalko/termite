@@ -1,6 +1,6 @@
 import sys
 from io import StringIO
-import web2py.gluon.contrib.shell
+import gluon.contrib.shell
 import code
 import threading
 import cgi

@@ -309,7 +309,7 @@ class web2pyDialog(object):
         self.button_stop.configure(state='disabled')
 
         if options.taskbar:
-            import web2py.gluon.contrib.taskbar_widget
+            import gluon.contrib.taskbar_widget
             self.tb = gluon.contrib.taskbar_widget.TaskBarIcon()
             self.checkTaskBar()
 
