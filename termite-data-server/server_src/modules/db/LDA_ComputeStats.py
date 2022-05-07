@@ -52,9 +52,17 @@ class LDA_ComputeStats():
 		self.logger.debug( '    Computing topic cooccurrences...' )
 		matrix = [ [0.0] * self.topicCount for _ in range(self.topicCount) ]
 		for docID, topicMixture in self.docsAndTopics.items():
-			for i, iValue in topicMixture.items():
-				for j, jValue in topicMixture.items():
+			i = 0
+			for _, iValue in topicMixture.items():
+				if i >= self.topicCount:
+					break
+				j = 0
+				for _, jValue in topicMixture.items():
+					if j >= self.topicCount:
+						break
 					matrix[i][j] += iValue * jValue
+					j += 1
+				i += 1
 		normalization = 1.0 / self.docCount if self.docCount > 1.0 else 1.0
 		for i in range(self.topicCount):
 			for j in range(self.topicCount):

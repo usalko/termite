@@ -43,24 +43,24 @@ class LDAReader(object):
 		table = self.db.term_topic_matrix
 		query = 'SELECT topic_index, SUM(value) AS topic_freq FROM {} GROUP BY topic_index ORDER BY topic_freq DESC'.format(table)
 		topicTable = self.db.executesql(query, as_dict=True)
-		query = 'SELECT COUNT(DISTINCT topic_index) FROM {}'.format(table)
-		topicCount = self.db.executesql(query)[0][0]
+		query = 'SELECT DISTINCT topic_index FROM {}'.format(table)
+		topicIndexes = [x[0] for x in self.db.executesql(query)]
 
 		self.logger.debug( '    Retrieving top terms and top documents...' )
 		table = self.db.term_topic_matrix
-		topTerms = []
-		for topicIndex in range(topicCount):
+		topTerms = {}
+		for topicIndex in topicIndexes:
 			where = (table.topic_index == topicIndex)
 			orderby = table.rank
 			limitby = (0, LDAReader.TOP_TERMS)
-			topTerms.append([ d.term_index for d in self.db(where).select(table.term_index, orderby=orderby, limitby=limitby) ])
+			topTerms[topicIndex] = [ d.term_index for d in self.db(where).select(table.term_index, orderby=orderby, limitby=limitby) ]
 		table = self.db.doc_topic_matrix
-		topDocs = []
-		for topicIndex in range(topicCount):
+		topDocs = {}
+		for topicIndex in topicIndexes:
 			where = (table.topic_index == topicIndex)
 			orderby = table.rank
 			limitby = (0, LDAReader.TOP_DOCS)
-			topDocs.append([ d.doc_index for d in self.db(where).select(table.doc_index, orderby=orderby, limitby=limitby) ])
+			topDocs[topicIndex] = [ d.doc_index for d in self.db(where).select(table.doc_index, orderby=orderby, limitby=limitby) ]
 
 		self.logger.debug( '    Saving terms...' )
 		for index, d in enumerate(termTable):
@@ -79,8 +79,8 @@ class LDAReader(object):
 		self.logger.debug( '    Saving topics...' )
 		for index, d in enumerate(topicTable):
 			topicIndex = d['topic_index']
-			d['topic_label'] = u', '.join([ self.termList[n] for n in topTerms[topicIndex][:3] ])
-			d['topic_desc'] = u', '.join([ self.termList[n] for n in topTerms[topicIndex][:5] ])
+			d['topic_label'] = ', '.join([ self.termList[n] for n in topTerms[topicIndex][:3] ])
+			d['topic_desc'] = ', '.join([ self.termList[n] for n in topTerms[topicIndex][:5] ])
 			d['top_terms'] = topTerms[topicIndex]
 			d['top_docs'] = topDocs[topicIndex]
 			d['rank'] = index + 1

@@ -2037,9 +2037,9 @@ class BaseAdapter(ConnectionPool, metaclass=AdapterMeta):
             elif not isinstance(obj, (list, tuple)):
                 obj = [obj]
             if field_is_type('list:string'):
-                obj = map(str, obj)
+                obj = list(map(str, obj))
             else:
-                obj = map(int, [o for o in obj if o != ''])
+                obj = list(map(int, [o for o in obj if o != '']))
         # we don't want to bar_encode json objects
         if isinstance(obj, (list, tuple)) and (not fieldtype == "json"):
             obj = bar_encode(obj)
