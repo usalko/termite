@@ -53,7 +53,8 @@ class TicketStorage(Storage):
     def _store_in_db(self, request, ticket_id, ticket_data):
         self.db._adapter.reconnect()
         try:
-            table = self._get_table(self.db, self.tablename, request.application)
+            table = self._get_table(
+                self.db, self.tablename, request.application)
             table.insert(ticket_id=ticket_id,
                          ticket_data=pickle.dumps(ticket_data),
                          created_datetime=request.now)
@@ -61,7 +62,7 @@ class TicketStorage(Storage):
             message = 'In FILE: %(layer)s\n\n%(traceback)s\n'
         except Exception:
             self.db.rollback()
-            message =' Unable to store in FILE: %(layer)s\n\n%(traceback)s\n'
+            message = ' Unable to store in FILE: %(layer)s\n\n%(traceback)s\n'
         self.db.close()
         logger.error(message % ticket_data)
 
@@ -225,7 +226,8 @@ def restricted(code, environment=None, layer='Unknown'):
         raise
     except Exception as error:
 
-        #FIXME: Wrap to the logger
+        # FIXME: Wrap to the logger
+        traceback.print_exc()
         print(error)
 
         # extract the exception type and value (used as output message)
@@ -255,7 +257,8 @@ def snapshot(info=None, context=5, code=None, environment=None):
 
     # create a snapshot dict with some basic information
     s = {}
-    s['pyver'] = 'Python ' + sys.version.split()[0] + ': ' + sys.executable + ' (prefix: %s)' % sys.prefix
+    s['pyver'] = 'Python ' + sys.version.split()[0] + ': ' + sys.executable + \
+        ' (prefix: %s)' % sys.prefix
     s['date'] = time.ctime(time.time())
 
     # start to process frames

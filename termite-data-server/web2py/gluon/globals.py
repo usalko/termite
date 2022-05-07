@@ -876,7 +876,7 @@ class Session(Storage):
                 # Get session data out of the database
                 try:
                     (record_id, unique_key) = response.session_id.split(':')
-                    record_id = long(record_id)
+                    record_id = int(record_id)
                 except (TypeError,ValueError):
                     record_id = None
 
@@ -967,7 +967,7 @@ class Session(Storage):
                 return
             (record_id, sep, unique_key) = response.session_id.partition(':')
 
-            if record_id.isdigit() and long(record_id)>0:
+            if record_id.isdigit() and int(record_id)>0:
                 new_unique_key = web2py_uuid()
                 row = table(record_id)
                 if row and row.unique_key==unique_key:

@@ -2228,10 +2228,10 @@ class BaseAdapter(ConnectionPool, metaclass=AdapterMeta):
         return value
 
     def parse_id(self, value, field_type):
-        return long(value)
+        return int(value)
 
     def parse_integer(self, value, field_type):
-        return long(value)
+        return int(value)
 
     def parse_double(self, value, field_type):
         return float(value)
@@ -3384,7 +3384,7 @@ class OracleAdapter(BaseAdapter):
     def lastrowid(self, table):
         sequence_name = table._sequence_name
         self.execute('SELECT %s.currval FROM dual;' % sequence_name)
-        return long(self.cursor.fetchone()[0])
+        return int(self.cursor.fetchone()[0])
 
     # def parse_value(self, value, field_type, blob_decode=True):
     #    if blob_decode and isinstance(value, cx_Oracle.LOB):
@@ -3562,7 +3562,7 @@ class MSSQLAdapter(BaseAdapter):
     def lastrowid(self, table):
         #self.execute('SELECT @@IDENTITY;')
         self.execute('SELECT SCOPE_IDENTITY();')
-        return long(self.cursor.fetchone()[0])
+        return int(self.cursor.fetchone()[0])
 
     def rowslice(self, rows, minimum=0, maximum=None):
         if maximum is None:
@@ -3759,7 +3759,7 @@ class VerticaAdapter(MSSQLAdapter):
 
     def lastrowid(self, table):
         self.execute('SELECT LAST_INSERT_ID();')
-        return long(self.cursor.fetchone()[0])
+        return int(self.cursor.fetchone()[0])
 
     def execute(self, a):
         return self.log_execute(a)
@@ -3988,7 +3988,7 @@ class FireBirdAdapter(BaseAdapter):
     def lastrowid(self, table):
         sequence_name = table._sequence_name
         self.execute('SELECT gen_id(%s, 0) FROM rdb$database' % sequence_name)
-        return long(self.cursor.fetchone()[0])
+        return int(self.cursor.fetchone()[0])
 
 
 class FireBirdEmbeddedAdapter(FireBirdAdapter):
@@ -4255,7 +4255,7 @@ class DB2Adapter(BaseAdapter):
 
     def lastrowid(self, table):
         self.execute('SELECT DISTINCT IDENTITY_VAL_LOCAL() FROM %s;' % table)
-        return long(self.cursor.fetchone()[0])
+        return int(self.cursor.fetchone()[0])
 
     def rowslice(self, rows, minimum=0, maximum=None):
         if maximum is None:
@@ -4453,7 +4453,7 @@ class IngresAdapter(BaseAdapter):
         tmp_seqname = '%s_iisq' % table
         self.execute('select current value for %s' % tmp_seqname)
         # don't really need int type cast here...
-        return long(self.cursor.fetchone()[0])
+        return int(self.cursor.fetchone()[0])
 
 
 class IngresUnicodeAdapter(IngresAdapter):
@@ -4582,7 +4582,7 @@ class SAPDBAdapter(BaseAdapter):
 
     def lastrowid(self, table):
         self.execute("select %s.NEXTVAL from dual" % table._sequence_name)
-        return long(self.cursor.fetchone()[0])
+        return int(self.cursor.fetchone()[0])
 
 
 class CubridAdapter(MySQLAdapter):
@@ -4836,13 +4836,13 @@ class NoSQLAdapter(BaseAdapter):
             if isinstance(obj, list) and not is_list:
                 obj = [self.represent(o, fieldtype) for o in obj]
             elif fieldtype in ('integer', 'bigint', 'id'):
-                obj = long(obj)
+                obj = int(obj)
             elif fieldtype == 'double':
                 obj = float(obj)
             elif is_string and field_is_type('reference'):
                 if isinstance(obj, (Row, Reference)):
                     obj = obj['id']
-                obj = long(obj)
+                obj = int(obj)
             elif fieldtype == 'boolean':
                 if obj and not str(obj)[0].upper() in '0F':
                     obj = True
@@ -5175,35 +5175,35 @@ class GoogleDatastoreAdapter(NoSQLAdapter):
             return [GAEF(first.name, '!=', self.represent(second, first.type), lambda a, b:a != b)]
         else:
             if not second is None:
-                second = Key.from_path(first._tablename, long(second))
+                second = Key.from_path(first._tablename, int(second))
             return [GAEF(first.name, '!=', second, lambda a, b:a != b)]
 
     def LT(self, first, second=None):
         if first.type != 'id':
             return [GAEF(first.name, '<', self.represent(second, first.type), lambda a, b:a < b)]
         else:
-            second = Key.from_path(first._tablename, long(second))
+            second = Key.from_path(first._tablename, int(second))
             return [GAEF(first.name, '<', second, lambda a, b:a < b)]
 
     def LE(self, first, second=None):
         if first.type != 'id':
             return [GAEF(first.name, '<=', self.represent(second, first.type), lambda a, b:a <= b)]
         else:
-            second = Key.from_path(first._tablename, long(second))
+            second = Key.from_path(first._tablename, int(second))
             return [GAEF(first.name, '<=', second, lambda a, b:a <= b)]
 
     def GT(self, first, second=None):
         if first.type != 'id' or second == 0 or second == '0':
             return [GAEF(first.name, '>', self.represent(second, first.type), lambda a, b:a > b)]
         else:
-            second = Key.from_path(first._tablename, long(second))
+            second = Key.from_path(first._tablename, int(second))
             return [GAEF(first.name, '>', second, lambda a, b:a > b)]
 
     def GE(self, first, second=None):
         if first.type != 'id':
             return [GAEF(first.name, '>=', self.represent(second, first.type), lambda a, b:a >= b)]
         else:
-            second = Key.from_path(first._tablename, long(second))
+            second = Key.from_path(first._tablename, int(second))
             return [GAEF(first.name, '>=', second, lambda a, b:a >= b)]
 
     def INVERT(self, first):
@@ -5641,7 +5641,7 @@ class CouchDBAdapter(NoSQLAdapter):
             return fd == 'id' and '_id' or fd
 
         def get(row, fd):
-            return fd == 'id' and long(row['_id']) or row.get(fd, None)
+            return fd == 'id' and int(row['_id']) or row.get(fd, None)
         fields = new_fields
         tablename = self.get_table(query)
         fieldnames = [f.name for f in (fields or self.db[tablename])]
@@ -5853,13 +5853,13 @@ class MongoDBAdapter(NoSQLAdapter):
     def parse_reference(self, value, field_type):
         # here we have to check for ObjectID before base parse
         if isinstance(value, self.ObjectId):
-            value = long(str(value), 16)
+            value = int(str(value), 16)
         return super(MongoDBAdapter,
                      self).parse_reference(value, field_type)
 
     def parse_id(self, value, field_type):
         if isinstance(value, self.ObjectId):
-            value = long(str(value), 16)
+            value = int(str(value), 16)
         return super(MongoDBAdapter,
                      self).parse_id(value, field_type)
 
@@ -5920,7 +5920,7 @@ class MongoDBAdapter(NoSQLAdapter):
         if not isinstance(query, Query):
             raise SyntaxError("Not Supported")
         tablename = self.get_table(query)
-        return long(self.select(query, [self.db[tablename]._id], {},
+        return int(self.select(query, [self.db[tablename]._id], {},
                                 count=True, snapshot=snapshot)['count'])
         # Maybe it would be faster if we just implemented the pymongo
         # .count() function which is probably quicker?
@@ -6086,7 +6086,7 @@ class MongoDBAdapter(NoSQLAdapter):
                 values[fieldname] = self.represent(v, fieldtype)
 
         ctable.insert(values, safe=safe)
-        return long(str(values['_id']), 16)
+        return int(str(values['_id']), 16)
 
     def update(self, tablename, query, fields, safe=None):
         if safe == None:
@@ -6855,7 +6855,7 @@ class IMAPAdapter(NoSQLAdapter):
                                 "fetch", uid, imap_fields)
                             if typ == "OK":
                                 fr = {"message": int(data[0][0].split()[0]),
-                                      "uid": long(uid),
+                                      "uid": int(uid),
                                       "email": email.message_from_string(data[0][1]),
                                       "raw_message": data[0][1]}
                                 fr["multipart"] = fr["email"].is_multipart()
@@ -7608,7 +7608,7 @@ class Row(object):
 
     def __int__(self): return object.__getattribute__(self, 'id')
 
-    def __long__(self): return long(object.__getattribute__(self, 'id'))
+    def __long__(self): return int(object.__getattribute__(self, 'id'))
 
     __getattr__ = __getitem__
 
@@ -7647,7 +7647,7 @@ class Row(object):
             elif isinstance(v, Row):
                 d[k] = v.as_dict()
             elif isinstance(v, Reference):
-                d[k] = long(v)
+                d[k] = int(v)
             elif isinstance(v, decimal.Decimal):
                 d[k] = float(v)
             elif isinstance(v, (datetime.date, datetime.datetime, datetime.time)):
@@ -8416,8 +8416,8 @@ def index():
                                     'error': 'I\'m a teapot', 'response': None})
                     try:
                         distinct = vars.get('distinct', False) == 'True'
-                        offset = long(vars.get('offset', None) or 0)
-                        limits = (offset, long(
+                        offset = int(vars.get('offset', None) or 0)
+                        limits = (offset, int(
                             vars.get('limit', None) or 1000)+offset)
                     except ValueError:
                         return Row({'status': 400, 'error': 'invalid limits', 'response': None})
@@ -8453,8 +8453,8 @@ def index():
                                   if field.readable]
                     count = dbset.count()
                     try:
-                        offset = long(vars.get('offset', None) or 0)
-                        limits = (offset, long(
+                        offset = int(vars.get('offset', None) or 0)
+                        limits = (offset, int(
                             vars.get('limit', None) or 1000)+offset)
                     except ValueError:
                         return Row({'status': 400, 'error': 'invalid limits', 'response': None})
@@ -8766,7 +8766,7 @@ def index():
                                     if not field.table == thistable]
 
     def export_to_csv_file(self, ofile, *args, **kwargs):
-        step = long(kwargs.get('max_fetch_rows,', 500))
+        step = int(kwargs.get('max_fetch_rows,', 500))
         write_colnames = kwargs['write_colnames'] = \
             kwargs.get("write_colnames", True)
         for table in self.tables:
@@ -8849,11 +8849,11 @@ class Reference(long):
             self._record = self._table[long(self)]
         if not self._record:
             raise RuntimeError(
-                "Using a recursive select but encountered a broken reference: %s %d" % (self._table, long(self)))
+                "Using a recursive select but encountered a broken reference: %s %d" % (self._table, int(self)))
 
     def __getattr__(self, key):
         if key == 'id':
-            return long(self)
+            return int(self)
         if key in self._table:
             self.__allocate()
         if self._record:
@@ -8874,7 +8874,7 @@ class Reference(long):
 
     def __getitem__(self, key):
         if key == 'id':
-            return long(self)
+            return int(self)
         self.__allocate()
         return self._record.get(key, None)
 
@@ -8891,7 +8891,7 @@ def Reference_pickler(data):
     try:
         marshal_dump = marshal.dumps(long(data))
     except AttributeError:
-        marshal_dump = 'i%s' % struct.pack('<i', long(data))
+        marshal_dump = 'i%s' % struct.pack('<i', int(data))
     return (Reference_unpickler, (marshal_dump,))
 
 
@@ -9595,7 +9595,7 @@ class Table(object):
                 if not value.strip():
                     value = None
                 else:
-                    value = long(value)
+                    value = int(value)
             elif field.type.startswith('list:string'):
                 value = bar_decode_string(value)
             elif field.type.startswith(list_reference_s):
@@ -9652,7 +9652,7 @@ class Table(object):
                                            % (lineno+1, field, line[i]))
 
                 if not (id_map or cid is None or id_offset is None or unique_idx):
-                    csv_id = long(line[cid])
+                    csv_id = int(line[cid])
                     curr_id = self.insert(**dict(items))
                     if first:
                         first = False
@@ -11457,7 +11457,7 @@ class Rows(object):
             elif isinstance(value, str):
                 return value.encode('utf8')
             elif isinstance(value, Reference):
-                return long(value)
+                return int(value)
             elif hasattr(value, 'isoformat'):
                 return value.isoformat()[:19].replace('T', ' ')
             elif isinstance(value, (list, tuple)):  # for type='list:..'

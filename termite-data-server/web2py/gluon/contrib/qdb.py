@@ -611,7 +611,7 @@ class Frontend(object):
             elif 'result' not in res:
                 # nested request received (i.e. readline)! process it!
                 self.process_message(res)
-            elif long(req['id']) != long(res['id']):
+            elif int(req['id']) != int(res['id']):
                 print("DEBUGGER wrong packet received: expecting id", req[
                     'id'], res['id'])
                 # protocol state is unknown

@@ -284,7 +284,7 @@ def convert_int(connection, field, data):
     return int(data)
 
 def convert_long(connection, field, data):
-    return long(data)
+    return int(data)
 
 def convert_float(connection, field, data):
     return float(data)

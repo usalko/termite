@@ -981,7 +981,7 @@ class Client(local):
         elif flags & Client._FLAG_INTEGER:
             val = int(buf)
         elif flags & Client._FLAG_LONG:
-            val = long(buf)
+            val = int(buf)
         elif flags & Client._FLAG_PICKLE:
             try:
                 file = StringIO(buf)
@@ -1211,7 +1211,7 @@ if __name__ == "__main__":
 
         test_setget("a_string", "some random string")
         test_setget("an_integer", 42)
-        if test_setget("long", long(1<<30)):
+        if test_setget("long", int(1<<30)):
             print "Testing delete ...",
             if mc.delete("long"):
                 print "OK"
