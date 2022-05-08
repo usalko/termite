@@ -2126,14 +2126,14 @@ class BaseAdapter(ConnectionPool, metaclass=AdapterMeta):
         """
         return rows
 
-    def parse_value(self, value, field_type, blob_decode=True):
-        if field_type != 'blob' and isinstance(value, str):
+    def parse_value(self, value, field_type, blob_decode=True): # IMPORTANT
+        if field_type != 'blob' and isinstance(value, bytes):
             try:
                 value = value.decode(self.db._db_codec)
             except Exception:
                 pass
         if isinstance(value, str):
-            value = value.encode('utf-8')
+            value = value
         if isinstance(field_type, SQLCustomType):
             value = field_type.decoder(value)
         if not isinstance(field_type, str) or value is None:
@@ -7634,13 +7634,13 @@ class Row(object):
         return Row(dict(self))
 
     def as_dict(self, datetime_to_str=False, custom_types=None):
-        SERIALIZABLE_TYPES = [str, unicode, int, long, float, bool, list, dict]
+        SERIALIZABLE_TYPES = [str, bytes, int, float, bool, list, dict]
         if isinstance(custom_types, (list, tuple, set)):
             SERIALIZABLE_TYPES += custom_types
         elif custom_types:
             SERIALIZABLE_TYPES.append(custom_types)
         d = dict(self)
-        for k in copy.copy(d.keys()):
+        for k in list(d.keys())[:]:
             v = d[k]
             if d[k] is None:
                 continue

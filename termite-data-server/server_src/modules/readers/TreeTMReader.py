@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-from LDAReader import LDAReader
+from .LDAReader import LDAReader
 
 class TreeTMReader(LDAReader):
 	"""

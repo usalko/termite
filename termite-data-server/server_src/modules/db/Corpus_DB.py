@@ -312,9 +312,9 @@ class Corpus_DB():
         def WriteFile(rows):
             with open(filename, 'w') as f:
                 for row in rows:
-                    doc_id = row.doc_id.decode('utf-8')
+                    doc_id = row.doc_id
                     doc_content = self.SanitizeText(
-                        row.doc_content.decode('utf-8'))
+                        row.doc_content)
                     f.write(u'{}\t{}\n'.format(
                         doc_id, doc_content))
 
@@ -342,11 +342,11 @@ class Corpus_DB():
                     doc_index = row.doc_index
                     doc_id = row.doc_id
                     doc_content = self.SanitizeText(
-                        row.doc_content.decode('utf-8'))
+                        row.doc_content)
                     values = [u''] * field_count
                     for d in self.db(self.db.metadata.doc_index == doc_index).select(self.db.metadata.field_index, self.db.metadata.value):
                         values[d.field_index] = self.SanitizeText(
-                            d.value.decode('utf-8'))
+                            d.value)
                     all_values = [doc_id, doc_content] + values
                     writer.writerow(all_values)
 
@@ -358,11 +358,11 @@ class Corpus_DB():
                     doc_index = row.doc_index
                     doc_id = row.doc_id
                     doc_content = self.SanitizeText(
-                        row.doc_content.decode('utf-8'))
+                        row.doc_content)
                     values = [u''] * field_count
                     for d in self.db(self.db.metadata.doc_index == doc_index).select(self.db.metadata.field_index, self.db.metadata.value):
                         values[d.field_index] = self.SanitizeText(
-                            d.value.decode('utf-8'))
+                            d.value)
                     all_values = [doc_id, doc_content] + values
                     f.write(u'{}\n'.format(u'\t'.join(
                         all_values)).encode('utf-8', 'ignore'))

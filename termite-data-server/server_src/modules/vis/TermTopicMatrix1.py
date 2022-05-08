@@ -54,8 +54,11 @@ class TermTopicMatrix1(Home_Core):
 			ORDER BY t.rank""".format(TABLE = table, REF = ref, UB = termLimit)
 		rows = self.lda.executesql(query, as_dict=True)
 		matrix = [ [0.0] * topicCount for _ in range(termLimit) ]
+		topic_number = 0
 		for row in rows:
-			matrix[row['term_rank']-1][row['topic_index']] = row['value']
+			# matrix[row['term_rank']-1][row['topic_index']] = row['value']
+			matrix[row['term_rank']-1][topic_number] = row['value']
+			topic_number += 1
 		data['matrix'] = matrix
 		return data
 
@@ -84,8 +87,10 @@ class TermTopicMatrix1(Home_Core):
 			ORDER BY t.rank""".format(TABLE = table, REF = ref, UB = termLimit)
 		rows = self.lda.executesql(query, as_dict=True)
 		matrix = [ [0.0] * topicCount for _ in range(termLimit) ]
+		topic_number = 0
 		for row in rows:
-			matrix[row['term_rank']-1][row['topic_index']] = row['value']
+			# matrix[row['term_rank']-1][row['topic_index']] = row['value']
+			matrix[row['term_rank']-1][topic_number] = row['value']
 		termDistinctiveness = {}
 		termSaliency = {}
 		for i, row in enumerate(matrix):

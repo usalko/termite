@@ -10,3 +10,5 @@ for folder in `find . -name sessions | awk '{ print $0"/" }'`; do
 	echo Clear sessions in $folder
     	rm -fr $folder/*
 done
+
+rm -fr ./apps/temp_*

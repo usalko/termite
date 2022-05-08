@@ -4,7 +4,7 @@
 import json
 import os
 import subprocess
-from LDAReader import LDAReader
+from .LDAReader import LDAReader
 
 class STMReader(LDAReader):
 	"""

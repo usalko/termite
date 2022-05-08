@@ -227,8 +227,7 @@ def restricted(code, environment=None, layer='Unknown'):
     except Exception as error:
 
         # FIXME: Wrap to the logger
-        traceback.print_exc()
-        print(error)
+        traceback.print_exception(type(error), value=error, tb=error.__traceback__, file=sys.stdout)
 
         # extract the exception type and value (used as output message)
         etype, evalue, tb = sys.exc_info()

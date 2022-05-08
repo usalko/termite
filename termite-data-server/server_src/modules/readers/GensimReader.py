@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from gensim import corpora, models
-from LDAReader import LDAReader
+from .LDAReader import LDAReader
 
 class GensimReader(LDAReader):
 	"""

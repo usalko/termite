@@ -9,6 +9,7 @@
 
 import re
 import cgi
+import html
 
 __all__ = ['highlight']
 

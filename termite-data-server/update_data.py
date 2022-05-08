@@ -130,7 +130,12 @@ def process_spreadsheet(spreadsheet: str, datasets_folder: str):
 
     # Import
     executable = 'bin/read_{}.py'.format(model)
-    command = [executable, dataset_name, model_folder,
+    application_name = dataset_name
+    # Overwrite application
+    application_folder = os.path.join(os.path.abspath('apps'), application_name)
+    if os.path.exists(application_folder):
+        shutil.rmtree(application_folder)
+    command = [executable, application_name, model_folder,
                 corpus_folder, corpus_folder]
     if is_quiet:
         command.append('--quiet')

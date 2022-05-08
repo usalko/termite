@@ -143,8 +143,8 @@ def app_compile(app, request):
     try:
         compile_application(folder)
         return None
-    except (Exception, RestrictedError):
-        tb = traceback.format_exc(sys.exc_info)
+    except (Exception, RestrictedError) as e:
+        tb = traceback.format_exception(e)
         remove_compiled_application(folder)
         return tb
 
@@ -333,7 +333,7 @@ def check_new_version(myversion, version_url):
 
     """
     try:
-        from urllib import urlopen
+        from urllib.request import urlopen
         version = urlopen(version_url).read()
         pversion = parse_version(version)
         pmyversion = parse_version(myversion)

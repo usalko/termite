@@ -128,13 +128,13 @@ def xmlescape(data, quote=True):
         return data.xml()
 
     # otherwise, make it a string
-    if not isinstance(data, (str, str)):
+    if not isinstance(data, (str, bytes)):
         data = str(data)
-    elif isinstance(data, str):
+    elif isinstance(data, bytes):
         data = data.encode('utf8', 'xmlcharrefreplace')
 
     # ... and do the escaping
-    data = html.escape(str(data, encoding='utf-8'), quote).replace("'", "&#x27;")
+    data = html.escape(data, quote).replace("'", "&#x27;")
     return data
 
 def call_as_list(f,*a,**b):
@@ -597,9 +597,9 @@ class XML(XmlComponent):
 
         if sanitize:
             text = gluon.sanitizer.sanitize(text, permitted_tags, allowed_attributes)
-        if isinstance(text, str):
+        if isinstance(text, bytes):
             text = text.encode('utf8', 'xmlcharrefreplace')
-        elif not isinstance(text, str):
+        elif not isinstance(text, bytes):
             text = str(text)
         self.text = text
 

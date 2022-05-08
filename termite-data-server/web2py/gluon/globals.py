@@ -439,7 +439,7 @@ class Response(Storage):
         response.cache_includes = (cache_method, time_expire).
         Example: (cache.disk, 60) # caches to disk for 1 minute.
         """
-        from gluon import URL
+        from gluon.html import URL
 
         files = []
         has_js = has_css = False

@@ -103,15 +103,15 @@ def markmin(s):
 
 
 def upper_fun(s):
-    return str(s, 'utf-8').upper().encode('utf-8')
+    return str(s, 'utf-8').upper()
 
 
 def title_fun(s):
-    return str(s, 'utf-8').title().encode('utf-8')
+    return str(s, 'utf-8').title()
 
 
 def cap_fun(s):
-    return str(s, 'utf-8').capitalize().encode('utf-8')
+    return str(s, 'utf-8').capitalize()
 ttab_in = str.maketrans("\\%{}", '\x1c\x1d\x1e\x1f')
 ttab_out = str.maketrans('\x1c\x1d\x1e\x1f', "\\%{}")
 
@@ -787,9 +787,9 @@ class translator(object):
         the ## notation is ignored in multiline strings and strings that
         start with ##. This is needed to allow markmin syntax to be translated
         """
-        if isinstance(message, str):
+        if isinstance(message, bytes):
             message = message.encode('utf8')
-        if isinstance(prefix, str):
+        if isinstance(prefix, bytes):
             prefix = prefix.encode('utf8')
         key = prefix + message
         mt = self.t.get(key, None)
@@ -798,7 +798,7 @@ class translator(object):
         # we did not find a translation
         if str(message).find('##') >= 0 and not '\n' in message:
             # remove comments
-            message = str(str(message).rsplit('##', 1)[0]).encode('utf8')
+            message = str(str(message).rsplit('##', 1)[0])
         # guess translation same as original
         self.t[key] = mt = self.default_t.get(key, message)
         # update language file for latter translation

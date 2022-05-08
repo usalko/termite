@@ -25,7 +25,7 @@ class BOW_ComputeStats():
         self.stopwords = self.LoadStopwords(
             STOPWORDS if STOPWORDS is not None else BOW_ComputeStats.DEFAULT_STOPWORDS)
 
-        self.tokenRegexStr = str(self.corpusDB.GetOption('token_regex'), encoding='utf-8')
+        self.tokenRegexStr = self.corpusDB.GetOption('token_regex')
         self.tokenRegex = re.compile(self.tokenRegexStr)
         self.minFreq = int(self.corpusDB.GetOption('min_freq'))
         self.minDocFreq = int(self.corpusDB.GetOption('min_doc_freq'))

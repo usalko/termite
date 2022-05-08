@@ -5,3 +5,8 @@ pygraphviz
 #pyme
 pymysql
 gensim
+# admin tools
+mercurial
+# installation issue: possible solution, sudo apt install libre2-dev
+# re2
+GitPython
