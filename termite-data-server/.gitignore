@@ -27,3 +27,6 @@
 .venv
 
 ./dataset_src/uploads
+errors
+sessions/*
+/apps
